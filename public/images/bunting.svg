@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 90" width="900" height="90" preserveAspectRatio="none">
+  <line x1="0" y1="8" x2="900" y2="8" stroke="#3b2c1f" stroke-width="2" stroke-opacity="0.35"/>
+  <g>
+    <polygon points="10,8 55,8 32,70" fill="#6a4a8a"/>
+    <polygon points="65,8 110,8 87,66" fill="#2c7a6d"/>
+    <polygon points="120,8 165,8 142,74" fill="#d99a2b"/>
+    <polygon points="175,8 220,8 197,64" fill="#a63a2e"/>
+    <polygon points="230,8 275,8 252,72" fill="#c76a8a"/>
+    <polygon points="285,8 330,8 307,68" fill="#6a4a8a"/>
+    <polygon points="340,8 385,8 362,74" fill="#2c7a6d"/>
+    <polygon points="395,8 440,8 417,64" fill="#d99a2b"/>
+    <polygon points="450,8 495,8 472,70" fill="#a63a2e"/>
+    <polygon points="505,8 550,8 527,66" fill="#c76a8a"/>
+    <polygon points="560,8 605,8 582,72" fill="#6a4a8a"/>
+    <polygon points="615,8 660,8 637,64" fill="#2c7a6d"/>
+    <polygon points="670,8 715,8 692,74" fill="#d99a2b"/>
+    <polygon points="725,8 770,8 747,68" fill="#a63a2e"/>
+    <polygon points="780,8 825,8 802,70" fill="#c76a8a"/>
+    <polygon points="835,8 880,8 857,64" fill="#6a4a8a"/>
+  </g>
+</svg>

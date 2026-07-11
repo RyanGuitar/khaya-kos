@@ -1,0 +1,132 @@
+{
+  "categories": [
+    {
+      "id": "menu",
+      "eyebrow": "Saterdag menu",
+      "title": "This Week's Bake",
+      "subtitle": "Everything below is made by hand in small batches. WhatsApp your order before Friday evening to make sure it's saved for you.",
+      "items": [
+        {
+          "id": "cappuccino-muffins",
+          "name": "Cappuccino Muffins",
+          "description": "Coffee-swirled sponge, whipped topping\nBaked fresh every Saturday morning",
+          "price": 18,
+          "image": "/images/cappuccino-muffins.svg",
+          "ribbon": "navy"
+        },
+        {
+          "id": "poppyseed-muffins",
+          "name": "Poppyseed Muffins",
+          "description": "Lemon-poppyseed crumb, soft all week\nA market favourite \u2014 sells out fast",
+          "price": 18,
+          "image": "/images/poppyseed-muffins.svg",
+          "ribbon": "teal"
+        },
+        {
+          "id": "carrot-cake-muffins",
+          "name": "Carrot Cake Muffins",
+          "description": "Cream cheese icing, toasted walnut\nMade with fresh farm carrots",
+          "price": 20,
+          "image": "/images/carrot-cake-muffins.svg",
+          "ribbon": "purple"
+        },
+        {
+          "id": "other-treats",
+          "name": "Other Treats",
+          "description": "Melktert\nKlein koekies\nChocolate cake (slices)",
+          "price": 22,
+          "image": "/images/other-treats.svg",
+          "ribbon": "pink"
+        },
+        {
+          "id": "samosas",
+          "name": "Samosas",
+          "description": "Chicken\nMince\nCheese and corn",
+          "price": 12,
+          "image": "/images/samosas.svg",
+          "ribbon": "red"
+        },
+        {
+          "id": "pies",
+          "name": "Pies",
+          "description": "Chicken and mushroom pies\nPlain chicken pies",
+          "price": 28,
+          "image": "/images/pies.svg",
+          "ribbon": "brown"
+        },
+        {
+          "id": "cheese-trunks",
+          "name": "Cheese Trunks",
+          "description": "Golden, flaky pastry\nMelted cheese filling",
+          "price": 18,
+          "image": "/images/cheese-trunks.svg",
+          "ribbon": "green"
+        },
+        {
+          "id": "scones",
+          "name": "Scones",
+          "description": "Cheese\nPlain",
+          "price": 15,
+          "image": "/images/scones.svg",
+          "ribbon": "navy"
+        },
+        {
+          "id": "vetkoek",
+          "name": "Homemade Vetkoek",
+          "description": "Soft inside, golden outside\nA Saturday morning must-have",
+          "price": 15,
+          "image": "/images/vetkoek.svg",
+          "ribbon": "brown"
+        },
+        {
+          "id": "dried-fruit-nuts",
+          "name": "Dried Fruit & Nuts",
+          "description": "A rotating seasonal selection\nGreat for snacking or gifting",
+          "price": 35,
+          "image": "/images/dried-fruit-nuts.svg",
+          "ribbon": "purple"
+        },
+        {
+          "id": "kiddies-menu",
+          "name": "Kiddies Menu",
+          "description": "Prawn chips\nPopcorn\nCupcakes",
+          "price": 10,
+          "image": "/images/kiddies-menu.svg",
+          "ribbon": "navy"
+        }
+      ]
+    },
+    {
+      "id": "extras",
+      "eyebrow": "Also at the stall",
+      "title": "Clothing, Socks & Scarves",
+      "subtitle": "Alongside the baking, Khaya Kos also has a small selection of new and preloved clothing, socks and scarves \u2014 worth a browse while you wait for your order.",
+      "items": [
+        {
+          "id": "clothing",
+          "name": "New & Preloved Clothing",
+          "description": "A changing rack of new and gently-loved finds\nSizes and stock vary week to week",
+          "price": 0,
+          "image": "/images/clothing.svg",
+          "ribbon": "green"
+        },
+        {
+          "id": "socks",
+          "name": "Socks",
+          "description": "Colourful everyday pairs\nGreat stocking-filler stop",
+          "price": 25,
+          "image": "/images/socks.svg",
+          "ribbon": "purple"
+        },
+        {
+          "id": "scarves",
+          "name": "Scarves",
+          "description": "Soft, warm patterns for the cooler months\nMet liefde gemaak, vir jou \ud83d\udc99",
+          "price": 60,
+          "image": "/images/scarves.svg",
+          "ribbon": "navy"
+        }
+      ]
+    }
+  ]
+}
