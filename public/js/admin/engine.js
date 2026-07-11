@@ -40,7 +40,10 @@ function closeLoginModal() {
 function updateLoginButton() {
   const btn = document.getElementById("owner-login-btn");
   if (!btn) return;
-  btn.textContent = isAdmin ? "🔓 Exit Edit Mode" : "🔒 Owner Login";
+  const icon = btn.querySelector(".btn-icon");
+  const label = btn.querySelector(".btn-label");
+  if (icon) icon.textContent = isAdmin ? "🔓" : "🔒";
+  if (label) label.textContent = isAdmin ? "Exit Edit Mode" : "Owner Login";
   btn.classList.toggle("is-admin", isAdmin);
 }
 
@@ -59,7 +62,9 @@ function wireEvents() {
     }
   });
 
-  document.getElementById("login-cancel-btn")?.addEventListener("click", closeLoginModal);
+  document
+    .getElementById("login-cancel-btn")
+    ?.addEventListener("click", closeLoginModal);
 
   document.getElementById("login-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -69,22 +74,24 @@ function wireEvents() {
   });
 
   // Hidden file input used for photo uploads.
-  document.getElementById("admin-photo-input")?.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    e.target.value = "";
-    if (!file || !pendingPhotoTarget) return;
+  document
+    .getElementById("admin-photo-input")
+    ?.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file || !pendingPhotoTarget) return;
 
-    try {
-      const dataUrl = await fileToCompressedDataUrl(file);
-      const { categoryId, itemId } = pendingPhotoTarget;
-      store.applyUpdate(categoryId, itemId, "image", dataUrl);
-      render();
-      sync.updateProduct(categoryId, itemId, "image", dataUrl);
-    } catch (err) {
-      showToast(err.message || "Could not process that photo.");
-    }
-    pendingPhotoTarget = null;
-  });
+      try {
+        const dataUrl = await fileToCompressedDataUrl(file);
+        const { categoryId, itemId } = pendingPhotoTarget;
+        store.applyUpdate(categoryId, itemId, "image", dataUrl);
+        render();
+        sync.updateProduct(categoryId, itemId, "image", dataUrl);
+      } catch (err) {
+        showToast(err.message || "Could not process that photo.");
+      }
+      pendingPhotoTarget = null;
+    });
 
   // Delegated clicks across the whole document: delete, add, change-photo.
   document.addEventListener("click", (e) => {
@@ -109,7 +116,10 @@ function wireEvents() {
 
     const photoBtn = e.target.closest('[data-action="change-photo"]');
     if (photoBtn) {
-      pendingPhotoTarget = { categoryId: photoBtn.dataset.category, itemId: photoBtn.dataset.item };
+      pendingPhotoTarget = {
+        categoryId: photoBtn.dataset.category,
+        itemId: photoBtn.dataset.item,
+      };
       document.getElementById("admin-photo-input")?.click();
       return;
     }
@@ -132,7 +142,10 @@ function wireEvents() {
 
   // Prevent Enter from adding a line break in the single-line name field.
   document.addEventListener("keydown", (e) => {
-    if (e.target.matches("[data-editable][data-field='name']") && e.key === "Enter") {
+    if (
+      e.target.matches("[data-editable][data-field='name']") &&
+      e.key === "Enter"
+    ) {
       e.preventDefault();
       e.target.blur();
     }
@@ -144,7 +157,8 @@ function wireEvents() {
     if (field !== "price" && field !== "description") return;
 
     const { category, item } = e.target.dataset;
-    const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
+    const value =
+      field === "price" ? Number(e.target.value) || 0 : e.target.value;
 
     store.applyUpdate(category, item, field, value);
     sync.updateProduct(category, item, field, value);
@@ -175,10 +189,15 @@ function wireSync() {
   });
 
   sync.on("auth-result", (msg) => {
-    const submitBtn = document.querySelector("#login-form button[type='submit']");
+    const submitBtn = document.querySelector(
+      "#login-form button[type='submit']"
+    );
     if (msg.success) {
       isAdmin = true;
-      sessionStorage.setItem("khayaKosAdminPw", document.getElementById("login-password-input").value);
+      sessionStorage.setItem(
+        "khayaKosAdminPw",
+        document.getElementById("login-password-input").value
+      );
       closeLoginModal();
       updateLoginButton();
       render();
