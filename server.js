@@ -77,9 +77,14 @@ async function loadState() {
         console.log("✅ Loaded product state from Upstash Redis");
         return;
       }
-      console.log("ℹ️  No product state in Redis yet — seeding it from data/products.json");
+      console.log(
+        "ℹ️  No product state in Redis yet — seeding it from data/products.json"
+      );
     } catch (err) {
-      console.error("⚠️  Could not reach Upstash Redis, falling back to seed file:", err.message);
+      console.error(
+        "⚠️  Could not reach Upstash Redis, falling back to seed file:",
+        err.message
+      );
     }
   }
 
@@ -92,7 +97,10 @@ async function loadState() {
       await persistState();
     }
   } catch (err) {
-    console.error("⚠️  Could not load seed file either, starting empty:", err.message);
+    console.error(
+      "⚠️  Could not load seed file either, starting empty:",
+      err.message
+    );
     state = { categories: [] };
   }
 }
@@ -110,7 +118,10 @@ function persistState() {
       try {
         await redisSet(REDIS_KEY, JSON.stringify(state));
       } catch (err) {
-        console.error("❌ Failed to persist product state to Redis:", err.message);
+        console.error(
+          "❌ Failed to persist product state to Redis:",
+          err.message
+        );
       }
       resolve();
     }, 250);
@@ -136,7 +147,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-app.get("/", async (req, res) => {
+async function renderIndex(req, res) {
   try {
     const template = await fs.readFile(INDEX_TEMPLATE, "utf-8");
     const html = template.replace(
@@ -149,7 +160,12 @@ app.get("/", async (req, res) => {
     console.error("Failed to render index.html:", err.message);
     res.status(500).send("Something went wrong loading the page.");
   }
-});
+}
+
+// Both paths need the dynamic handler — express.static would otherwise
+// serve the raw, unprocessed template for anyone who lands on /index.html
+// directly (a bookmark, a shared link, or just typing the full URL).
+app.get(["/", "/index.html"], renderIndex);
 
 // index:false stops this from auto-serving public/index.html for "/" —
 // that route is handled above so the live state can be injected first.
@@ -192,23 +208,42 @@ wss.on("connection", (ws) => {
 
       case "product-update": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." })
+          );
           return;
         }
         const { categoryId, itemId, field, value } = data;
-        const allowedFields = ["name", "description", "price", "image", "ribbon"];
+        const allowedFields = [
+          "name",
+          "description",
+          "price",
+          "image",
+          "ribbon",
+        ];
         const item = findItem(categoryId, itemId);
         if (!item || !allowedFields.includes(field)) return;
 
         item[field] = field === "price" ? Number(value) || 0 : value;
         persistState();
-        broadcast({ type: "product-update", categoryId, itemId, field, value: item[field] }, ws);
+        broadcast(
+          {
+            type: "product-update",
+            categoryId,
+            itemId,
+            field,
+            value: item[field],
+          },
+          ws
+        );
         break;
       }
 
       case "product-add": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." })
+          );
           return;
         }
         const category = findCategory(data.categoryId);
@@ -224,13 +259,19 @@ wss.on("connection", (ws) => {
         };
         category.items.push(newItem);
         persistState();
-        broadcast({ type: "product-add", categoryId: data.categoryId, item: newItem });
+        broadcast({
+          type: "product-add",
+          categoryId: data.categoryId,
+          item: newItem,
+        });
         break;
       }
 
       case "product-remove": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." })
+          );
           return;
         }
         const category = findCategory(data.categoryId);
@@ -238,7 +279,11 @@ wss.on("connection", (ws) => {
 
         category.items = category.items.filter((i) => i.id !== data.itemId);
         persistState();
-        broadcast({ type: "product-remove", categoryId: data.categoryId, itemId: data.itemId });
+        broadcast({
+          type: "product-remove",
+          categoryId: data.categoryId,
+          itemId: data.itemId,
+        });
         break;
       }
 
