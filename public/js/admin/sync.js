@@ -71,6 +71,14 @@ class Sync {
   removeProduct(categoryId, itemId) {
     this.send({ type: "product-remove", categoryId, itemId });
   }
+
+  adjustStock(categoryId, itemId, delta) {
+    this.send({ type: "product-stock-delta", categoryId, itemId, delta });
+  }
+
+  toggleCategory(categoryId) {
+    this.send({ type: "category-toggle", categoryId });
+  }
 }
 
 export const sync = new Sync();

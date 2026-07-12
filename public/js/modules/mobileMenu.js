@@ -8,6 +8,7 @@
 export function initMobileMenu() {
   const toggle = document.getElementById('mobile-menu');
   const navList = document.getElementById('nav-list');
+  const backdrop = document.getElementById('nav-backdrop');
 
   if (!toggle || !navList) return;
 
@@ -16,6 +17,7 @@ export function initMobileMenu() {
     toggle.classList.remove('is-active');
     toggle.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('menu-open');
+    backdrop?.classList.remove('open');
   };
 
   toggle.addEventListener('click', () => {
@@ -23,7 +25,10 @@ export function initMobileMenu() {
     toggle.classList.toggle('is-active', isOpen);
     toggle.setAttribute('aria-expanded', String(isOpen));
     document.body.classList.toggle('menu-open', isOpen);
+    backdrop?.classList.toggle('open', isOpen);
   });
+
+  backdrop?.addEventListener('click', closeMenu);
 
   document.addEventListener('click', (e) => {
     if (!navList.contains(e.target) && !toggle.contains(e.target)) {

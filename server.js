@@ -207,13 +207,47 @@ wss.on("connection", (ws) => {
           return;
         }
         const { categoryId, itemId, field, value } = data;
-        const allowedFields = ["name", "description", "price", "image", "ribbon"];
+        const allowedFields = ["name", "description", "price", "image", "ribbon", "stock"];
         const item = findItem(categoryId, itemId);
         if (!item || !allowedFields.includes(field)) return;
 
-        item[field] = field === "price" ? Number(value) || 0 : value;
+        item[field] = field === "price" || field === "stock" ? Number(value) || 0 : value;
         persistState();
         broadcast({ type: "product-update", categoryId, itemId, field, value: item[field] }, ws);
+        break;
+      }
+
+      // Atomic +/- stock adjustment for fast tapping during a busy market —
+      // the server (not the client) computes the new value so rapid taps
+      // from a phone with a shaky connection can't drift out of sync.
+      case "product-stock-delta": {
+        if (!ws.isAdmin) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          return;
+        }
+        const { categoryId, itemId, delta } = data;
+        const item = findItem(categoryId, itemId);
+        if (!item || typeof item.stock !== "number") return;
+
+        item.stock = Math.max(0, item.stock + Number(delta));
+        persistState();
+        broadcast({ type: "product-update", categoryId, itemId, field: "stock", value: item.stock }, ws);
+        break;
+      }
+
+      // Opens/closes a category's "live" state — currently only the market
+      // category uses this, but it's written generically.
+      case "category-toggle": {
+        if (!ws.isAdmin) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          return;
+        }
+        const category = findCategory(data.categoryId);
+        if (!category) return;
+
+        category.isOpen = !category.isOpen;
+        persistState();
+        broadcast({ type: "category-toggle", categoryId: data.categoryId, isOpen: category.isOpen }, ws);
         break;
       }
 
@@ -233,6 +267,7 @@ wss.on("connection", (ws) => {
           image: "/images/placeholder.svg",
           ribbon: "navy",
         };
+        if (category.id === "market") newItem.stock = 0;
         category.items.push(newItem);
         persistState();
         broadcast({ type: "product-add", categoryId: data.categoryId, item: newItem });

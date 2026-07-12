@@ -631,6 +631,251 @@ section {
 .rib-brown  { background: var(--brown); }
 .rib-pink   { background: var(--pink); }
 
+/* ===== MARKET SECTION (live, quantity-tracked Saturday stock) ===== */
+.market-section {
+  background: var(--cream);
+}
+
+.market-toggle-btn {
+  display: block;
+  margin: 0 auto 30px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 12px 26px;
+  border-radius: 26px;
+  border: 2px solid var(--kraft-deep);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.market-toggle-btn:hover {
+  transform: translateY(-2px);
+}
+
+.market-toggle-btn.is-live {
+  background: var(--red);
+  border-color: var(--red-deep);
+  color: var(--chalk-white);
+}
+
+.market-live-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  color: var(--red-deep);
+  background: rgba(166, 58, 46, 0.10);
+  border: 2px solid rgba(166, 58, 46, 0.3);
+  border-radius: 999px;
+  padding: 10px 22px;
+  max-width: 340px;
+  margin: 0 auto 34px;
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: livePulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes livePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+.market-closed {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  background: var(--chalk-black);
+  border-radius: var(--radius);
+  padding: 40px 30px;
+  position: relative;
+}
+
+.market-closed .daisy {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+}
+
+.market-closed-text {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--chalk-white);
+  margin-bottom: 10px;
+}
+
+.market-closed-sub {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  color: rgba(247, 242, 230, 0.75);
+  line-height: 1.6;
+}
+
+.market-card-desc {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  white-space: pre-line;
+  margin-bottom: 14px;
+  flex: 1;
+}
+
+/* ----- stock badge (public view) ----- */
+.stock-badge {
+  display: inline-block;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--green-deep);
+  background: rgba(79, 122, 61, 0.14);
+  padding: 5px 16px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+  align-self: flex-start;
+}
+
+.stock-badge.stock-out {
+  color: var(--red-deep);
+  background: rgba(166, 58, 46, 0.14);
+}
+
+/* ----- stock stepper (admin view) ----- */
+.stock-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stock-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--kraft-deep);
+  background: var(--paper);
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.stock-btn:hover {
+  background: var(--kraft);
+  transform: scale(1.06);
+}
+
+.stock-btn:active {
+  transform: scale(0.94);
+}
+
+.stock-input {
+  width: 64px;
+  text-align: center;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  border: 2px dashed var(--gold-deep);
+  border-radius: 10px;
+  padding: 8px 4px;
+  background: var(--cream);
+}
+
+/* ----- sold-out state ----- */
+.market-card.is-sold-out .card-img-wrap img {
+  filter: grayscale(70%) brightness(0.75);
+}
+
+.sold-out-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  border: 4px solid var(--red);
+  color: var(--red);
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(250, 243, 227, 0.88);
+  z-index: 2;
+  animation: stampIn 0.4s ease-out;
+}
+
+@keyframes stampIn {
+  0% { transform: translate(-50%, -50%) rotate(-12deg) scale(1.8); opacity: 0; }
+  100% { transform: translate(-50%, -50%) rotate(-12deg) scale(1); opacity: 1; }
+}
+
+/* ----- live "just sold" toast flourish ----- */
+.sold-toast-container {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  width: 90%;
+  max-width: 360px;
+}
+
+.sold-toast {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--chalk-white);
+  background: var(--chalk-black);
+  border: 2px solid var(--gold-light);
+  border-radius: 20px;
+  padding: 10px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(-14px) scale(0.95);
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+}
+
+.sold-toast.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.sold-toast-out {
+  border-color: var(--red);
+  background: var(--red-deep);
+}
+
 /* ===== TRUST SECTION ===== */
 .trust-section {
   background: var(--chalk-black);
@@ -808,7 +1053,7 @@ footer {
     top: 66px;
     left: 0;
     right: 0;
-    bottom: 0;
+    max-height: calc(100vh - 66px);
     background: var(--paper);
     border-top: 1px solid var(--kraft-deep);
     box-shadow: var(--shadow-md);
@@ -818,6 +1063,24 @@ footer {
     transform: translateY(-8px);
     transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
     overflow-y: auto;
+  }
+
+  .nav-backdrop {
+    display: none;
+    position: fixed;
+    top: 66px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(20, 14, 8, 0.4);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease);
+  }
+
+  .nav-backdrop.open {
+    display: block;
+    opacity: 1;
   }
 
   .nav-links.open {

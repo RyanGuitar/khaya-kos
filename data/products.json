@@ -2,14 +2,14 @@
   "categories": [
     {
       "id": "menu",
-      "eyebrow": "Saterdag menu",
-      "title": "This Week's Bake",
-      "subtitle": "Everything below is made by hand in small batches. WhatsApp your order before Friday evening to make sure it's saved for you.",
+      "eyebrow": "Order any day",
+      "title": "The Full Menu",
+      "subtitle": "Everything below is made to order, any day of the week \u2014 WhatsApp Khaya Kos to arrange yours. You don't need to wait for Saturday.",
       "items": [
         {
           "id": "cappuccino-muffins",
           "name": "Cappuccino Muffins",
-          "description": "Coffee-swirled sponge, whipped topping\nBaked fresh every Saturday morning",
+          "description": "Coffee-swirled sponge, whipped topping\nBaked fresh to order",
           "price": 18,
           "image": "/images/cappuccino-muffins.svg",
           "ribbon": "navy"
@@ -17,7 +17,7 @@
         {
           "id": "poppyseed-muffins",
           "name": "Poppyseed Muffins",
-          "description": "Lemon-poppyseed crumb, soft all week\nA market favourite \u2014 sells out fast",
+          "description": "Lemon-poppyseed crumb, soft all week\nA firm favourite \u2014 order ahead",
           "price": 18,
           "image": "/images/poppyseed-muffins.svg",
           "ribbon": "teal"
@@ -73,7 +73,7 @@
         {
           "id": "vetkoek",
           "name": "Homemade Vetkoek",
-          "description": "Soft inside, golden outside\nA Saturday morning must-have",
+          "description": "Soft inside, golden outside\nA firm favourite, order ahead",
           "price": 15,
           "image": "/images/vetkoek.svg",
           "ribbon": "brown"
@@ -98,9 +98,9 @@
     },
     {
       "id": "extras",
-      "eyebrow": "Also at the stall",
+      "eyebrow": "Also available",
       "title": "Clothing, Socks & Scarves",
-      "subtitle": "Alongside the baking, Khaya Kos also has a small selection of new and preloved clothing, socks and scarves \u2014 worth a browse while you wait for your order.",
+      "subtitle": "Alongside the baking, Khaya Kos also has a small selection of new and preloved clothing, socks and scarves \u2014 stock varies, so WhatsApp to check what's currently available.",
       "items": [
         {
           "id": "clothing",
@@ -125,6 +125,51 @@
           "price": 60,
           "image": "/images/scarves.svg",
           "ribbon": "navy"
+        }
+      ]
+    },
+    {
+      "id": "market",
+      "eyebrow": "Gazebo Valley \u00b7 Saturdays",
+      "title": "Live at the Market",
+      "subtitle": "A smaller, hand-picked selection sold in person at the Saturday market \u2014 while she's set up, the stock counts below update in real time as things sell. First come, first served.",
+      "isOpen": false,
+      "items": [
+        {
+          "id": "market-chicken-pies",
+          "name": "Chicken Pies",
+          "description": "Chicken and mushroom",
+          "price": 28,
+          "image": "/images/pies.svg",
+          "ribbon": "brown",
+          "stock": 10
+        },
+        {
+          "id": "market-cappuccino-muffins",
+          "name": "Cappuccino Muffins",
+          "description": "Coffee-swirled sponge, whipped topping",
+          "price": 18,
+          "image": "/images/cappuccino-muffins.svg",
+          "ribbon": "navy",
+          "stock": 15
+        },
+        {
+          "id": "market-vetkoek",
+          "name": "Homemade Vetkoek",
+          "description": "Soft inside, golden outside",
+          "price": 15,
+          "image": "/images/vetkoek.svg",
+          "ribbon": "brown",
+          "stock": 12
+        },
+        {
+          "id": "market-samosas",
+          "name": "Samosas",
+          "description": "Chicken, mince, cheese and corn",
+          "price": 12,
+          "image": "/images/samosas.svg",
+          "ribbon": "red",
+          "stock": 20
         }
       ]
     }

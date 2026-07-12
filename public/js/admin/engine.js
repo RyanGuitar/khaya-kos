@@ -20,6 +20,50 @@ function showToast(message) {
   showToast._timer = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
+// The live "something just sold" flourish everyone on the site sees —
+// this is what makes market day feel alive rather than just a number
+// quietly changing.
+function showSoldToast(itemName, qty, isSoldOut) {
+  const container = document.getElementById("sold-toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = "sold-toast" + (isSoldOut ? " sold-toast-out" : "");
+
+  const strong = document.createElement("strong");
+  strong.textContent = itemName;
+
+  if (isSoldOut) {
+    toast.append("🎉 ", strong, " just sold out!");
+  } else {
+    toast.append(`🥧 ${qty} × `, strong, " just sold at the market!");
+  }
+
+  container.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 400);
+  }, 3200);
+}
+
+// Shared by the fast +/- steppers and the direct stock number input — both
+// end up here so the "sold" toast fires consistently either way.
+function adjustStock(categoryId, itemId, delta) {
+  const item = store.getItem(categoryId, itemId);
+  if (!item) return;
+  const oldValue = item.stock;
+  const newValue = Math.max(0, oldValue + delta);
+
+  store.applyUpdate(categoryId, itemId, "stock", newValue);
+  render();
+  sync.adjustStock(categoryId, itemId, delta);
+
+  if (newValue < oldValue) {
+    showSoldToast(item.name, oldValue - newValue, newValue === 0);
+  }
+}
+
 /* ===== LOGIN MODAL ===== */
 function openLoginModal() {
   const overlay = document.getElementById("login-modal-overlay");
@@ -116,6 +160,31 @@ function wireEvents() {
       document.getElementById("admin-photo-input")?.click();
       return;
     }
+
+    const stockMinusBtn = e.target.closest('[data-action="stock-minus"]');
+    if (stockMinusBtn) {
+      adjustStock(stockMinusBtn.dataset.category, stockMinusBtn.dataset.item, -1);
+      return;
+    }
+
+    const stockPlusBtn = e.target.closest('[data-action="stock-plus"]');
+    if (stockPlusBtn) {
+      adjustStock(stockPlusBtn.dataset.category, stockPlusBtn.dataset.item, 1);
+      return;
+    }
+
+    const marketToggleBtn = e.target.closest('[data-action="toggle-market"]');
+    if (marketToggleBtn) {
+      const categoryId = marketToggleBtn.dataset.category;
+      const category = store.getCategory(categoryId);
+      if (!category) return;
+      const newIsOpen = !category.isOpen;
+      store.applyCategoryToggle(categoryId, newIsOpen);
+      render();
+      sync.toggleCategory(categoryId);
+      showToast(newIsOpen ? "📣 Market is now open — live for everyone." : "Market closed.");
+      return;
+    }
   });
 
   // Delegated commit of contentEditable name fields (focusout bubbles, unlike blur).
@@ -141,14 +210,27 @@ function wireEvents() {
     }
   });
 
-  // Delegated commit of price/description fields.
+  // Delegated commit of price/description/stock fields.
   document.addEventListener("change", (e) => {
     const field = e.target.dataset.field;
-    if (field !== "price" && field !== "description") return;
+    if (field !== "price" && field !== "description" && field !== "stock") return;
 
     const { category, item } = e.target.dataset;
-    const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
 
+    if (field === "stock") {
+      const current = store.getItem(category, item);
+      const oldValue = current ? current.stock : 0;
+      const newValue = Math.max(0, Number(e.target.value) || 0);
+      store.applyUpdate(category, item, "stock", newValue);
+      render();
+      sync.updateProduct(category, item, "stock", newValue);
+      if (current && newValue < oldValue) {
+        showSoldToast(current.name, oldValue - newValue, newValue === 0);
+      }
+      return;
+    }
+
+    const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
     store.applyUpdate(category, item, field, value);
     sync.updateProduct(category, item, field, value);
   });
@@ -162,8 +244,26 @@ function wireSync() {
   });
 
   sync.on("product-update", (msg) => {
+    if (msg.field === "stock") {
+      const current = store.getItem(msg.categoryId, msg.itemId);
+      const oldValue = current ? current.stock : null;
+      store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
+      render();
+      if (current && oldValue !== null && msg.value < oldValue) {
+        showSoldToast(current.name, oldValue - msg.value, msg.value === 0);
+      }
+      return;
+    }
     store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
     render();
+  });
+
+  sync.on("category-toggle", (msg) => {
+    store.applyCategoryToggle(msg.categoryId, msg.isOpen);
+    render();
+    if (msg.categoryId === "market") {
+      showToast(msg.isOpen ? "📣 The market just opened!" : "The market has closed.");
+    }
   });
 
   sync.on("product-add", (msg) => {

@@ -41,4 +41,9 @@ export const store = {
     const category = this.getCategory(categoryId);
     if (category) category.items = category.items.filter((i) => i.id !== itemId);
   },
+
+  applyCategoryToggle(categoryId, isOpen) {
+    const category = this.getCategory(categoryId);
+    if (category) category.isOpen = isOpen;
+  },
 };

@@ -102,11 +102,14 @@
     <div class="nav-links" id="nav-list" role="navigation">
       <a href="#menu">Menu</a>
       <a href="#extras">Also at the Stall</a>
+      <a href="#market">Live at the Market</a>
       <a href="#find-us">Find Us</a>
       <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
         class="btn-book-nav" target="_blank" rel="noopener noreferrer">💬 Order on WhatsApp</a>
     </div>
   </nav>
+
+  <div class="nav-backdrop" id="nav-backdrop"></div>
 
   <header class="hero" id="hero">
     <img src="images/bunting.svg" alt="" class="hero-bunting" aria-hidden="true">
@@ -124,9 +127,9 @@
         </div>
 
         <p class="hero-desc">
-          Home-baked muffins, pies, samosas, scones and more — made fresh every
-          week in a Pearly Beach kitchen and sold with a smile at the Gazebo
-          Valley Saturday market, by the club.
+          Home-baked muffins, pies, samosas, scones and more — order any day
+          of the week for pickup, or catch a limited live selection in person
+          at the Gazebo Valley Saturday market, by the club.
         </p>
 
         <div class="hero-cta-group">
@@ -159,11 +162,11 @@
     <section class="menu-section" id="menu">
       <div class="container">
         <div class="section-header">
-          <p class="section-eyebrow">Saterdag menu</p>
-          <h2 class="section-title">This Week's Bake</h2>
+          <p class="section-eyebrow">Order any day</p>
+          <h2 class="section-title">The Full Menu</h2>
           <p class="section-subtitle">
-            Everything below is made by hand in small batches. WhatsApp your
-            order before Friday evening to make sure it's saved for you.
+            Everything below is made to order, any day of the week — WhatsApp
+            Khaya Kos to arrange yours. You don't need to wait for Saturday.
           </p>
         </div>
 
@@ -175,17 +178,27 @@
     <section class="menu-section" id="extras" style="background: var(--paper);">
       <div class="container">
         <div class="section-header">
-          <p class="section-eyebrow">Also at the stall</p>
+          <p class="section-eyebrow">Also available</p>
           <h2 class="section-title">Clothing, Socks &amp; Scarves</h2>
           <p class="section-subtitle">
             Alongside the baking, Khaya Kos also has a small selection of new
-            and preloved clothing, socks and scarves — worth a browse while
-            you wait for your order.
+            and preloved clothing, socks and scarves — stock varies, so
+            WhatsApp to check what's currently available.
           </p>
         </div>
 
         <!-- Rendered live by js/admin/renderer.js from product state -->
         <div class="menu-grid" id="extras-grid"></div>
+      </div>
+    </section>
+
+    <section class="menu-section market-section" id="market">
+      <div class="container">
+        <!-- Entirely rendered live by js/admin/renderer.js — header,
+             open/closed state, live banner, and item grid all change
+             together based on whether the owner has the market toggled
+             open. See renderMarketSection() in renderer.js. -->
+        <div id="market-content"></div>
       </div>
     </section>
 
@@ -273,6 +286,7 @@
   </div>
 
   <div id="admin-toast" class="admin-toast"></div>
+  <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" hidden>
 
   <script type="module" src="js/main.js"></script>
