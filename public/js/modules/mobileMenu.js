@@ -1,7 +1,8 @@
 /* =====================================================
    Khaya Kos — Mobile Menu Module
    Handles the hamburger toggle, outside-click close,
-   and closing the menu after a link is tapped.
+   closing after a link is tapped, and closing automatically
+   if the user starts scrolling with the menu open.
    ===================================================== */
 
 export function initMobileMenu() {
@@ -14,12 +15,14 @@ export function initMobileMenu() {
     navList.classList.remove('open');
     toggle.classList.remove('is-active');
     toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('menu-open');
   };
 
   toggle.addEventListener('click', () => {
     const isOpen = navList.classList.toggle('open');
     toggle.classList.toggle('is-active', isOpen);
     toggle.setAttribute('aria-expanded', String(isOpen));
+    document.body.classList.toggle('menu-open', isOpen);
   });
 
   document.addEventListener('click', (e) => {
@@ -31,4 +34,12 @@ export function initMobileMenu() {
   navList.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', closeMenu);
   });
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (navList.classList.contains('open')) closeMenu();
+    },
+    { passive: true }
+  );
 }

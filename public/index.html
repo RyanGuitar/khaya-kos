@@ -1,350 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>
-      Khaya Kos | Saterdag Market Stall — Gazebo Valley, Pearly Beach
-    </title>
-    <meta
-      name="description"
-      content="Khaya Kos — homemade muffins, pies, samosas, scones, vetkoek and more, baked fresh every week for the Saturday market at Gazebo Valley, Pearly Beach. Order ahead on WhatsApp."
-    />
-    <meta
-      name="keywords"
-      content="Khaya Kos, homemade food Pearly Beach, Saturday market Gazebo Valley, muffins Gansbaai, vetkoek Pearly Beach, samosas Western Cape, local market stall"
-    />
-    <meta name="robots" content="index, follow" />
-    <meta name="author" content="Khaya Kos" />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Khaya Kos" />
-    <meta
-      property="og:title"
-      content="Khaya Kos | Saterdag Market Stall — Gazebo Valley, Pearly Beach"
-    />
-    <meta
-      property="og:description"
-      content="Homemade muffins, pies, samosas, scones and vetkoek — baked with love every week for the Saturday market at Gazebo Valley. Order ahead on WhatsApp."
-    />
-    <meta property="og:locale" content="en_ZA" />
+  <title>Khaya Kos | Saterdag Market Stall — Gazebo Valley, Pearly Beach</title>
+  <meta name="description"
+    content="Khaya Kos — homemade muffins, pies, samosas, scones, vetkoek and more, baked fresh every week for the Saturday market at Gazebo Valley, Pearly Beach. Order ahead on WhatsApp.">
+  <meta name="keywords"
+    content="Khaya Kos, homemade food Pearly Beach, Saturday market Gazebo Valley, muffins Gansbaai, vetkoek Pearly Beach, samosas Western Cape, local market stall">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Khaya Kos">
 
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Khaya Kos | Saterdag Market Stall" />
-    <meta
-      name="twitter:description"
-      content="Homemade muffins, pies, samosas, scones and vetkoek — every Saturday at Gazebo Valley, Pearly Beach."
-    />
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Khaya Kos">
+  <meta property="og:title" content="Khaya Kos | Saterdag Market Stall — Gazebo Valley, Pearly Beach">
+  <meta property="og:description"
+    content="Homemade muffins, pies, samosas, scones and vetkoek — baked with love every week for the Saturday market at Gazebo Valley. Order ahead on WhatsApp.">
+  <meta property="og:locale" content="en_ZA">
+  <!-- TODO Ryan: if you move to a custom domain, update this absolute URL —
+       most link-preview crawlers (WhatsApp, Facebook, iMessage) require an
+       absolute image URL and won't reliably resolve a relative one. -->
+  <meta property="og:image" content="https://khaya-kos.onrender.com/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "FoodEstablishment",
-        "name": "Khaya Kos",
-        "description": "Homemade muffins, pies, samosas, scones, vetkoek and more, made fresh weekly for the Saturday market at Gazebo Valley, Pearly Beach.",
-        "servesCuisine": "South African home baking",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Pearly Beach",
-          "addressRegion": "Western Cape",
-          "addressCountry": "ZA"
-        },
-        "openingHoursSpecification": {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": "Saturday"
-        }
-      }
-    </script>
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Khaya Kos | Saterdag Market Stall">
+  <meta name="twitter:description"
+    content="Homemade muffins, pies, samosas, scones and vetkoek — every Saturday at Gazebo Valley, Pearly Beach.">
+  <meta name="twitter:image" content="https://khaya-kos.onrender.com/images/og-image.jpg">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap"
-      />
-    </noscript>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 
-    <link rel="stylesheet" href="styles.css?v=2.0" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FoodEstablishment",
+    "name": "Khaya Kos",
+    "description": "Homemade muffins, pies, samosas, scones, vetkoek and more, made fresh weekly for the Saturday market at Gazebo Valley, Pearly Beach.",
+    "servesCuisine": "South African home baking",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Pearly Beach",
+      "addressRegion": "Western Cape",
+      "addressCountry": "ZA"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday"
+    }
+  }
+  </script>
 
-    <!--
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap">
+  </noscript>
+
+  <link rel="stylesheet" href="styles.css?v=2.0">
+
+  <!--
     The server replaces this with the live product data before sending the
     page, so the site paints instantly with no loading flash — then the
     WebSocket in js/admin/sync.js takes over for real-time updates.
   -->
-    <script>
-      window.__INITIAL_STATE__ = INITIAL_STATE_PLACEHOLDER;
-    </script>
-  </head>
+  <script>
+    window.__INITIAL_STATE__ = INITIAL_STATE_PLACEHOLDER;
+  </script>
+</head>
 
-  <body>
-    <!--
-    NOTE FOR RYAN: the WhatsApp number is still a placeholder (27000000000).
-    It lives in two places: js/admin/renderer.js (WHATSAPP_NUMBER constant,
-    used by every product card) and the two links below in this file.
-  -->
+<body>
 
-    <nav id="main-nav">
-      <a href="index.html" class="logo" aria-label="Khaya Kos Home">
-        <span class="logo-badge" aria-hidden="true">🏠</span>
-        <span class="logo-text">
-          <span class="logo-main">Khaya Kos</span>
-          <span class="logo-sub">Saterdag Market Stall</span>
-        </span>
-      </a>
+  <!-- WhatsApp number: +27726785972 (Khaya Kos owner) -->
 
-      <button
-        class="menu-toggle"
-        id="mobile-menu"
-        aria-label="Toggle navigation"
-        aria-expanded="false"
-      >
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </button>
 
-      <div class="nav-links" id="nav-list" role="navigation">
-        <a href="#menu">Menu</a>
-        <a href="#extras">Also at the Stall</a>
-        <a href="#find-us">Find Us</a>
-        <a
-          href="https://wa.me/27000000000?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
-          class="btn-book-nav"
-          target="_blank"
-          rel="noopener noreferrer"
-          >💬 Order on WhatsApp</a
-        >
-      </div>
-    </nav>
+  <nav id="main-nav">
+    <a href="index.html" class="logo" aria-label="Khaya Kos Home">
+      <span class="logo-badge" aria-hidden="true">🏠</span>
+      <span class="logo-text">
+        <span class="logo-main">Khaya Kos</span>
+        <span class="logo-sub">Saterdag Market Stall</span>
+      </span>
+    </a>
 
-    <header class="hero" id="hero">
-      <img
-        src="images/bunting.svg"
-        alt=""
-        class="hero-bunting"
-        aria-hidden="true"
-      />
+    <button class="menu-toggle" id="mobile-menu" aria-label="Toggle navigation" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
 
-      <div class="hero-inner">
-        <p class="hero-eyebrow">
-          Kom kuier, smul en geniet heerlike goed en 'n gesellige geselskap!
+    <div class="nav-links" id="nav-list" role="navigation">
+      <a href="#menu">Menu</a>
+      <a href="#extras">Also at the Stall</a>
+      <a href="#find-us">Find Us</a>
+      <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
+        class="btn-book-nav" target="_blank" rel="noopener noreferrer">💬 Order on WhatsApp</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="hero">
+    <img src="images/bunting.svg" alt="" class="hero-bunting" aria-hidden="true">
+
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Kom kuier, smul en geniet heerlike goed en 'n gesellige geselskap!</p>
+
+      <div class="hero-sign">
+        <span class="hero-badge">Alles met liefde gemaak!</span>
+        <h1 class="hero-title">Khaya Kos</h1>
+
+        <div class="hero-ribbon">
+          <span class="rib-top">Saterdag Menu</span>
+          <span class="rib-bottom">Gazebo Valley</span>
+        </div>
+
+        <p class="hero-desc">
+          Home-baked muffins, pies, samosas, scones and more — made fresh every
+          week in a Pearly Beach kitchen and sold with a smile at the Gazebo
+          Valley Saturday market, by the club.
         </p>
 
-        <div class="hero-sign">
-          <span class="hero-badge">Alles met liefde gemaak!</span>
-          <h1 class="hero-title">Khaya Kos</h1>
-
-          <div class="hero-ribbon">
-            <span class="rib-top">Saterdag Menu</span>
-            <span class="rib-bottom">Gazebo Valley</span>
-          </div>
-
-          <p class="hero-desc">
-            Home-baked muffins, pies, samosas, scones and more — made fresh
-            every week in a Pearly Beach kitchen and sold with a smile at the
-            Gazebo Valley Saturday market, by the club.
-          </p>
-
-          <div class="hero-cta-group">
-            <a
-              href="https://wa.me/27000000000?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
-              class="btn-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              💬 Order on WhatsApp
-            </a>
-            <a href="#menu" class="btn-secondary">See the Menu</a>
-          </div>
+        <div class="hero-cta-group">
+          <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
+            class="btn-primary" target="_blank" rel="noopener noreferrer">
+            💬 Order on WhatsApp
+          </a>
+          <a href="#menu" class="btn-secondary">See the Menu</a>
         </div>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <section class="chalk-strip">
+  <section class="chalk-strip">
+    <div class="container">
+      <div class="chalk-row">
+        <div class="chalk-box">
+          <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
+          <p>"Vars gemaak met die beste bestandele en baie liefde!" 💛</p>
+        </div>
+        <div class="chalk-box">
+          <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
+          <p>Dankie dat jy plaaslik ondersteun — elke besoek en elke glimlag word waardeer. ♥</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="menu-section" id="menu">
       <div class="container">
-        <div class="chalk-row">
-          <div class="chalk-box">
-            <img
-              src="images/daisy.svg"
-              alt=""
-              class="daisy"
-              aria-hidden="true"
-            />
-            <p>"Vars gemaak met die beste bestandele en baie liefde!" 💛</p>
-          </div>
-          <div class="chalk-box">
-            <img
-              src="images/daisy.svg"
-              alt=""
-              class="daisy"
-              aria-hidden="true"
-            />
-            <p>
-              Dankie dat jy plaaslik ondersteun — elke besoek en elke glimlag
-              word waardeer. ♥
-            </p>
+        <div class="section-header">
+          <p class="section-eyebrow">Saterdag menu</p>
+          <h2 class="section-title">This Week's Bake</h2>
+          <p class="section-subtitle">
+            Everything below is made by hand in small batches. WhatsApp your
+            order before Friday evening to make sure it's saved for you.
+          </p>
+        </div>
+
+        <!-- Rendered live by js/admin/renderer.js from product state -->
+        <div class="menu-grid" id="menu-grid"></div>
+      </div>
+    </section>
+
+    <section class="menu-section" id="extras" style="background: var(--paper);">
+      <div class="container">
+        <div class="section-header">
+          <p class="section-eyebrow">Also at the stall</p>
+          <h2 class="section-title">Clothing, Socks &amp; Scarves</h2>
+          <p class="section-subtitle">
+            Alongside the baking, Khaya Kos also has a small selection of new
+            and preloved clothing, socks and scarves — worth a browse while
+            you wait for your order.
+          </p>
+        </div>
+
+        <!-- Rendered live by js/admin/renderer.js from product state -->
+        <div class="menu-grid" id="extras-grid"></div>
+      </div>
+    </section>
+
+    <section class="trust-section">
+      <div class="container">
+        <div class="trust-inner">
+          <h3>Why Everyone Comes Back</h3>
+          <div class="trust-items">
+            <div class="trust-item">
+              <div class="trust-icon">🏠</div>
+              <span>Made at Home, With Love</span>
+            </div>
+            <div class="trust-item">
+              <div class="trust-icon">🥖</div>
+              <span>Fresh Every Saturday</span>
+            </div>
+            <div class="trust-item">
+              <div class="trust-icon">🤝</div>
+              <span>Support Local</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <main>
-      <section class="menu-section" id="menu">
-        <div class="container">
-          <div class="section-header">
-            <p class="section-eyebrow">Saterdag menu</p>
-            <h2 class="section-title">This Week's Bake</h2>
-            <p class="section-subtitle">
-              Everything below is made by hand in small batches. WhatsApp your
-              order before Friday evening to make sure it's saved for you.
-            </p>
-          </div>
-
-          <!-- Rendered live by js/admin/renderer.js from product state -->
-          <div class="menu-grid" id="menu-grid"></div>
+    <section class="map-section" id="find-us">
+      <div class="container">
+        <div class="section-header">
+          <p class="section-eyebrow">Find us</p>
+          <h2 class="section-title">Gazebo Valley, Pearly Beach</h2>
+          <p class="section-subtitle">
+            Every Saturday, by the club. Come hungry — the muffins tend to go
+            first.
+          </p>
         </div>
-      </section>
-
-      <section
-        class="menu-section"
-        id="extras"
-        style="background: var(--paper)"
-      >
-        <div class="container">
-          <div class="section-header">
-            <p class="section-eyebrow">Also at the stall</p>
-            <h2 class="section-title">Clothing, Socks &amp; Scarves</h2>
-            <p class="section-subtitle">
-              Alongside the baking, Khaya Kos also has a small selection of new
-              and preloved clothing, socks and scarves — worth a browse while
-              you wait for your order.
-            </p>
-          </div>
-
-          <!-- Rendered live by js/admin/renderer.js from product state -->
-          <div class="menu-grid" id="extras-grid"></div>
+        <div class="map-wrapper">
+          <iframe title="Map showing Gazebo Valley, Pearly Beach"
+            data-src="https://www.google.com/maps?q=Pearly+Beach+Club,+Pearly+Beach,+Western+Cape&z=17&output=embed"
+            width="100%" height="420" style="border:0; display:block;" loading="lazy" allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
         </div>
-      </section>
-
-      <section class="trust-section">
-        <div class="container">
-          <div class="trust-inner">
-            <h3>Why Everyone Comes Back</h3>
-            <div class="trust-items">
-              <div class="trust-item">
-                <div class="trust-icon">🏠</div>
-                <span>Made at Home, With Love</span>
-              </div>
-              <div class="trust-item">
-                <div class="trust-icon">🥖</div>
-                <span>Fresh Every Saturday</span>
-              </div>
-              <div class="trust-item">
-                <div class="trust-icon">🤝</div>
-                <span>Support Local</span>
-              </div>
-            </div>
-          </div>
+        <div class="map-details">
+          <span>📍 Gazebo Valley, Pearly Beach, by the club</span>
+          <span>🗓️ Saturdays</span>
         </div>
-      </section>
-
-      <section class="map-section" id="find-us">
-        <div class="container">
-          <div class="section-header">
-            <p class="section-eyebrow">Find us</p>
-            <h2 class="section-title">Gazebo Valley, Pearly Beach</h2>
-            <p class="section-subtitle">
-              Every Saturday, by the club. Come hungry — the muffins tend to go
-              first.
-            </p>
-          </div>
-          <div class="map-wrapper">
-            <iframe
-              title="Map showing Gazebo Valley, Pearly Beach"
-              data-src="https://www.google.com/maps?q=Gazebo+Valley+Pearly+Beach+Western+Cape&output=embed"
-              width="100%"
-              height="420"
-              style="border: 0; display: block"
-              loading="lazy"
-              allowfullscreen
-              referrerpolicy="no-referrer-when-downgrade"
-            >
-            </iframe>
-          </div>
-          <div class="map-details">
-            <span>📍 Gazebo Valley, Pearly Beach, by the club</span>
-            <span>🗓️ Saturdays</span>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div class="bunting"></div>
-      <div class="footer-chalk">
-        <p>
-          Dankie dat jy plaaslik ondersteun — ons waardeer elke besoek en elke
-          glimlag. ♥
-        </p>
       </div>
-      <div class="footer-bottom">
-        <p>© 2026 Khaya Kos. All rights reserved.</p>
-      </div>
-    </footer>
+    </section>
+  </main>
 
-    <a
-      href="https://wa.me/27000000000?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
-      class="whatsapp-float"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Order on WhatsApp"
-    >
-      <img src="images/whatsapp.svg" alt="" loading="lazy" />
-    </a>
-
-    <!-- ===== OWNER EDIT-MODE UI ===== -->
-    <button type="button" id="owner-login-btn" class="owner-login-btn">
-      <span class="btn-icon" aria-hidden="true">🔒</span>
-      <span class="btn-label">Owner Login</span>
-    </button>
-
-    <div id="login-modal-overlay" class="login-modal-overlay" hidden>
-      <div class="login-modal">
-        <h3>Owner Login</h3>
-        <p>Enter the site password to edit products live for everyone.</p>
-        <form id="login-form">
-          <input
-            type="password"
-            id="login-password-input"
-            placeholder="Password"
-            autocomplete="current-password"
-          />
-          <p class="login-error" id="login-error"></p>
-          <div class="login-modal-actions">
-            <button
-              type="button"
-              class="login-cancel-btn"
-              id="login-cancel-btn"
-            >
-              Cancel
-            </button>
-            <button type="submit" class="login-submit-btn">Unlock</button>
-          </div>
-        </form>
-      </div>
+  <footer>
+    <div class="bunting"></div>
+    <div class="footer-chalk">
+      <p>Dankie dat jy plaaslik ondersteun — ons waardeer elke besoek en elke glimlag. ♥</p>
     </div>
+    <div class="footer-bottom">
+      <p>© 2026 Khaya Kos. All rights reserved.</p>
+    </div>
+  </footer>
 
-    <div id="admin-toast" class="admin-toast"></div>
-    <input type="file" id="admin-photo-input" accept="image/*" hidden />
+  <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
+    class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Order on WhatsApp">
+    <img src="images/whatsapp.svg" alt="" loading="lazy">
+  </a>
 
-    <script type="module" src="js/main.js"></script>
-  </body>
+  <!-- ===== OWNER EDIT-MODE UI ===== -->
+  <button type="button" id="owner-login-btn" class="owner-login-btn">
+    <span class="btn-icon" aria-hidden="true">🔒</span>
+    <span class="btn-label">Owner Login</span>
+  </button>
+
+  <div id="login-modal-overlay" class="login-modal-overlay" hidden>
+    <div class="login-modal">
+      <h3>Owner Login</h3>
+      <p>Enter the site password to edit products live for everyone.</p>
+      <form id="login-form">
+        <input type="password" id="login-password-input" placeholder="Password" autocomplete="current-password">
+        <p class="login-error" id="login-error"></p>
+        <div class="login-modal-actions">
+          <button type="button" class="login-cancel-btn" id="login-cancel-btn">Cancel</button>
+          <button type="submit" class="login-submit-btn">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-toast" class="admin-toast"></div>
+  <input type="file" id="admin-photo-input" accept="image/*" hidden>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+
 </html>

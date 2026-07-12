@@ -1,5 +1,5 @@
 /* =====================================================
-   Khaya Kos â€” Shared Stylesheet
+   Khaya Kos — Shared Stylesheet
    A rustic, hand-lettered market-stall design system
    pulled directly from the Saturday market pamphlet.
    ===================================================== */
@@ -42,7 +42,7 @@
   --brown-deep: #6b4522;
 
   --shadow-sm: 0 2px 8px rgba(43, 30, 12, 0.14);
-  --shadow-md: 0 10px 28px rgba(43, 30, 12, 0.2);
+  --shadow-md: 0 10px 28px rgba(43, 30, 12, 0.20);
   --shadow-lg: 0 22px 55px rgba(43, 30, 12, 0.28);
 
   --radius: 14px;
@@ -65,11 +65,28 @@ html {
 }
 
 body {
-  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
   line-height: 1.6;
   color: var(--ink);
   background: var(--cream);
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Text fields the owner actually needs to select/type in stay selectable.
+   Long-press "save image" on photos is unaffected by user-select — that's
+   governed separately by -webkit-touch-callout, which we never disable. */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+body.menu-open {
+  overflow: hidden;
 }
 
 img {
@@ -77,11 +94,8 @@ img {
   display: block;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: "Baloo 2", "Nunito", sans-serif;
+h1, h2, h3, h4 {
+  font-family: 'Baloo 2', 'Nunito', sans-serif;
 }
 
 a {
@@ -105,7 +119,7 @@ section {
 
 .section-eyebrow {
   display: inline-block;
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--gold-deep);
@@ -114,7 +128,7 @@ section {
 }
 
 .section-title {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-size: clamp(2rem, 4.2vw, 3rem);
   font-weight: 800;
   color: var(--ink);
@@ -122,7 +136,7 @@ section {
 }
 
 .section-subtitle {
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.02rem;
   color: var(--ink-soft);
   max-width: 560px;
@@ -134,7 +148,7 @@ section {
 .bunting {
   width: 100%;
   height: 44px;
-  background-image: url("images/bunting.svg");
+  background-image: url('images/bunting.svg');
   background-repeat: repeat-x;
   background-size: 300px 44px;
   opacity: 0.95;
@@ -187,7 +201,7 @@ section {
 }
 
 .logo-main {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--ink);
@@ -196,7 +210,7 @@ section {
 }
 
 .logo-sub {
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--gold-deep);
@@ -215,7 +229,7 @@ section {
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 700;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   padding: 8px 14px;
   border-radius: var(--radius-sm);
   transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
@@ -236,8 +250,7 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: background var(--dur) var(--ease),
-    transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease) !important;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease) !important;
 }
 
 .btn-book-nav:hover {
@@ -288,18 +301,9 @@ section {
   position: relative;
   width: 100%;
   padding: 130px 0 70px;
-  background: radial-gradient(
-      circle at 15% 20%,
-      rgba(255, 255, 255, 0.1) 0,
-      transparent 40%
-    ),
-    repeating-linear-gradient(
-      115deg,
-      var(--kraft) 0px,
-      var(--kraft) 46px,
-      var(--kraft-deep) 46px,
-      var(--kraft-deep) 50px
-    ),
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.10) 0, transparent 40%),
+    repeating-linear-gradient(115deg, var(--kraft) 0px, var(--kraft) 46px, var(--kraft-deep) 46px, var(--kraft-deep) 50px),
     linear-gradient(160deg, var(--kraft) 0%, var(--kraft-deep) 100%);
   overflow: hidden;
 }
@@ -321,7 +325,7 @@ section {
 }
 
 .hero-eyebrow {
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--chalk-black);
@@ -340,7 +344,7 @@ section {
 }
 
 .hero-sign::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 10px;
   border: 2px dashed var(--kraft-deep);
@@ -350,7 +354,7 @@ section {
 }
 
 .hero-title {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   font-size: clamp(2.6rem, 8vw, 4.4rem);
   color: var(--red-deep);
@@ -363,7 +367,7 @@ section {
   display: inline-block;
   background: var(--red);
   color: var(--chalk-white);
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 700;
   padding: 10px 26px;
   border-radius: 6px;
@@ -374,7 +378,7 @@ section {
 
 .hero-ribbon .rib-top {
   display: block;
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   font-size: 0.95rem;
   font-weight: 700;
 }
@@ -400,7 +404,7 @@ section {
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   font-weight: 700;
   font-size: 0.72rem;
   line-height: 1.15;
@@ -410,7 +414,7 @@ section {
 }
 
 .hero-desc {
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.02rem;
   color: var(--ink-soft);
   margin-top: 20px;
@@ -430,14 +434,13 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 800;
   font-size: 0.98rem;
   padding: 13px 28px;
   border-radius: 26px;
   text-decoration: none;
-  transition: background var(--dur) var(--ease),
-    transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 
 .btn-primary {
@@ -496,7 +499,7 @@ section {
 }
 
 .chalk-box p {
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   color: var(--chalk-white);
   font-size: 1.08rem;
   line-height: 1.55;
@@ -524,8 +527,7 @@ section {
   flex-direction: column;
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease),
-    box-shadow var(--dur) var(--ease);
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease), box-shadow var(--dur) var(--ease);
 }
 
 .menu-card.revealed {
@@ -561,7 +563,7 @@ section {
   top: -2px;
   padding: 8px 16px 9px;
   border-radius: 0 0 8px 8px;
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 700;
   font-size: 0.92rem;
   color: var(--chalk-white);
@@ -583,7 +585,7 @@ section {
 }
 
 .card-body ul li {
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.92rem;
   color: var(--ink-soft);
   padding: 4px 0 4px 20px;
@@ -592,7 +594,7 @@ section {
 }
 
 .card-body ul li::before {
-  content: "\2022";
+  content: '\2022';
   position: absolute;
   left: 4px;
   color: var(--gold-deep);
@@ -604,7 +606,7 @@ section {
   align-items: center;
   gap: 6px;
   align-self: flex-start;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.86rem;
   font-weight: 800;
   color: #1f8a4c;
@@ -621,27 +623,13 @@ section {
 }
 
 /* Ribbon color variants, matching the pamphlet's category tags */
-.rib-navy {
-  background: var(--navy);
-}
-.rib-teal {
-  background: var(--teal);
-}
-.rib-purple {
-  background: var(--purple);
-}
-.rib-red {
-  background: var(--red);
-}
-.rib-green {
-  background: var(--green);
-}
-.rib-brown {
-  background: var(--brown);
-}
-.rib-pink {
-  background: var(--pink);
-}
+.rib-navy   { background: var(--navy); }
+.rib-teal   { background: var(--teal); }
+.rib-purple { background: var(--purple); }
+.rib-red    { background: var(--red); }
+.rib-green  { background: var(--green); }
+.rib-brown  { background: var(--brown); }
+.rib-pink   { background: var(--pink); }
 
 /* ===== TRUST SECTION ===== */
 .trust-section {
@@ -657,7 +645,7 @@ section {
 }
 
 .trust-section h3 {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-size: 1.9rem;
   font-weight: 800;
   color: var(--chalk-white);
@@ -676,7 +664,7 @@ section {
   align-items: center;
   gap: 12px;
   color: var(--chalk-white);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -725,7 +713,7 @@ section {
 }
 
 .map-placeholder {
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   color: var(--ink-soft);
   font-size: 1.1rem;
   text-align: center;
@@ -738,7 +726,7 @@ section {
   gap: 30px;
   flex-wrap: wrap;
   justify-content: center;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
   color: var(--ink);
 }
@@ -761,7 +749,7 @@ footer {
 }
 
 .footer-chalk p {
-  font-family: "Kalam", cursive;
+  font-family: 'Kalam', cursive;
   color: var(--chalk-white);
   font-size: 1.15rem;
   max-width: 560px;
@@ -772,7 +760,7 @@ footer {
 .footer-bottom {
   padding: 22px 22px 110px;
   text-align: center;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.82rem;
   color: rgba(247, 242, 230, 0.6);
   border-top: 1px solid rgba(247, 242, 230, 0.15);
@@ -792,8 +780,7 @@ footer {
   justify-content: center;
   z-index: 999;
   box-shadow: 0 4px 16px rgba(37, 211, 102, 0.45);
-  transition: transform var(--dur) var(--ease),
-    background var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 
 .whatsapp-float:hover {
@@ -817,10 +804,11 @@ footer {
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
-    position: absolute;
+    position: fixed;
     top: 66px;
     left: 0;
     right: 0;
+    bottom: 0;
     background: var(--paper);
     border-top: 1px solid var(--kraft-deep);
     box-shadow: var(--shadow-md);
@@ -829,6 +817,7 @@ footer {
     opacity: 0;
     transform: translateY(-8px);
     transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+    overflow-y: auto;
   }
 
   .nav-links.open {
@@ -877,7 +866,7 @@ footer {
 
   .chalk-box {
     /* flex-basis:300px targets height once the row above switches to
-       flex-direction:column â€” reset it so boxes size to their content. */
+       flex-direction:column — reset it so boxes size to their content. */
     flex: 1 1 auto;
     max-width: none;
   }
@@ -891,6 +880,17 @@ footer {
     flex-direction: column;
     gap: 10px;
     align-items: center;
+  }
+
+  .trust-items {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .trust-item {
+    width: 100%;
+    max-width: 280px;
+    justify-content: flex-start;
   }
 }
 
@@ -958,7 +958,7 @@ button:focus-visible {
 /* ----- price tag on each card ----- */
 .price-tag {
   display: inline-block;
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   font-size: 1.05rem;
   color: var(--red-deep);
@@ -970,7 +970,7 @@ button:focus-visible {
 }
 
 .price-input {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   font-size: 1rem;
   color: var(--red-deep);
@@ -985,7 +985,7 @@ button:focus-visible {
 
 /* ----- owner login floating control -----
    Starts icon-only (so it can't overlap the hero's CTA buttons), then
-   grows into the full labelled pill once the visitor scrolls â€” see
+   grows into the full labelled pill once the visitor scrolls — see
    js/modules/ownerButtonScroll.js, which toggles .expanded. */
 .owner-login-btn {
   position: fixed;
@@ -995,7 +995,7 @@ button:focus-visible {
   background: var(--chalk-black);
   color: var(--chalk-white);
   border: 2px solid var(--gold-light);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 800;
   font-size: 0.85rem;
   padding: 13px 15px;
@@ -1004,8 +1004,7 @@ button:focus-visible {
   box-shadow: var(--shadow-md);
   display: inline-flex;
   align-items: center;
-  transition: transform var(--dur) var(--ease),
-    background var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 
 .owner-login-btn .btn-icon {
@@ -1020,8 +1019,7 @@ button:focus-visible {
   margin-left: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.35s var(--ease), opacity 0.25s var(--ease),
-    margin-left 0.35s var(--ease);
+  transition: max-width 0.35s var(--ease), opacity 0.25s var(--ease), margin-left 0.35s var(--ease);
 }
 
 .owner-login-btn.expanded .btn-label {
@@ -1067,14 +1065,14 @@ button:focus-visible {
 }
 
 .login-modal h3 {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-size: 1.4rem;
   color: var(--ink);
   margin-bottom: 6px;
 }
 
 .login-modal p {
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.88rem;
   color: var(--ink-soft);
   margin-bottom: 16px;
@@ -1085,7 +1083,7 @@ button:focus-visible {
   padding: 12px 14px;
   border-radius: 10px;
   border: 2px solid var(--kraft-deep);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.95rem;
   margin-bottom: 12px;
 }
@@ -1102,7 +1100,7 @@ button:focus-visible {
 
 .login-modal-actions button {
   flex: 1;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 800;
   font-size: 0.88rem;
   padding: 11px;
@@ -1132,7 +1130,7 @@ button:focus-visible {
 
 .login-error {
   color: var(--red);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   margin-top: -4px;
@@ -1185,7 +1183,7 @@ body.admin-mode [data-editable]:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 800;
   font-size: 0.85rem;
   opacity: 0;
@@ -1207,8 +1205,7 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
   justify-content: center;
   min-height: 260px;
   cursor: pointer;
-  transition: background var(--dur) var(--ease),
-    border-color var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 
 .add-item-card:hover {
@@ -1217,7 +1214,7 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
 }
 
 .add-item-card span {
-  font-family: "Baloo 2", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
   color: var(--ink-soft);
@@ -1231,7 +1228,7 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
   background: var(--chalk-black);
   color: var(--chalk-white);
   border: 2px solid var(--gold-light);
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
   padding: 10px 18px;

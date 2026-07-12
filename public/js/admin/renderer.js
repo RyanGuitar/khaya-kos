@@ -2,7 +2,7 @@
 // Rebuilds the #menu-grid / #extras-grid containers from store state.
 // Re-run on every state change (full-state, product-update/add/remove).
 
-const WHATSAPP_NUMBER = "27000000000"; // TODO Ryan: replace with the real number
+const WHATSAPP_NUMBER = "27726785972";
 
 function escapeHtml(str = "") {
   return str
