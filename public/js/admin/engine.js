@@ -57,6 +57,23 @@ function spawnFloatingHearts(button) {
   }
 }
 
+// The ambient hearts that drift up the left edge of the screen when
+// SOMEONE ELSE, anywhere on the site right now, likes something — this is
+// what makes the "real people are here right now" feeling visible to
+// visitors who aren't the one clicking.
+function spawnAmbientHearts() {
+  const count = 3;
+  for (let i = 0; i < count; i++) {
+    const heart = document.createElement("span");
+    heart.className = "ambient-heart";
+    heart.textContent = "❤";
+    heart.style.left = `${18 + Math.random() * 26}px`;
+    heart.style.animationDelay = `${i * 130}ms`;
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 2400);
+  }
+}
+
 // The live "something just sold" flourish everyone on the site sees —
 // this is what makes market day feel alive rather than just a number
 // quietly changing.
@@ -312,6 +329,19 @@ function wireSync() {
       render();
       if (current && oldValue !== null && msg.value < oldValue) {
         showSoldToast(current.name, oldValue - msg.value, msg.value === 0);
+      }
+      return;
+    }
+    if (msg.field === "likes") {
+      const current = store.getItem(msg.categoryId, msg.itemId);
+      const oldValue = current ? current.likes : null;
+      store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
+      render();
+      // Only celebrate someone ELSE's like arriving live — the person who
+      // clicked already sees the button-burst animation locally, and the
+      // server never echoes a like back to whoever sent it.
+      if (current && oldValue !== null && msg.value > oldValue) {
+        spawnAmbientHearts();
       }
       return;
     }
