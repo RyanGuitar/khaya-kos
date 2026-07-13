@@ -68,13 +68,45 @@ async function redisSet(key, value) {
    ===================================================== */
 let state = { categories: [] };
 
+async function loadSeed() {
+  try {
+    const raw = await fs.readFile(SEED_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("⚠️  Could not load seed file:", err.message);
+    return { categories: [] };
+  }
+}
+
+// If a brand-new category (e.g. "market") gets added to the seed file after
+// the site has already been live and saving real edits to Redis, a plain
+// Redis load would never see it — Redis is already non-empty, so the seed
+// file is skipped entirely. This adds any category that exists in the seed
+// but not in the saved state, without touching anything the owner has
+// already edited.
+function backfillMissingCategories(seed) {
+  let changed = false;
+  for (const seedCategory of seed.categories) {
+    const alreadyExists = state.categories.some((c) => c.id === seedCategory.id);
+    if (!alreadyExists) {
+      console.log(`ℹ️  Adding new "${seedCategory.id}" category (present in seed, missing from saved state)`);
+      state.categories.push(seedCategory);
+      changed = true;
+    }
+  }
+  if (changed) persistState();
+}
+
 async function loadState() {
+  const seed = await loadSeed();
+
   if (REDIS_URL && REDIS_TOKEN) {
     try {
       const stored = await redisGet(REDIS_KEY);
       if (stored) {
         state = JSON.parse(stored);
         console.log("✅ Loaded product state from Upstash Redis");
+        backfillMissingCategories(seed);
         return;
       }
       console.log("ℹ️  No product state in Redis yet — seeding it from data/products.json");
@@ -83,17 +115,11 @@ async function loadState() {
     }
   }
 
-  try {
-    const raw = await fs.readFile(SEED_FILE, "utf-8");
-    state = JSON.parse(raw);
-    // If Redis is configured but was empty, seed it immediately so it's
-    // the source of truth from the very first request onward.
-    if (REDIS_URL && REDIS_TOKEN) {
-      await persistState();
-    }
-  } catch (err) {
-    console.error("⚠️  Could not load seed file either, starting empty:", err.message);
-    state = { categories: [] };
+  state = seed;
+  // If Redis is configured but was empty, seed it immediately so it's
+  // the source of truth from the very first request onward.
+  if (REDIS_URL && REDIS_TOKEN) {
+    await persistState();
   }
 }
 
@@ -180,7 +206,12 @@ function broadcast(message, exclude = null) {
 
 wss.on("connection", (ws) => {
   ws.isAdmin = false;
+  ws.isAlive = true;
   console.log("🔗 Client connected");
+
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
 
   // Every new visitor gets the current live state immediately.
   ws.send(JSON.stringify({ type: "full-state", data: state }));
@@ -297,6 +328,25 @@ wss.on("connection", (ws) => {
     console.log("❌ Client disconnected");
   });
 });
+
+// Render's infrastructure (and mobile networks, corporate proxies, etc.)
+// can silently drop a WebSocket connection that looks "idle" from the
+// outside even though the app itself is fine — Render's own docs recommend
+// this exact ping/pong pattern to detect that early and clean it up, rather
+// than leaving a zombie connection that never gets real-time updates again.
+const HEARTBEAT_INTERVAL = 30000;
+const heartbeatTimer = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      console.log("💔 Terminating unresponsive connection");
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, HEARTBEAT_INTERVAL);
+
+wss.on("close", () => clearInterval(heartbeatTimer));
 
 const PORT = process.env.PORT || 10000;
 loadState().then(() => {
