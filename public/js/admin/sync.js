@@ -103,6 +103,10 @@ class Sync {
   toggleCategory(categoryId) {
     this.send({ type: "category-toggle", categoryId });
   }
+
+  likeProduct(categoryId, itemId, delta) {
+    this.send({ type: "product-like", categoryId, itemId, delta });
+  }
 }
 
 export const sync = new Sync();

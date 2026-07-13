@@ -20,6 +20,43 @@ function showToast(message) {
   showToast._timer = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
+// ===== LIKES =====
+const LIKED_ITEMS_KEY = "khayaKosLikedItems";
+
+function getLikedItems() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(LIKED_ITEMS_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveLikedItems(set) {
+  try {
+    localStorage.setItem(LIKED_ITEMS_KEY, JSON.stringify([...set]));
+  } catch {
+    // localStorage unavailable (private browsing etc.) — likes still work,
+    // they just won't remember the "liked" state on this device next visit.
+  }
+}
+
+// The floating-hearts burst everyone sees when they tap like — several
+// small hearts drift up from the button and fade out.
+function spawnFloatingHearts(button) {
+  const rect = button.getBoundingClientRect();
+  const count = 5;
+  for (let i = 0; i < count; i++) {
+    const heart = document.createElement("span");
+    heart.className = "floating-heart";
+    heart.textContent = "❤";
+    heart.style.left = `${rect.left + rect.width / 2 + (Math.random() * 40 - 20)}px`;
+    heart.style.top = `${rect.top + (Math.random() * 10 - 5)}px`;
+    heart.style.animationDelay = `${i * 70}ms`;
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1400);
+  }
+}
+
 // The live "something just sold" flourish everyone on the site sees —
 // this is what makes market day feel alive rather than just a number
 // quietly changing.
@@ -183,6 +220,30 @@ function wireEvents() {
       render();
       sync.toggleCategory(categoryId);
       showToast(newIsOpen ? "📣 Market is now open — live for everyone." : "Market closed.");
+      return;
+    }
+
+    const likeBtn = e.target.closest('[data-action="like"]');
+    if (likeBtn) {
+      const { category, item } = likeBtn.dataset;
+      const liked = getLikedItems();
+      const alreadyLiked = liked.has(item);
+      const delta = alreadyLiked ? -1 : 1;
+
+      if (alreadyLiked) {
+        liked.delete(item);
+      } else {
+        liked.add(item);
+        spawnFloatingHearts(likeBtn);
+      }
+      saveLikedItems(liked);
+
+      const current = store.getItem(category, item);
+      if (current) {
+        current.likes = Math.max(0, (current.likes || 0) + delta);
+      }
+      render();
+      sync.likeProduct(category, item, delta);
       return;
     }
   });

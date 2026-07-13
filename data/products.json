@@ -4,7 +4,7 @@
       "id": "menu",
       "eyebrow": "Order any day",
       "title": "The Full Menu",
-      "subtitle": "Everything below is made to order, any day of the week \u2014 WhatsApp Khaya Kos to arrange yours. You don't need to wait for Saturday.",
+      "subtitle": "Everything below is made to order, any day of the week — WhatsApp Khaya Kos to arrange yours. You don't need to wait for Saturday.",
       "items": [
         {
           "id": "cappuccino-muffins",
@@ -12,15 +12,17 @@
           "description": "Coffee-swirled sponge, whipped topping\nBaked fresh to order",
           "price": 18,
           "image": "/images/cappuccino-muffins.svg",
-          "ribbon": "navy"
+          "ribbon": "navy",
+          "likes": 0
         },
         {
           "id": "poppyseed-muffins",
           "name": "Poppyseed Muffins",
-          "description": "Lemon-poppyseed crumb, soft all week\nA firm favourite \u2014 order ahead",
+          "description": "Lemon-poppyseed crumb, soft all week\nA firm favourite — order ahead",
           "price": 18,
           "image": "/images/poppyseed-muffins.svg",
-          "ribbon": "teal"
+          "ribbon": "teal",
+          "likes": 0
         },
         {
           "id": "carrot-cake-muffins",
@@ -28,7 +30,8 @@
           "description": "Cream cheese icing, toasted walnut\nMade with fresh farm carrots",
           "price": 20,
           "image": "/images/carrot-cake-muffins.svg",
-          "ribbon": "purple"
+          "ribbon": "purple",
+          "likes": 0
         },
         {
           "id": "other-treats",
@@ -36,7 +39,8 @@
           "description": "Melktert\nKlein koekies\nChocolate cake (slices)",
           "price": 22,
           "image": "/images/other-treats.svg",
-          "ribbon": "pink"
+          "ribbon": "pink",
+          "likes": 0
         },
         {
           "id": "samosas",
@@ -44,7 +48,8 @@
           "description": "Chicken\nMince\nCheese and corn",
           "price": 12,
           "image": "/images/samosas.svg",
-          "ribbon": "red"
+          "ribbon": "red",
+          "likes": 0
         },
         {
           "id": "pies",
@@ -52,7 +57,8 @@
           "description": "Chicken and mushroom pies\nPlain chicken pies",
           "price": 28,
           "image": "/images/pies.svg",
-          "ribbon": "brown"
+          "ribbon": "brown",
+          "likes": 0
         },
         {
           "id": "cheese-trunks",
@@ -60,7 +66,8 @@
           "description": "Golden, flaky pastry\nMelted cheese filling",
           "price": 18,
           "image": "/images/cheese-trunks.svg",
-          "ribbon": "green"
+          "ribbon": "green",
+          "likes": 0
         },
         {
           "id": "scones",
@@ -68,7 +75,8 @@
           "description": "Cheese\nPlain",
           "price": 15,
           "image": "/images/scones.svg",
-          "ribbon": "navy"
+          "ribbon": "navy",
+          "likes": 0
         },
         {
           "id": "vetkoek",
@@ -76,7 +84,8 @@
           "description": "Soft inside, golden outside\nA firm favourite, order ahead",
           "price": 15,
           "image": "/images/vetkoek.svg",
-          "ribbon": "brown"
+          "ribbon": "brown",
+          "likes": 0
         },
         {
           "id": "dried-fruit-nuts",
@@ -84,7 +93,8 @@
           "description": "A rotating seasonal selection\nGreat for snacking or gifting",
           "price": 35,
           "image": "/images/dried-fruit-nuts.svg",
-          "ribbon": "purple"
+          "ribbon": "purple",
+          "likes": 0
         },
         {
           "id": "kiddies-menu",
@@ -92,7 +102,8 @@
           "description": "Prawn chips\nPopcorn\nCupcakes",
           "price": 10,
           "image": "/images/kiddies-menu.svg",
-          "ribbon": "navy"
+          "ribbon": "navy",
+          "likes": 0
         }
       ]
     },
@@ -100,7 +111,7 @@
       "id": "extras",
       "eyebrow": "Also available",
       "title": "Clothing, Socks & Scarves",
-      "subtitle": "Alongside the baking, Khaya Kos also has a small selection of new and preloved clothing, socks and scarves \u2014 stock varies, so WhatsApp to check what's currently available.",
+      "subtitle": "Alongside the baking, Khaya Kos also has a small selection of new and preloved clothing, socks and scarves — stock varies, so WhatsApp to check what's currently available.",
       "items": [
         {
           "id": "clothing",
@@ -108,7 +119,8 @@
           "description": "A changing rack of new and gently-loved finds\nSizes and stock vary week to week",
           "price": 0,
           "image": "/images/clothing.svg",
-          "ribbon": "green"
+          "ribbon": "green",
+          "likes": 0
         },
         {
           "id": "socks",
@@ -116,23 +128,25 @@
           "description": "Colourful everyday pairs\nGreat stocking-filler stop",
           "price": 25,
           "image": "/images/socks.svg",
-          "ribbon": "purple"
+          "ribbon": "purple",
+          "likes": 0
         },
         {
           "id": "scarves",
           "name": "Scarves",
-          "description": "Soft, warm patterns for the cooler months\nMet liefde gemaak, vir jou \ud83d\udc99",
+          "description": "Soft, warm patterns for the cooler months\nMet liefde gemaak, vir jou 💙",
           "price": 60,
           "image": "/images/scarves.svg",
-          "ribbon": "navy"
+          "ribbon": "navy",
+          "likes": 0
         }
       ]
     },
     {
       "id": "market",
-      "eyebrow": "Gazebo Valley \u00b7 Saturdays",
+      "eyebrow": "Gazebo Valley · Saturdays",
       "title": "Live at the Market",
-      "subtitle": "A smaller, hand-picked selection sold in person at the Saturday market \u2014 while she's set up, the stock counts below update in real time as things sell. First come, first served.",
+      "subtitle": "A smaller, hand-picked selection sold in person at the Saturday market — while she's set up, the stock counts below update in real time as things sell. First come, first served.",
       "isOpen": false,
       "items": [
         {

@@ -605,7 +605,6 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  align-self: flex-start;
   font-family: 'Nunito', sans-serif;
   font-size: 0.86rem;
   font-weight: 800;
@@ -620,6 +619,71 @@ section {
 .card-cta:hover {
   background: rgba(37, 211, 102, 0.22);
   gap: 10px;
+}
+
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  background: rgba(166, 58, 46, 0.08);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.like-btn:hover {
+  background: rgba(166, 58, 46, 0.16);
+  transform: translateY(-1px);
+}
+
+.like-btn:active {
+  transform: scale(0.94);
+}
+
+.like-btn .like-icon {
+  font-size: 1rem;
+  color: var(--red);
+  transition: transform 0.25s var(--ease);
+}
+
+.like-btn.is-liked {
+  background: rgba(166, 58, 46, 0.16);
+  color: var(--red-deep);
+}
+
+.like-btn.is-liked .like-icon {
+  transform: scale(1.15);
+}
+
+/* Floating hearts spawned from JS on like — fixed-position so they align
+   with the button's on-screen position regardless of page scroll. */
+.floating-heart {
+  position: fixed;
+  font-size: 1.1rem;
+  color: var(--red);
+  pointer-events: none;
+  z-index: 1150;
+  animation: floatHeart 1.3s ease-out forwards;
+}
+
+@keyframes floatHeart {
+  0% { opacity: 1; transform: translateY(0) scale(0.8); }
+  20% { transform: translateY(-10px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-70px) scale(0.9); }
 }
 
 /* Ribbon color variants, matching the pamphlet's category tags */

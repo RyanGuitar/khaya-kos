@@ -21,6 +21,27 @@ function formatPrice(price) {
   return price > 0 ? `R${price}` : "Ask in-store";
 }
 
+const LIKED_ITEMS_KEY = "khayaKosLikedItems";
+
+function getLikedItems() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(LIKED_ITEMS_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function buildLikeButton(categoryId, item) {
+  const isLiked = getLikedItems().has(item.id);
+  return `
+    <button type="button" class="like-btn ${isLiked ? "is-liked" : ""}" data-action="like"
+      data-category="${categoryId}" data-item="${item.id}" aria-label="Like ${escapeHtml(item.name)}">
+      <span class="like-icon">${isLiked ? "❤" : "♡"}</span>
+      <span class="like-count">${item.likes || 0}</span>
+    </button>
+  `;
+}
+
 function buildCard(categoryId, item, isAdmin) {
   const ribbonClass = `rib-${item.ribbon || "navy"}`;
 
@@ -63,7 +84,10 @@ function buildCard(categoryId, item, isAdmin) {
       <div class="card-body">
         ${priceMarkup}
         ${descriptionMarkup}
-        <a href="${waLink(item.name)}" class="card-cta" target="_blank" rel="noopener noreferrer">Order on WhatsApp →</a>
+        <div class="card-footer-row">
+          ${buildLikeButton(categoryId, item)}
+          <a href="${waLink(item.name)}" class="card-cta" target="_blank" rel="noopener noreferrer">Order on WhatsApp →</a>
+        </div>
       </div>
     </div>
   `;

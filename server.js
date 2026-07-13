@@ -305,6 +305,21 @@ wss.on("connection", (ws) => {
         break;
       }
 
+      // Anyone can like an item — deliberately NOT admin-gated. The client
+      // sends delta:1 or delta:-1 (toggling), and the server does the
+      // atomic math so simultaneous likes from different visitors can't
+      // clobber each other.
+      case "product-like": {
+        const { categoryId, itemId, delta } = data;
+        const item = findItem(categoryId, itemId);
+        if (!item) return;
+
+        item.likes = Math.max(0, (item.likes || 0) + (delta === -1 ? -1 : 1));
+        persistState();
+        broadcast({ type: "product-update", categoryId, itemId, field: "likes", value: item.likes }, ws);
+        break;
+      }
+
       case "product-remove": {
         if (!ws.isAdmin) {
           ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
