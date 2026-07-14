@@ -35,6 +35,11 @@ const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const REDIS_KEY = "khaya-kos:products";
 
+// Per-connection rate limit for likes — generous enough that no real
+// visitor would ever notice it, tight enough to stop a scripted spam loop.
+const LIKE_RATE_LIMIT = 10;
+const LIKE_RATE_WINDOW_MS = 5000;
+
 if (!REDIS_URL || !REDIS_TOKEN) {
   console.warn(
     "⚠️  UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set. " +
@@ -265,9 +270,10 @@ wss.on("connection", (ws) => {
         }
         const { categoryId, itemId, delta } = data;
         const item = findItem(categoryId, itemId);
-        if (!item || typeof item.stock !== "number") return;
+        if (!item) return;
 
-        item.stock = Math.max(0, item.stock + Number(delta));
+        const current = typeof item.stock === "number" ? item.stock : 0;
+        item.stock = Math.max(0, current + Number(delta));
         persistState();
         broadcast({ type: "product-update", categoryId, itemId, field: "stock", value: item.stock }, ws);
         break;
@@ -305,7 +311,7 @@ wss.on("connection", (ws) => {
           image: "/images/placeholder.svg",
           ribbon: "navy",
         };
-        if (category.id === "market") newItem.stock = 0;
+        if (category.id === "market") newItem.stock = null; // "not set up yet" — distinct from 0 ("sold out")
         category.items.push(newItem);
         persistState();
         broadcast({ type: "product-add", categoryId: data.categoryId, item: newItem });
@@ -317,6 +323,15 @@ wss.on("connection", (ws) => {
       // atomic math so simultaneous likes from different visitors can't
       // clobber each other.
       case "product-like": {
+        // The client already has a cooldown on the button, but that's UX,
+        // not security — this is the real backstop against a script just
+        // hammering the socket directly.
+        const now = Date.now();
+        if (!ws.likeTimestamps) ws.likeTimestamps = [];
+        ws.likeTimestamps = ws.likeTimestamps.filter((t) => now - t < LIKE_RATE_WINDOW_MS);
+        if (ws.likeTimestamps.length >= LIKE_RATE_LIMIT) return;
+        ws.likeTimestamps.push(now);
+
         const { categoryId, itemId, delta } = data;
         const item = findItem(categoryId, itemId);
         if (!item) return;

@@ -661,7 +661,13 @@ section {
 .like-btn .like-icon {
   font-size: 1rem;
   color: var(--red);
-  transition: transform 0.25s var(--ease);
+}
+
+.like-btn .like-count {
+  display: inline-block;
+  min-width: 1.4ch;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
 }
 
 .like-btn.is-liked {
@@ -669,8 +675,16 @@ section {
   color: var(--red-deep);
 }
 
-.like-btn.is-liked .like-icon {
-  transform: scale(1.15);
+/* Owner's own items, shown in edit mode — informational count only,
+   not a real button. */
+.like-btn.is-disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.like-btn.is-disabled:hover {
+  background: rgba(166, 58, 46, 0.08);
+  transform: none;
 }
 
 /* Floating hearts spawned from JS on like — fixed-position so they align
@@ -1340,6 +1354,25 @@ button:focus-visible {
   align-self: flex-start;
 }
 
+.name-input {
+  display: block;
+  width: 100%;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--cream);
+  border: 2px dashed var(--gold-deep);
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.name-input::placeholder {
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+
 /* ----- owner login floating control -----
    Starts icon-only (so it can't overlap the hero's CTA buttons), then
    grows into the full labelled pill once the visitor scrolls — see
@@ -1498,20 +1531,6 @@ button:focus-visible {
 /* ----- edit-mode affordances on cards ----- */
 body.admin-mode .menu-card {
   border: 2px dashed rgba(217, 154, 43, 0.5);
-}
-
-body.admin-mode [data-editable] {
-  cursor: text;
-  border-radius: 4px;
-  outline: 2px dashed rgba(255, 255, 255, 0.75);
-  outline-offset: 2px;
-  transition: background var(--dur) var(--ease), outline-color var(--dur) var(--ease);
-}
-
-body.admin-mode [data-editable]:hover,
-body.admin-mode [data-editable]:focus {
-  background: rgba(217, 154, 43, 0.14);
-  outline-color: var(--gold-light);
 }
 
 .admin-delete-btn {

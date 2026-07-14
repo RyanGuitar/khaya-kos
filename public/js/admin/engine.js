@@ -82,7 +82,15 @@ function spawnFloatingHearts(button) {
 // SOMEONE ELSE, anywhere on the site right now, likes something — this is
 // what makes the "real people are here right now" feeling visible to
 // visitors who aren't the one clicking.
+let lastAmbientBurst = 0;
+const AMBIENT_MIN_INTERVAL = 1200; // ms — caps how often this can fire even
+                                     // if someone rapidly toggles likes
+
 function spawnAmbientHearts() {
+  const now = Date.now();
+  if (now - lastAmbientBurst < AMBIENT_MIN_INTERVAL) return;
+  lastAmbientBurst = now;
+
   const count = 3;
   const isDesktop = window.innerWidth >= 1015;
   const leftBase = isDesktop ? 30 : 18;
@@ -130,7 +138,7 @@ function showSoldToast(itemName, qty, isSoldOut) {
 function adjustStock(categoryId, itemId, delta) {
   const item = store.getItem(categoryId, itemId);
   if (!item) return;
-  const oldValue = item.stock;
+  const oldValue = typeof item.stock === "number" ? item.stock : 0;
   const newValue = Math.max(0, oldValue + delta);
 
   store.applyUpdate(categoryId, itemId, "stock", newValue);
@@ -266,6 +274,13 @@ function wireEvents() {
 
     const likeBtn = e.target.closest('[data-action="like"]');
     if (likeBtn) {
+      // Brief cooldown stops a rapid mash from firing a dozen requests (and
+      // a dozen ambient-heart bursts on everyone else's screen) in a row —
+      // the button still toggles normally, just not faster than this.
+      if (likeBtn.dataset.cooling === "true") return;
+      likeBtn.dataset.cooling = "true";
+      setTimeout(() => { likeBtn.dataset.cooling = "false"; }, 500);
+
       const { category, item } = likeBtn.dataset;
       const liked = getLikedItems();
       const alreadyLiked = liked.has(item);
@@ -290,39 +305,16 @@ function wireEvents() {
     }
   });
 
-  // Delegated commit of contentEditable name fields (focusout bubbles, unlike blur).
-  document.addEventListener("focusout", (e) => {
-    if (!e.target.matches("[data-editable][data-field='name']")) return;
-    const { category, item } = e.target.dataset;
-    const newValue = e.target.textContent.replace(/♡\s*$/, "").trim();
-    const current = store.getItem(category, item);
-    if (!current || current.name === newValue || !newValue) {
-      patchOrRender(category, item); // snap back to the clean stored value either way
-      return;
-    }
-    store.applyUpdate(category, item, "name", newValue);
-    patchOrRender(category, item);
-    sync.updateProduct(category, item, "name", newValue);
-  });
-
-  // Prevent Enter from adding a line break in the single-line name field.
-  document.addEventListener("keydown", (e) => {
-    if (e.target.matches("[data-editable][data-field='name']") && e.key === "Enter") {
-      e.preventDefault();
-      e.target.blur();
-    }
-  });
-
-  // Delegated commit of price/description/stock fields.
+  // Delegated commit of price/description/stock/name fields.
   document.addEventListener("change", (e) => {
     const field = e.target.dataset.field;
-    if (field !== "price" && field !== "description" && field !== "stock") return;
+    if (field !== "price" && field !== "description" && field !== "stock" && field !== "name") return;
 
     const { category, item } = e.target.dataset;
 
     if (field === "stock") {
       const current = store.getItem(category, item);
-      const oldValue = current ? current.stock : 0;
+      const oldValue = current && typeof current.stock === "number" ? current.stock : 0;
       const newValue = Math.max(0, Number(e.target.value) || 0);
       store.applyUpdate(category, item, "stock", newValue);
       patchStock(item, newValue, isAdmin);
@@ -330,6 +322,18 @@ function wireEvents() {
       if (current && newValue < oldValue) {
         showSoldToast(current.name, oldValue - newValue, newValue === 0);
       }
+      return;
+    }
+
+    if (field === "name") {
+      const newValue = e.target.value.trim();
+      if (!newValue) {
+        patchOrRender(category, item); // snap back to the clean stored value
+        return;
+      }
+      store.applyUpdate(category, item, "name", newValue);
+      patchOrRender(category, item);
+      sync.updateProduct(category, item, "name", newValue);
       return;
     }
 

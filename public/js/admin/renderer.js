@@ -31,14 +31,32 @@ function getLikedItems() {
   }
 }
 
-function buildLikeButton(categoryId, item) {
+function buildLikeButton(categoryId, item, isAdmin) {
   const isLiked = getLikedItems().has(item.id);
+  if (isAdmin) {
+    // Owners shouldn't be able to like their own items — shown as an
+    // informational, non-interactive count instead of a real button.
+    return `
+      <span class="like-btn is-disabled" aria-hidden="true">
+        <span class="like-icon">♡</span>
+        <span class="like-count">${item.likes || 0}</span>
+      </span>
+    `;
+  }
   return `
     <button type="button" class="like-btn ${isLiked ? "is-liked" : ""}" data-action="like"
       data-category="${categoryId}" data-item="${item.id}" aria-label="Like ${escapeHtml(item.name)}">
       <span class="like-icon">${isLiked ? "❤" : "♡"}</span>
       <span class="like-count">${item.likes || 0}</span>
     </button>
+  `;
+}
+
+function buildNameField(categoryId, item) {
+  return `
+    <input type="text" class="name-input" data-field="name"
+      data-category="${categoryId}" data-item="${item.id}"
+      placeholder="Product name" value="${escapeHtml(item.name)}">
   `;
 }
 
@@ -49,6 +67,8 @@ function buildCard(categoryId, item, isAdmin) {
     ? `<input type="number" min="0" step="1" class="price-input" data-field="price"
          data-category="${categoryId}" data-item="${item.id}" value="${item.price}">`
     : `<span class="price-tag">${formatPrice(item.price)}</span>`;
+
+  const nameFieldMarkup = isAdmin ? buildNameField(categoryId, item) : "";
 
   const descriptionMarkup = isAdmin
     ? `<textarea class="card-description-input" data-field="description"
@@ -69,10 +89,11 @@ function buildCard(categoryId, item, isAdmin) {
          data-category="${categoryId}" data-item="${item.id}">📷 Change Photo</div>`
     : "";
 
-  const nameMarkup = isAdmin
-    ? `<span class="card-ribbon ${ribbonClass}" contenteditable="true" data-editable
-         data-field="name" data-category="${categoryId}" data-item="${item.id}">${escapeHtml(item.name)} ♡</span>`
-    : `<span class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</span>`;
+  // The ribbon is a read-only live preview of the name now — it's layered
+  // over the photo overlay in admin mode, so making it independently
+  // clickable there caused clicks meant for it to land on "change photo"
+  // instead. Editing happens through the clearly-labelled field below.
+  const nameMarkup = `<span class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</span>`;
 
   return `
     <div class="menu-card revealed" data-item-id="${item.id}">
@@ -83,9 +104,10 @@ function buildCard(categoryId, item, isAdmin) {
       </div>
       <div class="card-body">
         ${priceMarkup}
+        ${nameFieldMarkup}
         ${descriptionMarkup}
         <div class="card-footer-row">
-          ${buildLikeButton(categoryId, item)}
+          ${buildLikeButton(categoryId, item, isAdmin)}
           <a href="${waLink(item.name)}" class="card-cta" target="_blank" rel="noopener noreferrer">Order on WhatsApp →</a>
         </div>
       </div>
@@ -118,12 +140,18 @@ export function renderCategory(category, container, isAdmin) {
 
 function buildMarketCard(categoryId, item, isAdmin) {
   const ribbonClass = `rib-${item.ribbon || "navy"}`;
-  const soldOut = item.stock <= 0;
+  // A brand-new item defaults to stock:null ("not set up yet") — that's
+  // deliberately distinct from stock:0 ("sold out"), so a freshly-added
+  // item doesn't get stamped SOLD OUT before she's even priced it.
+  const hasStock = typeof item.stock === "number";
+  const soldOut = hasStock && item.stock <= 0;
 
   const priceMarkup = isAdmin
     ? `<input type="number" min="0" step="1" class="price-input" data-field="price"
          data-category="${categoryId}" data-item="${item.id}" value="${item.price}">`
     : `<span class="price-tag">${formatPrice(item.price)}</span>`;
+
+  const nameFieldMarkup = isAdmin ? buildNameField(categoryId, item) : "";
 
   const descriptionMarkup = isAdmin
     ? `<textarea class="card-description-input" data-field="description"
@@ -138,11 +166,13 @@ function buildMarketCard(categoryId, item, isAdmin) {
          <button type="button" class="stock-btn" data-action="stock-minus"
            data-category="${categoryId}" data-item="${item.id}" aria-label="One sold">−</button>
          <input type="number" min="0" step="1" class="stock-input" data-field="stock"
-           data-category="${categoryId}" data-item="${item.id}" value="${item.stock}">
+           data-category="${categoryId}" data-item="${item.id}" value="${item.stock ?? ""}" placeholder="Set stock">
          <button type="button" class="stock-btn" data-action="stock-plus"
            data-category="${categoryId}" data-item="${item.id}" aria-label="Add one back">+</button>
        </div>`
-    : `<span class="stock-badge ${soldOut ? "stock-out" : ""}">${soldOut ? "Sold out" : `${item.stock} left`}</span>`;
+    : `<span class="stock-badge ${soldOut ? "stock-out" : ""}">${
+        !hasStock ? "Coming soon" : soldOut ? "Sold out" : `${item.stock} left`
+      }</span>`;
 
   const adminControls = isAdmin
     ? `<button type="button" class="admin-delete-btn" data-action="delete"
@@ -151,10 +181,9 @@ function buildMarketCard(categoryId, item, isAdmin) {
          data-category="${categoryId}" data-item="${item.id}">📷 Change Photo</div>`
     : "";
 
-  const nameMarkup = isAdmin
-    ? `<span class="card-ribbon ${ribbonClass}" contenteditable="true" data-editable
-         data-field="name" data-category="${categoryId}" data-item="${item.id}">${escapeHtml(item.name)} ♡</span>`
-    : `<span class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</span>`;
+  // Read-only preview — see the comment in buildCard() for why this is no
+  // longer contentEditable.
+  const nameMarkup = `<span class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</span>`;
 
   const soldOutStamp = soldOut ? `<div class="sold-out-stamp">Sold<br>Out</div>` : "";
 
@@ -168,6 +197,7 @@ function buildMarketCard(categoryId, item, isAdmin) {
       </div>
       <div class="card-body">
         ${priceMarkup}
+        ${nameFieldMarkup}
         ${descriptionMarkup}
         ${stockMarkup}
       </div>
