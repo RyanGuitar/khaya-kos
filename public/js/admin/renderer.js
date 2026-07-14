@@ -234,6 +234,43 @@ export function renderMarketSection(category, isAdmin) {
   container.innerHTML = `${header}${toggle}${banner}${body}`;
 }
 
+/* =====================================================
+   SURGICAL CARD UPDATES
+   Rebuilding an entire grid's HTML for a single field
+   change (a like, a stock tick) tears down and recreates
+   every card's <img> in that section — that's what causes
+   the flicker, and it costs a fresh image request each
+   time too. This rebuilds just the ONE card that actually
+   changed, using the exact same card-building functions,
+   and leaves every sibling card's DOM completely untouched.
+
+   Returns true if the patch succeeded, false if the card
+   wasn't found in the DOM (caller should fall back to a
+   full render — e.g. right after a fresh full-state load).
+   ===================================================== */
+export function patchCard(state, categoryId, itemId, isAdmin) {
+  const category = state.categories.find((c) => c.id === categoryId);
+  if (!category) return false;
+
+  const item = category.items.find((i) => i.id === itemId);
+  if (!item) return false;
+
+  const existingCard = document.querySelector(`.menu-card[data-item-id="${itemId}"]`);
+  if (!existingCard) return false;
+
+  const html = category.id === "market"
+    ? buildMarketCard(categoryId, item, isAdmin)
+    : buildCard(categoryId, item, isAdmin);
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html.trim();
+  const newCard = wrapper.firstElementChild;
+  if (!newCard) return false;
+
+  existingCard.replaceWith(newCard);
+  return true;
+}
+
 export function renderAll(state, isAdmin) {
   state.categories.forEach((category) => {
     if (category.id === "market") {

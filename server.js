@@ -184,7 +184,14 @@ app.get(["/", "/index.html"], renderIndex);
 
 // index:false stops this from auto-serving public/index.html for "/" —
 // that route is handled above so the live state can be injected first.
-app.use(express.static(PUBLIC_DIR, { index: false }));
+// maxAge caches static assets (SVGs, favicons, the seed placeholder
+// photos) in the visitor's browser for a week — without this, recreating
+// a card's <img> tag on every update can trigger a fresh network request
+// for an image that hasn't changed at all, which costs real data on a
+// mobile connection. Photos the owner uploads are embedded directly as
+// base64 in the product data, not served as files, so they're unaffected
+// by this either way.
+app.use(express.static(PUBLIC_DIR, { index: false, maxAge: "7d" }));
 
 // Catch-all: anything that didn't match a route or a static file gets the
 // branded 404 page instead of Express's raw default error text.

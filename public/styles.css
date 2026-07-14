@@ -700,10 +700,16 @@ section {
 }
 
 @keyframes ambientFloat {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.5) rotate(0deg); }
-  12% { opacity: 1; transform: translate(4px, -30px) scale(1) rotate(-6deg); }
-  55% { opacity: 0.9; transform: translate(-10px, -180px) scale(1.05) rotate(5deg); }
-  100% { opacity: 0; transform: translate(6px, -340px) scale(0.85) rotate(-4deg); }
+  0% { opacity: 0; transform: translate(0, 0) scale(0.6) rotate(0deg); }
+  15% { opacity: 1; transform: translate(-4px, -40px) scale(1) rotate(-4deg); }
+  100% { opacity: 0; transform: translate(-18px, -340px) scale(0.95) rotate(-9deg); }
+}
+
+@media screen and (min-width: 1015px) {
+  .ambient-heart {
+    font-size: 2.4rem;
+    bottom: 140px;
+  }
 }
 
 /* Ribbon color variants, matching the pamphlet's category tags */

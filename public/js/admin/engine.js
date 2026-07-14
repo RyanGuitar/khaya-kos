@@ -1,7 +1,7 @@
 // js/admin/engine.js
 import { store } from "./store.js";
 import { sync } from "./sync.js";
-import { renderAll } from "./renderer.js";
+import { renderAll, renderCategory, patchCard, renderMarketSection } from "./renderer.js";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 
 let isAdmin = false;
@@ -9,6 +9,27 @@ let pendingPhotoTarget = null; // { categoryId, itemId }
 
 function render() {
   renderAll(store.state, isAdmin);
+}
+
+// Updates just the one card that changed instead of rebuilding the whole
+// grid — falls back to a full render only if the card isn't in the DOM yet
+// (shouldn't normally happen, but keeps this safe either way).
+function patchOrRender(categoryId, itemId) {
+  const success = patchCard(store.state, categoryId, itemId, isAdmin);
+  if (!success) render();
+}
+
+// Re-renders just one category's section instead of the whole page —
+// used when an item is added/removed, which changes the grid's item
+// count rather than a single field, so patchCard doesn't apply.
+function renderCategoryById(categoryId) {
+  const category = store.getCategory(categoryId);
+  if (!category) return;
+  if (category.id === "market") {
+    renderMarketSection(category, isAdmin);
+  } else {
+    renderCategory(category, document.getElementById(`${category.id}-grid`), isAdmin);
+  }
 }
 
 function showToast(message) {
@@ -63,11 +84,14 @@ function spawnFloatingHearts(button) {
 // visitors who aren't the one clicking.
 function spawnAmbientHearts() {
   const count = 3;
+  const isDesktop = window.innerWidth >= 1015;
+  const leftBase = isDesktop ? 30 : 18;
+  const leftRange = isDesktop ? 55 : 26;
   for (let i = 0; i < count; i++) {
     const heart = document.createElement("span");
     heart.className = "ambient-heart";
     heart.textContent = "❤";
-    heart.style.left = `${18 + Math.random() * 26}px`;
+    heart.style.left = `${leftBase + Math.random() * leftRange}px`;
     heart.style.animationDelay = `${i * 130}ms`;
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 2400);
@@ -110,7 +134,7 @@ function adjustStock(categoryId, itemId, delta) {
   const newValue = Math.max(0, oldValue + delta);
 
   store.applyUpdate(categoryId, itemId, "stock", newValue);
-  render();
+  patchOrRender(categoryId, itemId);
   sync.adjustStock(categoryId, itemId, delta);
 
   if (newValue < oldValue) {
@@ -179,7 +203,7 @@ function wireEvents() {
       const dataUrl = await fileToCompressedDataUrl(file);
       const { categoryId, itemId } = pendingPhotoTarget;
       store.applyUpdate(categoryId, itemId, "image", dataUrl);
-      render();
+      patchOrRender(categoryId, itemId);
       sync.updateProduct(categoryId, itemId, "image", dataUrl);
     } catch (err) {
       showToast(err.message || "Could not process that photo.");
@@ -194,7 +218,7 @@ function wireEvents() {
       const { category, item } = deleteBtn.dataset;
       if (confirm("Remove this item from the site for everyone?")) {
         store.applyRemove(category, item);
-        render();
+        renderCategoryById(category);
         sync.removeProduct(category, item);
         showToast("Item removed.");
       }
@@ -234,7 +258,7 @@ function wireEvents() {
       if (!category) return;
       const newIsOpen = !category.isOpen;
       store.applyCategoryToggle(categoryId, newIsOpen);
-      render();
+      renderMarketSection(category, isAdmin);
       sync.toggleCategory(categoryId);
       showToast(newIsOpen ? "📣 Market is now open — live for everyone." : "Market closed.");
       return;
@@ -259,7 +283,7 @@ function wireEvents() {
       if (current) {
         current.likes = Math.max(0, (current.likes || 0) + delta);
       }
-      render();
+      patchOrRender(category, item);
       sync.likeProduct(category, item, delta);
       return;
     }
@@ -272,11 +296,11 @@ function wireEvents() {
     const newValue = e.target.textContent.replace(/♡\s*$/, "").trim();
     const current = store.getItem(category, item);
     if (!current || current.name === newValue || !newValue) {
-      render(); // snap back to the clean stored value either way
+      patchOrRender(category, item); // snap back to the clean stored value either way
       return;
     }
     store.applyUpdate(category, item, "name", newValue);
-    render();
+    patchOrRender(category, item);
     sync.updateProduct(category, item, "name", newValue);
   });
 
@@ -300,7 +324,7 @@ function wireEvents() {
       const oldValue = current ? current.stock : 0;
       const newValue = Math.max(0, Number(e.target.value) || 0);
       store.applyUpdate(category, item, "stock", newValue);
-      render();
+      patchOrRender(category, item);
       sync.updateProduct(category, item, "stock", newValue);
       if (current && newValue < oldValue) {
         showSoldToast(current.name, oldValue - newValue, newValue === 0);
@@ -310,6 +334,7 @@ function wireEvents() {
 
     const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
     store.applyUpdate(category, item, field, value);
+    patchOrRender(category, item);
     sync.updateProduct(category, item, field, value);
   });
 }
@@ -326,7 +351,7 @@ function wireSync() {
       const current = store.getItem(msg.categoryId, msg.itemId);
       const oldValue = current ? current.stock : null;
       store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
-      render();
+      patchOrRender(msg.categoryId, msg.itemId);
       if (current && oldValue !== null && msg.value < oldValue) {
         showSoldToast(current.name, oldValue - msg.value, msg.value === 0);
       }
@@ -336,7 +361,7 @@ function wireSync() {
       const current = store.getItem(msg.categoryId, msg.itemId);
       const oldValue = current ? current.likes : null;
       store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
-      render();
+      patchOrRender(msg.categoryId, msg.itemId);
       // Only celebrate someone ELSE's like arriving live — the person who
       // clicked already sees the button-burst animation locally, and the
       // server never echoes a like back to whoever sent it.
@@ -346,12 +371,17 @@ function wireSync() {
       return;
     }
     store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
-    render();
+    patchOrRender(msg.categoryId, msg.itemId);
   });
 
   sync.on("category-toggle", (msg) => {
     store.applyCategoryToggle(msg.categoryId, msg.isOpen);
-    render();
+    const category = store.getCategory(msg.categoryId);
+    if (category && category.id === "market") {
+      renderMarketSection(category, isAdmin);
+    } else {
+      render();
+    }
     if (msg.categoryId === "market") {
       showToast(msg.isOpen ? "📣 The market just opened!" : "The market has closed.");
     }
@@ -359,13 +389,13 @@ function wireSync() {
 
   sync.on("product-add", (msg) => {
     store.applyAdd(msg.categoryId, msg.item);
-    render();
+    renderCategoryById(msg.categoryId);
     showToast("New item added.");
   });
 
   sync.on("product-remove", (msg) => {
     store.applyRemove(msg.categoryId, msg.itemId);
-    render();
+    renderCategoryById(msg.categoryId);
   });
 
   sync.on("auth-result", (msg) => {
