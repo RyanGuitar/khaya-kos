@@ -73,6 +73,10 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
+  /* Stops the browser from treating a quick double-tap as a zoom gesture
+     (the classic "double-tapped a button and the page zoomed in" bug),
+     and removes the ~300ms tap delay on touch devices as a side benefit. */
+  touch-action: manipulation;
 }
 
 /* Text fields the owner actually needs to select/type in stay selectable.
@@ -1499,13 +1503,15 @@ body.admin-mode .menu-card {
 body.admin-mode [data-editable] {
   cursor: text;
   border-radius: 4px;
-  transition: background var(--dur) var(--ease);
+  outline: 2px dashed rgba(255, 255, 255, 0.75);
+  outline-offset: 2px;
+  transition: background var(--dur) var(--ease), outline-color var(--dur) var(--ease);
 }
 
 body.admin-mode [data-editable]:hover,
 body.admin-mode [data-editable]:focus {
   background: rgba(217, 154, 43, 0.14);
-  outline: none;
+  outline-color: var(--gold-light);
 }
 
 .admin-delete-btn {

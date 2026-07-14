@@ -271,6 +271,62 @@ export function patchCard(state, categoryId, itemId, isAdmin) {
   return true;
 }
 
+/* =====================================================
+   TRUE FIELD-LEVEL PATCHES
+   Even patchCard() above still tears down and recreates the
+   <img> and ribbon inside that one card, which is visible as
+   a flicker for the two fields that change constantly during
+   normal use — likes and market stock. These update only the
+   specific DOM nodes that actually changed and touch nothing
+   else in the card at all.
+   ===================================================== */
+export function patchLikeCount(itemId, value, isLiked) {
+  const btn = document.querySelector(`.like-btn[data-item="${itemId}"]`);
+  if (!btn) return false;
+
+  const countEl = btn.querySelector(".like-count");
+  const iconEl = btn.querySelector(".like-icon");
+  if (countEl) countEl.textContent = value;
+  if (iconEl) iconEl.textContent = isLiked ? "❤" : "♡";
+  btn.classList.toggle("is-liked", isLiked);
+  return true;
+}
+
+export function patchStock(itemId, value, isAdmin) {
+  const card = document.querySelector(`.menu-card[data-item-id="${itemId}"]`);
+  if (!card) return false;
+
+  const soldOut = value <= 0;
+
+  if (isAdmin) {
+    const input = card.querySelector(".stock-input");
+    // Don't stomp on it mid-edit if this happens to be the field the
+    // admin is actively typing in right now.
+    if (input && document.activeElement !== input) input.value = value;
+  } else {
+    const badge = card.querySelector(".stock-badge");
+    if (badge) {
+      badge.textContent = soldOut ? "Sold out" : `${value} left`;
+      badge.classList.toggle("stock-out", soldOut);
+    }
+  }
+
+  card.classList.toggle("is-sold-out", soldOut);
+
+  const imgWrap = card.querySelector(".card-img-wrap");
+  const existingStamp = card.querySelector(".sold-out-stamp");
+  if (soldOut && !existingStamp && imgWrap) {
+    const stamp = document.createElement("div");
+    stamp.className = "sold-out-stamp";
+    stamp.innerHTML = "Sold<br>Out";
+    imgWrap.appendChild(stamp);
+  } else if (!soldOut && existingStamp) {
+    existingStamp.remove();
+  }
+
+  return true;
+}
+
 export function renderAll(state, isAdmin) {
   state.categories.forEach((category) => {
     if (category.id === "market") {

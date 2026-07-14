@@ -1,7 +1,7 @@
 // js/admin/engine.js
 import { store } from "./store.js";
 import { sync } from "./sync.js";
-import { renderAll, renderCategory, patchCard, renderMarketSection } from "./renderer.js";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 
 let isAdmin = false;
@@ -134,7 +134,7 @@ function adjustStock(categoryId, itemId, delta) {
   const newValue = Math.max(0, oldValue + delta);
 
   store.applyUpdate(categoryId, itemId, "stock", newValue);
-  patchOrRender(categoryId, itemId);
+  patchStock(itemId, newValue, isAdmin);
   sync.adjustStock(categoryId, itemId, delta);
 
   if (newValue < oldValue) {
@@ -270,6 +270,7 @@ function wireEvents() {
       const liked = getLikedItems();
       const alreadyLiked = liked.has(item);
       const delta = alreadyLiked ? -1 : 1;
+      const nowLiked = !alreadyLiked;
 
       if (alreadyLiked) {
         liked.delete(item);
@@ -282,8 +283,8 @@ function wireEvents() {
       const current = store.getItem(category, item);
       if (current) {
         current.likes = Math.max(0, (current.likes || 0) + delta);
+        patchLikeCount(item, current.likes, nowLiked);
       }
-      patchOrRender(category, item);
       sync.likeProduct(category, item, delta);
       return;
     }
@@ -324,7 +325,7 @@ function wireEvents() {
       const oldValue = current ? current.stock : 0;
       const newValue = Math.max(0, Number(e.target.value) || 0);
       store.applyUpdate(category, item, "stock", newValue);
-      patchOrRender(category, item);
+      patchStock(item, newValue, isAdmin);
       sync.updateProduct(category, item, "stock", newValue);
       if (current && newValue < oldValue) {
         showSoldToast(current.name, oldValue - newValue, newValue === 0);
@@ -351,7 +352,7 @@ function wireSync() {
       const current = store.getItem(msg.categoryId, msg.itemId);
       const oldValue = current ? current.stock : null;
       store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
-      patchOrRender(msg.categoryId, msg.itemId);
+      patchStock(msg.itemId, msg.value, isAdmin);
       if (current && oldValue !== null && msg.value < oldValue) {
         showSoldToast(current.name, oldValue - msg.value, msg.value === 0);
       }
@@ -361,7 +362,7 @@ function wireSync() {
       const current = store.getItem(msg.categoryId, msg.itemId);
       const oldValue = current ? current.likes : null;
       store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
-      patchOrRender(msg.categoryId, msg.itemId);
+      patchLikeCount(msg.itemId, msg.value, getLikedItems().has(msg.itemId));
       // Only celebrate someone ELSE's like arriving live — the person who
       // clicked already sees the button-burst animation locally, and the
       // server never echoes a like back to whoever sent it.
