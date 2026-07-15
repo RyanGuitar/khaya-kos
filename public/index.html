@@ -100,9 +100,9 @@
     </button>
 
     <div class="nav-links" id="nav-list" role="navigation">
+      <a href="#market">Live at the Market</a>
       <a href="#menu">Menu</a>
       <a href="#extras">Also at the Stall</a>
-      <a href="#market">Live at the Market</a>
       <a href="#find-us">Find Us</a>
       <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20order%20for%20Saturday."
         class="btn-book-nav" target="_blank" rel="noopener noreferrer">💬 Order on WhatsApp</a>
@@ -143,22 +143,32 @@
     </div>
   </header>
 
-  <section class="chalk-strip">
-    <div class="container">
-      <div class="chalk-row">
-        <div class="chalk-box">
-          <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
-          <p>"Vars gemaak met die beste bestandele en baie liefde!" 💛</p>
-        </div>
-        <div class="chalk-box">
-          <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
-          <p>Dankie dat jy plaaslik ondersteun — elke besoek en elke glimlag word waardeer. ♥</p>
+  <main>
+    <section class="menu-section market-section" id="market">
+      <div class="container">
+        <!-- Entirely rendered live by js/admin/renderer.js — header,
+             open/closed state, live banner, and item grid all change
+             together based on whether the owner has the market toggled
+             open. See renderMarketSection() in renderer.js. -->
+        <div id="market-content"></div>
+      </div>
+    </section>
+
+    <section class="chalk-strip">
+      <div class="container">
+        <div class="chalk-row">
+          <div class="chalk-box">
+            <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
+            <p>"Vars gemaak met die beste bestandele en baie liefde!" 💛</p>
+          </div>
+          <div class="chalk-box">
+            <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
+            <p>Dankie dat jy plaaslik ondersteun — elke besoek en elke glimlag word waardeer. ♥</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <main>
     <section class="menu-section" id="menu">
       <div class="container">
         <div class="section-header">
@@ -189,16 +199,6 @@
 
         <!-- Rendered live by js/admin/renderer.js from product state -->
         <div class="menu-grid" id="extras-grid"></div>
-      </div>
-    </section>
-
-    <section class="menu-section market-section" id="market">
-      <div class="container">
-        <!-- Entirely rendered live by js/admin/renderer.js — header,
-             open/closed state, live banner, and item grid all change
-             together based on whether the owner has the market toggled
-             open. See renderMarketSection() in renderer.js. -->
-        <div id="market-content"></div>
       </div>
     </section>
 

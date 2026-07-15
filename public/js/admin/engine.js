@@ -33,12 +33,39 @@ function renderCategoryById(categoryId) {
 }
 
 function showToast(message) {
-  const toast = document.getElementById("admin-toast");
-  if (!toast) return;
+  const container = document.getElementById("sold-toast-container");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className = "sold-toast notice-toast";
   toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(showToast._timer);
-  showToast._timer = setTimeout(() => toast.classList.remove("show"), 2600);
+  container.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 400);
+  }, 2800);
+}
+
+function celebrateMarketOpen() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const colours = ["#d99a2b", "#a63a2e", "#4f7a3d", "#2f6f73", "#70486f", "#f7f2e6"];
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < 70; i++) {
+    const piece = document.createElement("span");
+    piece.className = "market-confetti";
+    piece.style.setProperty("--confetti-left", `${Math.random() * 100}vw`);
+    piece.style.setProperty("--confetti-colour", colours[i % colours.length]);
+    piece.style.setProperty("--confetti-delay", `${Math.random() * 0.8}s`);
+    piece.style.setProperty("--confetti-duration", `${2.5 + Math.random() * 1.8}s`);
+    piece.style.setProperty("--confetti-drift", `${Math.random() * 160 - 80}px`);
+    piece.style.setProperty("--confetti-turn", `${360 + Math.random() * 720}deg`);
+    fragment.appendChild(piece);
+    setTimeout(() => piece.remove(), 5200);
+  }
+
+  document.body.appendChild(fragment);
 }
 
 // ===== LIKES =====
@@ -139,44 +166,58 @@ function showSoldToast(itemName, qty, isSoldOut) {
 // debounce window collapse into ONE combined delta and ONE toast, instead
 // of a stack of individual toasts piling up for every viewer on the site
 // (which is exactly what happened selling several items in quick succession).
-const pendingStockDeltas = new Map(); // "categoryId:itemId" -> { categoryId, itemId, delta, timer }
+const pendingStockDeltas = new Map(); // key -> { categoryId, itemId, originalStock, timer }
 const STOCK_BATCH_DELAY = 1300;
+
+function queueStockChange(categoryId, itemId, newValue) {
+  const item = store.getItem(categoryId, itemId);
+  if (!item) return;
+
+  const oldValue = typeof item.stock === "number" ? item.stock : 0;
+  const nextValue = Math.max(0, Number(newValue) || 0);
+  const key = `${categoryId}:${itemId}`;
+  let pending = pendingStockDeltas.get(key);
+
+  if (!pending) {
+    pending = { categoryId, itemId, originalStock: oldValue };
+    pendingStockDeltas.set(key, pending);
+  }
+
+  store.applyUpdate(categoryId, itemId, "stock", nextValue);
+  patchStock(itemId, nextValue, isAdmin, { deferSoldOut: nextValue === 0 });
+
+  clearTimeout(pending.timer);
+  pending.timer = setTimeout(() => flushStockDelta(key), STOCK_BATCH_DELAY);
+}
 
 function adjustStock(categoryId, itemId, delta) {
   const item = store.getItem(categoryId, itemId);
   if (!item) return;
   const oldValue = typeof item.stock === "number" ? item.stock : 0;
-  const newValue = Math.max(0, oldValue + delta);
-
-  store.applyUpdate(categoryId, itemId, "stock", newValue);
-  patchStock(itemId, newValue, isAdmin);
-
-  const key = `${categoryId}:${itemId}`;
-  let pending = pendingStockDeltas.get(key);
-  if (!pending) {
-    pending = { categoryId, itemId, delta: 0 };
-    pendingStockDeltas.set(key, pending);
-  }
-  pending.delta += delta;
-  clearTimeout(pending.timer);
-  pending.timer = setTimeout(() => flushStockDelta(key), STOCK_BATCH_DELAY);
+  queueStockChange(categoryId, itemId, oldValue + delta);
 }
 
 function flushStockDelta(key) {
   const pending = pendingStockDeltas.get(key);
   if (!pending) return;
   pendingStockDeltas.delete(key);
-  if (pending.delta === 0) return; // e.g. one tap down then one tap back up — net nothing to send
+  const item = store.getItem(pending.categoryId, pending.itemId);
+  if (!item) return;
+  const currentStock = typeof item.stock === "number" ? item.stock : 0;
+  const delta = currentStock - pending.originalStock;
 
-  sync.adjustStock(pending.categoryId, pending.itemId, pending.delta);
+  // Finalise the visual state only after the correction window has elapsed.
+  patchStock(pending.itemId, currentStock, isAdmin);
+  if (delta === 0) return; // e.g. one tap down then one tap back up
+
+  sync.adjustStock(pending.categoryId, pending.itemId, delta);
 
   // "Sold" only means something once the market is actually live for
   // customers — while she's setting up stock with the market closed,
   // nothing is really selling, so no toast should fire for anyone.
   const category = store.getCategory(pending.categoryId);
-  const item = store.getItem(pending.categoryId, pending.itemId);
-  if (category?.isOpen && item && pending.delta < 0) {
-    showSoldToast(item.name, Math.abs(pending.delta), item.stock === 0);
+  if (category?.isOpen && delta < 0) {
+    showSoldToast(item.name, Math.abs(delta), currentStock === 0);
   }
 }
 
@@ -299,6 +340,7 @@ function wireEvents() {
       renderMarketSection(category, isAdmin);
       sync.toggleCategory(categoryId);
       showToast(newIsOpen ? "📣 Market is now open — live for everyone." : "Market closed.");
+      if (newIsOpen) celebrateMarketOpen();
       return;
     }
 
@@ -335,6 +377,22 @@ function wireEvents() {
     }
   });
 
+  // Start each text/price edit with a clean field. Stock deliberately keeps
+  // its value visible so the owner never loses track of the live count.
+  document.addEventListener("focusin", (e) => {
+    const field = e.target.dataset.field;
+    if (!isAdmin || !["name", "description", "price"].includes(field)) return;
+    e.target.dataset.editOriginal = e.target.value;
+    e.target.dataset.editTyped = "false";
+    e.target.value = "";
+  });
+
+  document.addEventListener("input", (e) => {
+    if (e.target.dataset.editTyped !== undefined) {
+      e.target.dataset.editTyped = "true";
+    }
+  });
+
   // Delegated commit of price/description/stock/name fields.
   document.addEventListener("change", (e) => {
     const field = e.target.dataset.field;
@@ -342,17 +400,15 @@ function wireEvents() {
 
     const { category, item } = e.target.dataset;
 
+    if (field !== "stock" && e.target.dataset.editTyped === "false") {
+      e.target.value = e.target.dataset.editOriginal ?? "";
+      return;
+    }
+
     if (field === "stock") {
       const current = store.getItem(category, item);
-      const oldValue = current && typeof current.stock === "number" ? current.stock : 0;
       const newValue = Math.max(0, Number(e.target.value) || 0);
-      store.applyUpdate(category, item, "stock", newValue);
-      patchStock(item, newValue, isAdmin);
-      sync.updateProduct(category, item, "stock", newValue);
-      const categoryObj = store.getCategory(category);
-      if (current && categoryObj?.isOpen && newValue < oldValue) {
-        showSoldToast(current.name, oldValue - newValue, newValue === 0);
-      }
+      if (current) queueStockChange(category, item, newValue);
       return;
     }
 
@@ -421,6 +477,7 @@ function wireSync() {
     }
     if (msg.categoryId === "market") {
       showToast(msg.isOpen ? "📣 The market just opened!" : "The market has closed.");
+      if (msg.isOpen) celebrateMarketOpen();
     }
   });
 

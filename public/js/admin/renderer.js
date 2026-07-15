@@ -227,7 +227,7 @@ function buildMarketClosedState() {
       <p class="market-closed-text">The market stall isn't open right now.</p>
       <p class="market-closed-sub">
         Catch the live stock here every Saturday at Gazebo Valley — or order
-        from the full menu above any day of the week.
+        from the full menu below any day of the week.
       </p>
     </div>
   `;
@@ -322,7 +322,7 @@ export function patchLikeCount(itemId, value, isLiked) {
   return true;
 }
 
-export function patchStock(itemId, value, isAdmin) {
+export function patchStock(itemId, value, isAdmin, { deferSoldOut = false } = {}) {
   const card = document.querySelector(`.menu-card[data-item-id="${itemId}"]`);
   if (!card) return false;
 
@@ -340,6 +340,11 @@ export function patchStock(itemId, value, isAdmin) {
       badge.classList.toggle("stock-out", soldOut);
     }
   }
+
+  // The number changes instantly for the owner, but reaching zero gets the
+  // same settling window as the network update. This lets an accidental
+  // extra tap be corrected before the stamp appears.
+  if (deferSoldOut && soldOut) return true;
 
   card.classList.toggle("is-sold-out", soldOut);
 

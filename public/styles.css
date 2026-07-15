@@ -531,16 +531,12 @@ section {
   flex-direction: column;
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease), box-shadow var(--dur) var(--ease);
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
 }
 
 .menu-card.revealed {
   opacity: 1;
   transform: translateY(0);
-}
-
-.menu-card:hover {
-  box-shadow: var(--shadow-lg);
 }
 
 .card-img-wrap {
@@ -554,11 +550,6 @@ section {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.menu-card:hover .card-img-wrap img {
-  transform: scale(1.06);
 }
 
 .card-ribbon {
@@ -982,6 +973,34 @@ section {
 .sold-toast-out {
   border-color: var(--red);
   background: var(--red-deep);
+}
+
+.notice-toast {
+  background: var(--chalk-black);
+  border-color: var(--gold-light);
+}
+
+.market-confetti {
+  position: fixed;
+  top: -18px;
+  left: var(--confetti-left);
+  z-index: 1200;
+  width: 9px;
+  height: 15px;
+  border-radius: 2px;
+  background: var(--confetti-colour);
+  pointer-events: none;
+  animation: marketConfettiFall var(--confetti-duration) cubic-bezier(.18,.72,.35,1) var(--confetti-delay) forwards;
+}
+
+@keyframes marketConfettiFall {
+  0% { transform: translate3d(0, -5vh, 0) rotate(0); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--confetti-drift), 110vh, 0) rotate(var(--confetti-turn)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .market-confetti { display: none; }
 }
 
 /* ===== TRUST SECTION ===== */
