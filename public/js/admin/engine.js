@@ -1,7 +1,7 @@
 // js/admin/engine.js
 import { store } from "./store.js";
 import { sync } from "./sync.js";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=2.2";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
@@ -290,6 +290,35 @@ function wireEvents() {
 
   // Delegated clicks across the whole document: delete, add, change-photo.
   document.addEventListener("click", (e) => {
+    const menuDisclosureBtn = e.target.closest('[data-action="toggle-weekly-menu"]');
+    if (menuDisclosureBtn) {
+      const grid = document.getElementById("menu-grid");
+      if (!grid) return;
+
+      const isExpanded = grid.dataset.expanded === "true";
+      const nextExpanded = !isExpanded;
+      const totalItems = Number(menuDisclosureBtn.dataset.total) || 0;
+
+      grid.dataset.expanded = String(nextExpanded);
+      grid.classList.toggle("is-collapsed", !nextExpanded);
+      grid.classList.toggle("is-expanded", nextExpanded);
+      menuDisclosureBtn.setAttribute("aria-expanded", String(nextExpanded));
+      menuDisclosureBtn.textContent = nextExpanded
+        ? "Show fewer ↑"
+        : `See all ${totalItems} menu items ↓`;
+
+      if (!nextExpanded) {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        requestAnimationFrame(() => {
+          document.getElementById("menu")?.scrollIntoView({
+            behavior: reduceMotion ? "auto" : "smooth",
+            block: "start",
+          });
+        });
+      }
+      return;
+    }
+
     const deleteBtn = e.target.closest('[data-action="delete"]');
     if (deleteBtn) {
       const { category, item } = deleteBtn.dataset;

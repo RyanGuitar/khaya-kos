@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { patchStock } from "../public/js/admin/renderer.js";
+import { patchStock, renderCategory, renderMarketSection } from "../public/js/admin/renderer.js";
 
 function createClassList(initial = []) {
   const classes = new Set(initial);
@@ -103,5 +103,178 @@ test("the owner sees zero immediately while sold-out visuals are deferred", () =
     assert.equal(fixture.getStamp(), null);
   } finally {
     restoreDocument();
+  }
+});
+
+function createMarketPageFixture() {
+  const section = { classList: createClassList() };
+  const container = {
+    innerHTML: "",
+    closest: () => section,
+  };
+  const label = { textContent: "" };
+  const detail = { textContent: "" };
+  const heroStatus = {
+    classList: createClassList(),
+    querySelector(selector) {
+      if (selector === ".status-label") return label;
+      if (selector === ".status-detail") return detail;
+      return null;
+    },
+  };
+  const navLink = {
+    classList: createClassList(),
+    attributes: {},
+    setAttribute(name, value) {
+      this.attributes[name] = value;
+    },
+  };
+
+  return { section, container, heroStatus, navLink, label, detail };
+}
+
+function useFakeMarketDocument(fixture) {
+  const previousDocument = globalThis.document;
+  const previousLocalStorage = globalThis.localStorage;
+  globalThis.document = {
+    getElementById(id) {
+      if (id === "market-content") return fixture.container;
+      if (id === "hero-market-status") return fixture.heroStatus;
+      if (id === "market-nav-link") return fixture.navLink;
+      return null;
+    },
+  };
+  globalThis.localStorage = { getItem: () => null };
+
+  return () => {
+    globalThis.document = previousDocument;
+    globalThis.localStorage = previousLocalStorage;
+  };
+}
+
+function marketCategory(isOpen) {
+  return {
+    id: "market",
+    eyebrow: "Gazebo Valley · Saturdays",
+    title: "Live at the Market",
+    subtitle: "Current Saturday stall stock.",
+    isOpen,
+    items: [
+      {
+        id: "market-pie",
+        name: "Chicken Pie",
+        description: "Chicken and mushroom",
+        price: 28,
+        image: "/images/pies.svg",
+        ribbon: "brown",
+        stock: 3,
+      },
+    ],
+  };
+}
+
+test("closed market uses the compact menu route and closed status cues", () => {
+  const fixture = createMarketPageFixture();
+  const restoreDocument = useFakeMarketDocument(fixture);
+
+  try {
+    renderMarketSection(marketCategory(false), false);
+
+    assert.match(fixture.container.innerHTML, /market-closed/);
+    assert.match(fixture.container.innerHTML, /Order from the full menu/);
+    assert.doesNotMatch(fixture.container.innerHTML, /market-grid/);
+    assert.equal(fixture.section.classList.contains("is-closed"), true);
+    assert.equal(fixture.section.classList.contains("is-live"), false);
+    assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
+    assert.equal(fixture.label.textContent, "Saturday market");
+  } finally {
+    restoreDocument();
+  }
+});
+
+test("open market exposes stock and live status cues", () => {
+  const fixture = createMarketPageFixture();
+  const restoreDocument = useFakeMarketDocument(fixture);
+
+  try {
+    renderMarketSection(marketCategory(true), false);
+
+    assert.match(fixture.container.innerHTML, /market-title-live/);
+    assert.match(fixture.container.innerHTML, /market-grid/);
+    assert.match(fixture.container.innerHTML, /3 left/);
+    assert.equal(fixture.section.classList.contains("is-live"), true);
+    assert.equal(fixture.section.classList.contains("is-closed"), false);
+    assert.equal(fixture.heroStatus.classList.contains("is-live"), true);
+    assert.equal(fixture.navLink.classList.contains("is-live"), true);
+    assert.equal(fixture.label.textContent, "Market live now");
+    assert.equal(fixture.detail.textContent, "See what’s left →");
+  } finally {
+    restoreDocument();
+  }
+});
+
+function weeklyMenu(itemCount = 7) {
+  return {
+    id: "menu",
+    items: Array.from({ length: itemCount }, (_, index) => ({
+      id: `item-${index + 1}`,
+      name: `Item ${index + 1}`,
+      description: "Made fresh to order",
+      price: 10 + index,
+      image: "/images/placeholder.svg",
+      ribbon: "navy",
+      likes: 0,
+    })),
+  };
+}
+
+function createMenuContainer() {
+  return {
+    classList: createClassList(),
+    dataset: {},
+    innerHTML: "",
+  };
+}
+
+test("public weekly menu renders every product with collapsed disclosure", () => {
+  const previousLocalStorage = globalThis.localStorage;
+  globalThis.localStorage = { getItem: () => null };
+  const container = createMenuContainer();
+
+  try {
+    renderCategory(weeklyMenu(7), container, false);
+
+    assert.equal(container.classList.contains("weekly-menu-grid"), true);
+    assert.equal(container.classList.contains("is-collapsed"), true);
+    assert.match(container.innerHTML, /See all 7 menu items/);
+    assert.match(container.innerHTML, /aria-expanded="false"/);
+    assert.equal((container.innerHTML.match(/class="menu-card revealed"/g) || []).length, 7);
+
+    container.dataset.expanded = "true";
+    renderCategory(weeklyMenu(7), container, false);
+    assert.equal(container.classList.contains("is-expanded"), true);
+    assert.equal(container.classList.contains("is-collapsed"), false);
+    assert.match(container.innerHTML, /Show fewer/);
+  } finally {
+    globalThis.localStorage = previousLocalStorage;
+  }
+});
+
+test("owner and short weekly menus do not use progressive disclosure", () => {
+  const previousLocalStorage = globalThis.localStorage;
+  globalThis.localStorage = { getItem: () => null };
+  const ownerContainer = createMenuContainer();
+  const shortContainer = createMenuContainer();
+
+  try {
+    renderCategory(weeklyMenu(7), ownerContainer, true);
+    assert.doesNotMatch(ownerContainer.innerHTML, /toggle-weekly-menu/);
+    assert.equal(ownerContainer.classList.contains("weekly-menu-grid"), false);
+
+    renderCategory(weeklyMenu(4), shortContainer, false);
+    assert.doesNotMatch(shortContainer.innerHTML, /toggle-weekly-menu/);
+    assert.equal(shortContainer.classList.contains("weekly-menu-grid"), false);
+  } finally {
+    globalThis.localStorage = previousLocalStorage;
   }
 });

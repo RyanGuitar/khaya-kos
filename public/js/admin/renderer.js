@@ -95,7 +95,7 @@ function buildCard(categoryId, item, isAdmin) {
   // over the photo overlay in admin mode, so making it independently
   // clickable there caused clicks meant for it to land on "change photo"
   // instead. Editing happens through the clearly-labelled field below.
-  const nameMarkup = `<span class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</span>`;
+  const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</h3>`;
 
   return `
     <div class="menu-card revealed" data-item-id="${item.id}">
@@ -125,11 +125,32 @@ function buildAddCard(categoryId) {
   `;
 }
 
+function buildMenuDisclosure(totalItems, isExpanded) {
+  return `
+    <div class="menu-disclosure-row">
+      <button type="button" class="menu-disclosure-btn" data-action="toggle-weekly-menu"
+        data-category="menu" data-total="${totalItems}" aria-controls="menu-grid"
+        aria-expanded="${isExpanded}">
+        ${isExpanded ? "Show fewer ↑" : `See all ${totalItems} menu items ↓`}
+      </button>
+    </div>
+  `;
+}
+
 export function renderCategory(category, container, isAdmin) {
   if (!container) return;
+  const hasDisclosure = category.id === "menu" && !isAdmin && category.items.length > 4;
+  const isExpanded = hasDisclosure && container.dataset.expanded === "true";
+
+  container.classList.toggle("weekly-menu-grid", hasDisclosure);
+  container.classList.toggle("is-collapsed", hasDisclosure && !isExpanded);
+  container.classList.toggle("is-expanded", hasDisclosure && isExpanded);
+  container.classList.toggle("has-six-or-fewer", hasDisclosure && category.items.length <= 6);
+
   const cards = category.items.map((item) => buildCard(category.id, item, isAdmin)).join("");
   const addCard = isAdmin ? buildAddCard(category.id) : "";
-  container.innerHTML = cards + addCard;
+  const disclosure = hasDisclosure ? buildMenuDisclosure(category.items.length, isExpanded) : "";
+  container.innerHTML = cards + addCard + disclosure;
 }
 
 /* =====================================================
@@ -185,7 +206,7 @@ function buildMarketCard(categoryId, item, isAdmin) {
 
   // Read-only preview — see the comment in buildCard() for why this is no
   // longer contentEditable.
-  const nameMarkup = `<span class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</span>`;
+  const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</h3>`;
 
   const soldOutStamp = soldOut ? `<div class="sold-out-stamp">Sold<br>Out</div>` : "";
 
@@ -219,30 +240,66 @@ function buildMarketToggle(category) {
 
 function buildMarketBanner(isOpen) {
   if (!isOpen) return "";
-  return `<div class="market-live-banner"><span class="live-dot"></span> LIVE NOW at Gazebo Valley</div>`;
+  return `
+    <div class="market-live-banner">
+      <span class="live-dot"></span>
+      <strong>Live now</strong>
+      <span>at Gazebo Valley · while stock lasts</span>
+    </div>
+  `;
 }
 
 function buildMarketClosedState() {
   return `
     <div class="market-closed">
       <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
-      <p class="market-closed-text">The market stall isn't open right now.</p>
-      <p class="market-closed-sub">
-        Catch the live stock here every Saturday at Gazebo Valley — or order
-        from the full menu below any day of the week.
-      </p>
+      <div class="market-closed-copy">
+        <p class="market-closed-text">The Saturday stall is closed right now.</p>
+        <p class="market-closed-sub">Live stock appears here when Khaya Kos opens at Gazebo Valley.</p>
+      </div>
+      <a href="#menu" class="market-menu-link">Order from the full menu ↓</a>
     </div>
   `;
+}
+
+function updateMarketStatus(category) {
+  const isOpen = Boolean(category.isOpen);
+  const heroStatus = document.getElementById("hero-market-status");
+  const navLink = document.getElementById("market-nav-link");
+
+  if (heroStatus) {
+    heroStatus.classList.toggle("is-live", isOpen);
+    const label = heroStatus.querySelector(".status-label");
+    const detail = heroStatus.querySelector(".status-detail");
+    if (label) label.textContent = isOpen ? "Market live now" : "Saturday market";
+    if (detail) detail.textContent = isOpen ? "See what’s left →" : "Check the live selection →";
+  }
+
+  if (navLink) {
+    navLink.classList.toggle("is-live", isOpen);
+    navLink.setAttribute(
+      "aria-label",
+      isOpen ? "Market live now — see current stock" : "Live at the Market"
+    );
+  }
 }
 
 export function renderMarketSection(category, isAdmin) {
   const container = document.getElementById("market-content");
   if (!container) return;
 
+  const section = container.closest(".market-section");
+  section?.classList.toggle("is-live", Boolean(category.isOpen));
+  section?.classList.toggle("is-closed", !category.isOpen);
+  updateMarketStatus(category);
+
   const header = `
     <div class="section-header">
       <p class="section-eyebrow">${escapeHtml(category.eyebrow)}</p>
-      <h2 class="section-title">${escapeHtml(category.title)}</h2>
+      <div class="market-title-row">
+        <h2 class="section-title">${escapeHtml(category.title)}</h2>
+        ${category.isOpen ? `<span class="market-title-live"><span class="live-dot"></span> Live</span>` : ""}
+      </div>
       <p class="section-subtitle">${escapeHtml(category.subtitle)}</p>
     </div>
   `;

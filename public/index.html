@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Khaya Kos | Saterdag Market Stall — Gazebo Valley, Pearly Beach</title>
   <meta name="description"
@@ -67,7 +67,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=2.0">
+  <link rel="stylesheet" href="styles.css?v=2.2">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -100,7 +100,10 @@
     </button>
 
     <div class="nav-links" id="nav-list" role="navigation">
-      <a href="#market">Live at the Market</a>
+      <a href="#market" id="market-nav-link">
+        <span class="nav-live-dot" aria-hidden="true"></span>
+        <span>Live at the Market</span>
+      </a>
       <a href="#menu">Menu</a>
       <a href="#extras">Also at the Stall</a>
       <a href="#find-us">Find Us</a>
@@ -115,7 +118,7 @@
     <img src="images/bunting.svg" alt="" class="hero-bunting" aria-hidden="true">
 
     <div class="hero-inner">
-      <p class="hero-eyebrow">Kom kuier, smul en geniet heerlike goed en 'n gesellige geselskap!</p>
+      <p class="hero-eyebrow">Kom kuier, smul en geniet!</p>
 
       <div class="hero-sign">
         <span class="hero-badge">Alles met liefde gemaak!</span>
@@ -127,9 +130,8 @@
         </div>
 
         <p class="hero-desc">
-          Home-baked muffins, pies, samosas, scones and more — order any day
-          of the week for pickup, or catch a limited live selection in person
-          at the Gazebo Valley Saturday market, by the club.
+          Home-baked favourites made with love. Order any day for pickup, or
+          see what is available live at our Gazebo Valley Saturday stall.
         </p>
 
         <div class="hero-cta-group">
@@ -139,6 +141,12 @@
           </a>
           <a href="#menu" class="btn-secondary">See the Menu</a>
         </div>
+
+        <a href="#market" id="hero-market-status" class="hero-market-status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-label">Saturday market</span>
+          <span class="status-detail">Check the live selection →</span>
+        </a>
       </div>
     </div>
   </header>
@@ -289,7 +297,7 @@
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" hidden>
 
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js?v=2.2"></script>
 </body>
 
 </html>

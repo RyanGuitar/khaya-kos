@@ -49,6 +49,8 @@
   --radius-sm: 8px;
   --dur: 0.3s;
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --space-section: 68px;
+  --space-section-mobile: 48px;
 }
 
 /* ===== RESET ===== */
@@ -71,17 +73,28 @@ body {
   background: var(--cream);
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  user-select: none;
-  /* Stops the browser from treating a quick double-tap as a zoom gesture
-     (the classic "double-tapped a button and the page zoomed in" bug),
-     and removes the ~300ms tap delay on touch devices as a side benefit. */
+  /* Allows normal panning and pinch zoom while disabling double-tap zoom —
+     important when stock or like buttons are tapped rapidly. */
   touch-action: manipulation;
 }
 
-/* Text fields the owner actually needs to select/type in stay selectable.
-   Long-press "save image" on photos is unaffected by user-select — that's
-   governed separately by -webkit-touch-callout, which we never disable. */
+a,
+button,
+input,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+a,
+button,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Owner fields remain explicitly selectable; normal page copy is selectable
+   too, while rapid-tap controls above are protected from text selection. */
 input,
 textarea,
 [contenteditable="true"] {
@@ -113,12 +126,12 @@ a {
 }
 
 section {
-  padding: 76px 0;
+  padding: var(--space-section) 0;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 46px;
+  margin-bottom: 36px;
 }
 
 .section-eyebrow {
@@ -145,7 +158,7 @@ section {
   color: var(--ink-soft);
   max-width: 560px;
   margin: 14px auto 0;
-  line-height: 1.75;
+  line-height: 1.65;
 }
 
 /* ===== BUNTING DIVIDER ===== */
@@ -173,6 +186,30 @@ section {
   box-shadow: var(--shadow-sm);
   border-bottom: 3px solid var(--kraft-deep);
   transition: box-shadow var(--dur) var(--ease);
+}
+
+#market-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.nav-live-dot {
+  display: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 4px rgba(166, 58, 46, 0.14);
+}
+
+#market-nav-link.is-live {
+  color: var(--red-deep);
+  background: rgba(166, 58, 46, 0.1);
+}
+
+#market-nav-link.is-live .nav-live-dot {
+  display: inline-block;
 }
 
 #main-nav.scrolled {
@@ -304,7 +341,7 @@ section {
 .hero {
   position: relative;
   width: 100%;
-  padding: 130px 0 70px;
+  padding: 126px 0 66px;
   background:
     radial-gradient(circle at 15% 20%, rgba(255,255,255,0.10) 0, transparent 40%),
     repeating-linear-gradient(115deg, var(--kraft) 0px, var(--kraft) 46px, var(--kraft-deep) 46px, var(--kraft-deep) 50px),
@@ -322,7 +359,7 @@ section {
 .hero-inner {
   position: relative;
   z-index: 2;
-  max-width: 720px;
+  max-width: 740px;
   margin: 0 auto;
   text-align: center;
   padding: 0 24px;
@@ -334,13 +371,13 @@ section {
   font-weight: 700;
   color: var(--chalk-black);
   opacity: 0.8;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .hero-sign {
   background: var(--paper);
   border-radius: var(--radius);
-  padding: 40px 34px 34px;
+  padding: 42px 38px 34px;
   box-shadow: var(--shadow-lg);
   border: 3px solid var(--brown-deep);
   position: relative;
@@ -398,8 +435,8 @@ section {
   position: absolute;
   top: -26px;
   right: -14px;
-  width: 96px;
-  height: 96px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   background: var(--chalk-black);
   border: 3px solid var(--gold-light);
@@ -410,7 +447,7 @@ section {
   text-align: center;
   font-family: 'Kalam', cursive;
   font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   line-height: 1.15;
   transform: rotate(8deg);
   box-shadow: var(--shadow-md);
@@ -419,10 +456,13 @@ section {
 
 .hero-desc {
   font-family: 'Nunito', sans-serif;
-  font-size: 1.02rem;
+  font-size: 1.05rem;
   color: var(--ink-soft);
   margin-top: 20px;
-  line-height: 1.7;
+  line-height: 1.65;
+  max-width: 570px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-cta-group {
@@ -463,6 +503,59 @@ section {
   background: var(--chalk-black);
   color: var(--chalk-white);
   border: 2px solid var(--gold-light);
+}
+
+.hero-market-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 22px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: var(--ink-soft);
+  background: rgba(196, 154, 99, 0.16);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.hero-market-status:hover {
+  color: var(--ink);
+  background: rgba(196, 154, 99, 0.28);
+  transform: translateY(-1px);
+}
+
+.hero-market-status .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--kraft-shadow);
+  flex-shrink: 0;
+}
+
+.hero-market-status .status-label {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.hero-market-status .status-detail {
+  font-weight: 700;
+}
+
+.hero-market-status.is-live {
+  color: var(--red-deep);
+  background: rgba(166, 58, 46, 0.12);
+}
+
+.hero-market-status.is-live .status-dot {
+  background: var(--red);
+  box-shadow: 0 0 0 4px rgba(166, 58, 46, 0.14);
+  animation: livePulse 1.6s ease-in-out infinite;
 }
 
 .btn-secondary:hover {
@@ -517,8 +610,55 @@ section {
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  align-items: stretch;
+}
+
+#menu {
+  scroll-margin-top: 82px;
+}
+
+.weekly-menu-grid.is-collapsed > .menu-card:nth-child(n + 7) {
+  display: none;
+}
+
+.menu-disclosure-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.menu-disclosure-btn {
+  min-height: 46px;
+  padding: 11px 24px;
+  border: 2px solid var(--brown-deep);
+  border-radius: 999px;
+  color: var(--chalk-white);
+  background: var(--chalk-black);
+  box-shadow: var(--shadow-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.94rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.menu-disclosure-btn:hover {
+  background: var(--chalk-black-soft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.menu-disclosure-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media screen and (min-width: 1016px) {
+  .weekly-menu-grid.has-six-or-fewer .menu-disclosure-row {
+    display: none;
+  }
 }
 
 .menu-card {
@@ -541,7 +681,7 @@ section {
 
 .card-img-wrap {
   position: relative;
-  height: 190px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--kraft-deep);
 }
@@ -560,14 +700,15 @@ section {
   border-radius: 0 0 8px 8px;
   font-family: 'Baloo 2', sans-serif;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.96rem;
+  line-height: 1.25;
   color: var(--chalk-white);
   box-shadow: var(--shadow-sm);
   transform: rotate(-1.2deg);
 }
 
 .card-body {
-  padding: 20px 22px 24px;
+  padding: 20px 22px 22px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -581,7 +722,7 @@ section {
 
 .card-body ul li {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: var(--ink-soft);
   padding: 4px 0 4px 20px;
   position: relative;
@@ -601,12 +742,13 @@ section {
   align-items: center;
   gap: 6px;
   font-family: 'Nunito', sans-serif;
-  font-size: 0.86rem;
+  font-size: 0.92rem;
   font-weight: 800;
   color: #1f8a4c;
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 20px;
+  min-height: 42px;
   background: rgba(37, 211, 102, 0.12);
   transition: background var(--dur) var(--ease), gap var(--dur) var(--ease);
 }
@@ -630,12 +772,13 @@ section {
   gap: 6px;
   font-family: 'Nunito', sans-serif;
   font-weight: 800;
-  font-size: 0.86rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
   background: rgba(166, 58, 46, 0.08);
   border: none;
   padding: 8px 14px;
   border-radius: 20px;
+  min-height: 42px;
   cursor: pointer;
   transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
@@ -733,6 +876,54 @@ section {
 /* ===== MARKET SECTION (live, quantity-tracked Saturday stock) ===== */
 .market-section {
   background: var(--cream);
+  padding: 54px 0;
+  border-bottom: 1px solid rgba(43, 30, 12, 0.08);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.market-section.is-closed .section-header {
+  margin-bottom: 24px;
+}
+
+.market-section.is-live {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.045) 0, transparent 34%),
+    linear-gradient(145deg, var(--chalk-black-soft), var(--chalk-black));
+  border-bottom: 5px solid var(--gold-light);
+}
+
+.market-section.is-live .section-title,
+.market-section.is-live .section-subtitle {
+  color: var(--chalk-white);
+}
+
+.market-section.is-live .section-subtitle {
+  color: rgba(247, 242, 230, 0.78);
+}
+
+.market-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.market-title-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  color: var(--chalk-white);
+  background: var(--red);
+  border: 1px solid rgba(247, 242, 230, 0.3);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
 }
 
 .market-toggle-btn {
@@ -765,17 +956,22 @@ section {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-family: 'Baloo 2', sans-serif;
+  flex-wrap: wrap;
+  font-family: 'Nunito', sans-serif;
   font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.5px;
-  color: var(--red-deep);
-  background: rgba(166, 58, 46, 0.10);
-  border: 2px solid rgba(166, 58, 46, 0.3);
+  font-size: 0.92rem;
+  color: var(--chalk-white);
+  background: rgba(247, 242, 230, 0.08);
+  border: 1px solid rgba(247, 242, 230, 0.2);
   border-radius: 999px;
   padding: 10px 22px;
-  max-width: 340px;
-  margin: 0 auto 34px;
+  max-width: 470px;
+  margin: 0 auto 30px;
+}
+
+.market-live-banner strong {
+  color: var(--gold-light);
+  font-weight: 800;
 }
 
 .live-dot {
@@ -793,20 +989,25 @@ section {
 }
 
 .market-closed {
-  max-width: 480px;
+  max-width: 820px;
   margin: 0 auto;
-  text-align: center;
+  text-align: left;
   background: var(--chalk-black);
   border-radius: var(--radius);
-  padding: 40px 30px;
+  padding: 24px 28px;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .market-closed .daisy {
   position: absolute;
   top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 24px;
+  transform: rotate(-8deg);
   width: 30px;
   height: 30px;
 }
@@ -814,21 +1015,43 @@ section {
 .market-closed-text {
   font-family: 'Baloo 2', sans-serif;
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: var(--chalk-white);
-  margin-bottom: 10px;
+  margin-bottom: 3px;
 }
 
 .market-closed-sub {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.94rem;
   color: rgba(247, 242, 230, 0.75);
   line-height: 1.6;
 }
 
+.market-menu-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 10px 17px;
+  border-radius: 999px;
+  color: var(--chalk-black);
+  background: var(--gold-light);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.market-menu-link:hover {
+  background: var(--chalk-white);
+  transform: translateY(-1px);
+}
+
 .market-card-desc {
   font-family: 'Nunito', sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: var(--ink-soft);
   line-height: 1.5;
   white-space: pre-line;
@@ -864,8 +1087,8 @@ section {
 }
 
 .stock-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid var(--kraft-deep);
   background: var(--paper);
@@ -1057,7 +1280,7 @@ section {
 /* ===== MAP SECTION ===== */
 .map-section {
   background: var(--cream);
-  padding: 76px 0 0;
+  padding: var(--space-section) 0 0;
 }
 
 .map-section .section-header {
@@ -1130,7 +1353,7 @@ footer {
 }
 
 .footer-bottom {
-  padding: 22px 22px 110px;
+  padding: 22px 22px calc(110px + env(safe-area-inset-bottom));
   text-align: center;
   font-family: 'Nunito', sans-serif;
   font-size: 0.82rem;
@@ -1141,7 +1364,7 @@ footer {
 /* ===== WHATSAPP FLOAT ===== */
 .whatsapp-float {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   right: 24px;
   background: #25d366;
   border-radius: 50%;
@@ -1228,13 +1451,21 @@ footer {
   }
 
   section {
-    padding: 56px 0;
+    padding: 54px 0;
+  }
+
+  .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weekly-menu-grid.is-collapsed > .menu-card:nth-child(n + 5) {
+    display: none;
   }
 }
 
 @media screen and (max-width: 640px) {
   .hero {
-    padding: 108px 0 50px;
+    padding: 106px 0 44px;
   }
 
   .hero-sign {
@@ -1242,11 +1473,20 @@ footer {
   }
 
   .hero-badge {
-    width: 78px;
-    height: 78px;
+    width: 72px;
+    height: 72px;
     top: -20px;
     right: -8px;
-    font-size: 0.62rem;
+    font-size: 0.58rem;
+  }
+
+  .hero-desc {
+    font-size: 0.98rem;
+  }
+
+  .hero-market-status {
+    width: 100%;
+    font-size: 0.8rem;
   }
 
   .chalk-row {
@@ -1266,10 +1506,74 @@ footer {
     gap: 22px;
   }
 
+  .menu-disclosure-row {
+    padding-top: 2px;
+  }
+
+  .menu-disclosure-btn {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .market-section,
+  .market-section.is-live {
+    padding: var(--space-section-mobile) 0;
+  }
+
+  .market-section.is-closed {
+    padding: 40px 0;
+  }
+
+  .market-title-row {
+    gap: 9px;
+  }
+
+  .market-title-live {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+
+  .market-live-banner {
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    text-align: center;
+  }
+
+  .market-closed {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 25px 22px 22px;
+  }
+
+  .market-closed .daisy {
+    left: auto;
+    right: 18px;
+  }
+
+  .market-menu-link {
+    width: 100%;
+  }
+
+  .card-footer-row {
+    align-items: stretch;
+  }
+
+  .card-cta {
+    flex: 1;
+    justify-content: center;
+  }
+
   .map-details {
     flex-direction: column;
     gap: 10px;
     align-items: center;
+  }
+
+  .map-wrapper,
+  .map-wrapper iframe {
+    min-height: 320px;
+    height: 320px;
   }
 
   .trust-items {
@@ -1288,7 +1592,7 @@ footer {
   .whatsapp-float {
     width: 52px;
     height: 52px;
-    bottom: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
     right: 16px;
   }
 
@@ -1298,6 +1602,27 @@ footer {
 
   .hero-title {
     font-size: clamp(2.1rem, 11vw, 2.8rem);
+  }
+
+  .hero-cta-group {
+    align-items: stretch;
+  }
+
+  .hero-cta-group .btn-primary,
+  .hero-cta-group .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .card-footer-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .card-cta {
+    padding-left: 12px;
+    padding-right: 12px;
+    text-align: center;
   }
 }
 
@@ -1332,11 +1657,19 @@ footer {
     opacity: 1;
     transform: none;
   }
+
+  .live-dot,
+  .hero-market-status.is-live .status-dot,
+  .sold-out-stamp {
+    animation: none;
+  }
 }
 
 /* ===== FOCUS VISIBILITY ===== */
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
   outline: 3px solid var(--gold-deep);
   outline-offset: 2px;
 }
@@ -1398,7 +1731,7 @@ button:focus-visible {
    js/modules/ownerButtonScroll.js, which toggles .expanded. */
 .owner-login-btn {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   left: 24px;
   z-index: 999;
   background: var(--chalk-black);
@@ -1645,10 +1978,16 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
 
 @media screen and (max-width: 640px) {
   .owner-login-btn {
-    bottom: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
     left: 16px;
     padding: 10px 14px;
     font-size: 0.78rem;
+  }
+
+  .owner-login-btn.expanded .btn-label {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
   }
 
   .admin-toast {
