@@ -133,8 +133,15 @@ function showSoldToast(itemName, qty, isSoldOut) {
   }, 3200);
 }
 
-// Shared by the fast +/- steppers and the direct stock number input — both
-// end up here so the "sold" toast fires consistently either way.
+// The stepper buttons update the visible number instantly on every tap
+// (so it still feels responsive), but the actual network send — and the
+// "sold" toast everyone else sees — is batched: rapid taps within the
+// debounce window collapse into ONE combined delta and ONE toast, instead
+// of a stack of individual toasts piling up for every viewer on the site
+// (which is exactly what happened selling several items in quick succession).
+const pendingStockDeltas = new Map(); // "categoryId:itemId" -> { categoryId, itemId, delta, timer }
+const STOCK_BATCH_DELAY = 1300;
+
 function adjustStock(categoryId, itemId, delta) {
   const item = store.getItem(categoryId, itemId);
   if (!item) return;
@@ -143,10 +150,33 @@ function adjustStock(categoryId, itemId, delta) {
 
   store.applyUpdate(categoryId, itemId, "stock", newValue);
   patchStock(itemId, newValue, isAdmin);
-  sync.adjustStock(categoryId, itemId, delta);
 
-  if (newValue < oldValue) {
-    showSoldToast(item.name, oldValue - newValue, newValue === 0);
+  const key = `${categoryId}:${itemId}`;
+  let pending = pendingStockDeltas.get(key);
+  if (!pending) {
+    pending = { categoryId, itemId, delta: 0 };
+    pendingStockDeltas.set(key, pending);
+  }
+  pending.delta += delta;
+  clearTimeout(pending.timer);
+  pending.timer = setTimeout(() => flushStockDelta(key), STOCK_BATCH_DELAY);
+}
+
+function flushStockDelta(key) {
+  const pending = pendingStockDeltas.get(key);
+  if (!pending) return;
+  pendingStockDeltas.delete(key);
+  if (pending.delta === 0) return; // e.g. one tap down then one tap back up — net nothing to send
+
+  sync.adjustStock(pending.categoryId, pending.itemId, pending.delta);
+
+  // "Sold" only means something once the market is actually live for
+  // customers — while she's setting up stock with the market closed,
+  // nothing is really selling, so no toast should fire for anyone.
+  const category = store.getCategory(pending.categoryId);
+  const item = store.getItem(pending.categoryId, pending.itemId);
+  if (category?.isOpen && item && pending.delta < 0) {
+    showSoldToast(item.name, Math.abs(pending.delta), item.stock === 0);
   }
 }
 
@@ -319,7 +349,8 @@ function wireEvents() {
       store.applyUpdate(category, item, "stock", newValue);
       patchStock(item, newValue, isAdmin);
       sync.updateProduct(category, item, "stock", newValue);
-      if (current && newValue < oldValue) {
+      const categoryObj = store.getCategory(category);
+      if (current && categoryObj?.isOpen && newValue < oldValue) {
         showSoldToast(current.name, oldValue - newValue, newValue === 0);
       }
       return;
@@ -357,7 +388,8 @@ function wireSync() {
       const oldValue = current ? current.stock : null;
       store.applyUpdate(msg.categoryId, msg.itemId, msg.field, msg.value);
       patchStock(msg.itemId, msg.value, isAdmin);
-      if (current && oldValue !== null && msg.value < oldValue) {
+      const category = store.getCategory(msg.categoryId);
+      if (current && oldValue !== null && category?.isOpen && msg.value < oldValue) {
         showSoldToast(current.name, oldValue - msg.value, msg.value === 0);
       }
       return;
