@@ -149,10 +149,68 @@ function buildCard(categoryId, item, isAdmin) {
 
 function buildAddCard(categoryId) {
   return `
-    <button type="button" class="add-item-card" data-action="add" data-category="${categoryId}">
+    <button type="button" class="add-item-card" id="add-item-${categoryId}"
+      data-action="add" data-category="${categoryId}">
       <span>➕<br>Add Item</span>
     </button>
   `;
+}
+
+function buildOwnerJumpButton(categoryId) {
+  return `
+    <button type="button" class="owner-jump-btn" data-action="jump-to-add"
+      data-category="${categoryId}">Add new item</button>
+  `;
+}
+
+function buildVisibilityToggle(category) {
+  const isVisible = category.isVisible !== false;
+  return `
+    <button type="button" class="owner-state-btn ${isVisible ? "is-on" : "is-off"}"
+      data-action="toggle-section-visibility" data-category="${category.id}"
+      aria-pressed="${isVisible}">
+      <span class="owner-state-line"><span class="owner-state-dot" aria-hidden="true"></span>
+        Section ${isVisible ? "visible" : "hidden"}</span>
+      <span class="owner-state-action">${isVisible ? "Hide section" : "Show section"}</span>
+    </button>
+  `;
+}
+
+function buildOwnerSectionToolbar(category) {
+  const visibilityToggle = category.id === "extras" ? buildVisibilityToggle(category) : "";
+  return `
+    <h2 class="owner-section-title">${escapeHtml(category.title)}</h2>
+    <div class="owner-section-actions">
+      ${visibilityToggle}
+      ${buildOwnerJumpButton(category.id)}
+    </div>
+  `;
+}
+
+function updateStandardSection(category, isAdmin) {
+  if (typeof document === "undefined") return true;
+
+  const section = document.getElementById(category.id);
+  const isVisible = category.id !== "extras" || category.isVisible !== false;
+  if (section) {
+    section.hidden = !isAdmin && !isVisible;
+    section.classList.toggle("owner-view", isAdmin);
+    const publicHeader = section.querySelector(".section-header");
+    if (publicHeader) publicHeader.hidden = isAdmin;
+  }
+
+  const controls = document.getElementById(`${category.id}-owner-controls`);
+  if (controls) {
+    controls.hidden = !isAdmin;
+    controls.innerHTML = isAdmin ? buildOwnerSectionToolbar(category) : "";
+  }
+
+  if (category.id === "extras") {
+    const navLink = document.getElementById("extras-nav-link");
+    if (navLink) navLink.hidden = !isAdmin && !isVisible;
+  }
+
+  return isAdmin || isVisible;
 }
 
 function buildMenuDisclosure(totalItems, isExpanded) {
@@ -161,7 +219,7 @@ function buildMenuDisclosure(totalItems, isExpanded) {
       <button type="button" class="menu-disclosure-btn" data-action="toggle-weekly-menu"
         data-category="menu" data-total="${totalItems}" aria-controls="menu-grid"
         aria-expanded="${isExpanded}">
-        ${isExpanded ? "Show fewer ↑" : `See all ${totalItems} menu items ↓`}
+        ${isExpanded ? "Show fewer" : `See all ${totalItems} menu items`}
       </button>
     </div>
   `;
@@ -169,6 +227,11 @@ function buildMenuDisclosure(totalItems, isExpanded) {
 
 export function renderCategory(category, container, isAdmin) {
   if (!container) return;
+  const showSection = updateStandardSection(category, isAdmin);
+  if (!showSection) {
+    container.innerHTML = "";
+    return;
+  }
   const hasDisclosure = category.id === "menu" && !isAdmin && category.items.length > 4;
   const isExpanded = hasDisclosure && container.dataset.expanded === "true";
 
@@ -266,10 +329,24 @@ function buildMarketCard(categoryId, item, isAdmin) {
 function buildMarketToggle(category) {
   const isOpen = !!category.isOpen;
   return `
-    <button type="button" class="market-toggle-btn ${isOpen ? "is-live" : ""}"
-      data-action="toggle-market" data-category="${category.id}">
-      ${isOpen ? "🔴 Market is LIVE — tap to close" : "⚪ Market is closed — tap to open"}
+    <button type="button" class="owner-state-btn market-toggle-btn ${isOpen ? "is-on" : "is-off"}"
+      data-action="toggle-market" data-category="${category.id}" aria-pressed="${isOpen}">
+      <span class="owner-state-line"><span class="owner-state-dot" aria-hidden="true"></span>
+        Market ${isOpen ? "open" : "closed"}</span>
+      <span class="owner-state-action">Tap to ${isOpen ? "close" : "open"}</span>
     </button>
+  `;
+}
+
+function buildOwnerMarketToolbar(category) {
+  return `
+    <div class="owner-section-toolbar market-owner-toolbar">
+      <h2 class="owner-section-title">Live at the Market</h2>
+      <div class="owner-section-actions">
+        ${buildMarketToggle(category)}
+        ${buildOwnerJumpButton(category.id)}
+      </div>
+    </div>
   `;
 }
 
@@ -322,6 +399,7 @@ export function renderMarketSection(category, isAdmin) {
   const section = container.closest(".market-section");
   section?.classList.toggle("is-live", Boolean(category.isOpen));
   section?.classList.toggle("is-closed", !category.isOpen);
+  section?.classList.toggle("owner-view", isAdmin);
   updateMarketStatus(category);
 
   // Visitors already have the compact Saturday status in the hero. Keep the
@@ -334,7 +412,7 @@ export function renderMarketSection(category, isAdmin) {
     return;
   }
 
-  const header = `
+  const publicHeader = `
     <div class="section-header">
       <p class="section-eyebrow">${escapeHtml(category.eyebrow)}</p>
       <div class="market-title-row">
@@ -346,8 +424,8 @@ export function renderMarketSection(category, isAdmin) {
     </div>
   `;
 
-  const toggle = isAdmin ? buildMarketToggle(category) : "";
-  const banner = buildMarketBanner(category.isOpen);
+  const header = isAdmin ? buildOwnerMarketToolbar(category) : publicHeader;
+  const banner = isAdmin ? "" : buildMarketBanner(category.isOpen);
 
   // The owner can always see/edit the market list (to set it up before
   // opening); everyone else only sees it once it's actually live.
@@ -359,7 +437,7 @@ export function renderMarketSection(category, isAdmin) {
   const addCard = showItems && isAdmin ? buildAddCard(category.id) : "";
   const body = showItems ? `<div class="menu-grid market-grid">${cards}${addCard}</div>` : "";
 
-  container.innerHTML = `${header}${toggle}${banner}${body}`;
+  container.innerHTML = `${header}${banner}${body}`;
 }
 
 /* =====================================================

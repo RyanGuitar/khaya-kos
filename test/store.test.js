@@ -19,6 +19,11 @@ function freshState() {
         isOpen: false,
         items: [{ id: "market-pie", name: "Market Pie", stock: 3 }],
       },
+      {
+        id: "extras",
+        isVisible: true,
+        items: [{ id: "scarf", name: "Scarf", price: 60 }],
+      },
     ],
   };
 }
@@ -55,4 +60,15 @@ test("updates the market open state without replacing its products", () => {
 
   store.applyCategoryToggle("market", false);
   assert.equal(store.getCategory("market").isOpen, false);
+});
+
+test("updates optional section visibility without replacing its products", () => {
+  const extrasItem = store.getItem("extras", "scarf");
+
+  store.applyCategoryVisibility("extras", false);
+  assert.equal(store.getCategory("extras").isVisible, false);
+  assert.equal(store.getItem("extras", "scarf"), extrasItem);
+
+  store.applyCategoryVisibility("extras", true);
+  assert.equal(store.getCategory("extras").isVisible, true);
 });

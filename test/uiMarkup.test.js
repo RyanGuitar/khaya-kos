@@ -4,6 +4,8 @@ import { readFile } from "node:fs/promises";
 
 const indexHtml = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
 const engineSource = await readFile(new URL("../public/js/admin/engine.js", import.meta.url), "utf8");
+const syncSource = await readFile(new URL("../public/js/admin/sync.js", import.meta.url), "utf8");
+const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 
 test("delete confirmation uses an accessible custom dialog", () => {
   assert.match(indexHtml, /id="delete-modal-overlay"[^>]*hidden/);
@@ -44,4 +46,18 @@ test("landing copy prioritizes all-week ordering and keeps the Saturday stall se
 test("the decorative quote strip is removed from the route to the full menu", () => {
   assert.doesNotMatch(indexHtml, /class="chalk-strip"/);
   assert.doesNotMatch(indexHtml, /Vars gemaak met die beste bestandele/);
+});
+
+test("optional section visibility remains an authenticated server mutation", () => {
+  assert.match(syncSource, /type: "category-visibility", categoryId, isVisible/);
+  assert.match(serverSource, /case "category-visibility"/);
+  assert.match(serverSource, /if \(!ws\.isAdmin\)/);
+  assert.match(serverSource, /category\.id !== "extras"/);
+  assert.match(serverSource, /typeof data\.isVisible !== "boolean"/);
+});
+
+test("owner section controls use plain labels without arrow decoration", () => {
+  assert.match(indexHtml, /id="menu-owner-controls"/);
+  assert.match(indexHtml, /id="extras-owner-controls"/);
+  assert.doesNotMatch(engineSource, /Show fewer ↑|menu items ↓/);
 });

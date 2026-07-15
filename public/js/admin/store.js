@@ -46,4 +46,9 @@ export const store = {
     const category = this.getCategory(categoryId);
     if (category) category.isOpen = isOpen;
   },
+
+  applyCategoryVisibility(categoryId, isVisible) {
+    const category = this.getCategory(categoryId);
+    if (category) category.isVisible = Boolean(isVisible);
+  },
 };

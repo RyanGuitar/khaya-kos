@@ -1,7 +1,7 @@
 // js/admin/engine.js
-import { store } from "./store.js";
-import { sync } from "./sync.js";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.3";
+import { store } from "./store.js?v=3.5";
+import { sync } from "./sync.js?v=3.5";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.5";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
@@ -375,8 +375,8 @@ function wireEvents() {
       grid.classList.toggle("is-expanded", nextExpanded);
       menuDisclosureBtn.setAttribute("aria-expanded", String(nextExpanded));
       menuDisclosureBtn.textContent = nextExpanded
-        ? "Show fewer ↑"
-        : `See all ${totalItems} menu items ↓`;
+        ? "Show fewer"
+        : `See all ${totalItems} menu items`;
 
       if (!nextExpanded) {
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -387,6 +387,29 @@ function wireEvents() {
           });
         });
       }
+      return;
+    }
+
+    const jumpToAddBtn = e.target.closest('[data-action="jump-to-add"]');
+    if (jumpToAddBtn) {
+      const target = document.getElementById(`add-item-${jumpToAddBtn.dataset.category}`);
+      if (!target) return;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target.focus({ preventScroll: true });
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+      return;
+    }
+
+    const visibilityBtn = e.target.closest('[data-action="toggle-section-visibility"]');
+    if (visibilityBtn) {
+      const categoryId = visibilityBtn.dataset.category;
+      const category = store.getCategory(categoryId);
+      if (!category || category.id !== "extras") return;
+      const isVisible = category.isVisible === false;
+      store.applyCategoryVisibility(categoryId, isVisible);
+      renderCategoryById(categoryId);
+      sync.setCategoryVisibility(categoryId, isVisible);
+      showToast(isVisible ? "Also Available is now visible." : "Also Available is now hidden.");
       return;
     }
 
@@ -572,6 +595,12 @@ function wireSync() {
       showToast(msg.isOpen ? "📣 The market just opened!" : "The market has closed.");
       if (msg.isOpen) celebrateMarketOpen();
     }
+  });
+
+  sync.on("category-visibility", (msg) => {
+    store.applyCategoryVisibility(msg.categoryId, msg.isVisible);
+    renderCategoryById(msg.categoryId);
+    showToast(msg.isVisible ? "Also Available is now visible." : "Also Available is now hidden.");
   });
 
   sync.on("product-add", (msg) => {

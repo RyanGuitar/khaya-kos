@@ -104,6 +104,10 @@ class Sync {
     this.send({ type: "category-toggle", categoryId });
   }
 
+  setCategoryVisibility(categoryId, isVisible) {
+    this.send({ type: "category-visibility", categoryId, isVisible });
+  }
+
   likeProduct(categoryId, itemId, delta) {
     this.send({ type: "product-like", categoryId, itemId, delta });
   }

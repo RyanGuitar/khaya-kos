@@ -103,6 +103,23 @@ function backfillMissingCategories(seed) {
   if (changed) persistState();
 }
 
+// New category-level settings must also reach sites whose product state was
+// saved before the setting existed. Only missing settings are copied so an
+// owner's saved choice is never overwritten during startup.
+function backfillMissingCategorySettings(seed) {
+  let changed = false;
+  for (const seedCategory of seed.categories) {
+    const savedCategory = state.categories.find((category) => category.id === seedCategory.id);
+    if (!savedCategory) continue;
+
+    if (Object.hasOwn(seedCategory, "isVisible") && !Object.hasOwn(savedCategory, "isVisible")) {
+      savedCategory.isVisible = seedCategory.isVisible;
+      changed = true;
+    }
+  }
+  if (changed) persistState();
+}
+
 async function loadState() {
   const seed = await loadSeed();
 
@@ -113,6 +130,7 @@ async function loadState() {
         state = JSON.parse(stored);
         console.log("✅ Loaded product state from Upstash Redis");
         backfillMissingCategories(seed);
+        backfillMissingCategorySettings(seed);
         return;
       }
       console.log("ℹ️  No product state in Redis yet — seeding it from data/products.json");
@@ -292,6 +310,24 @@ wss.on("connection", (ws) => {
         category.isOpen = !category.isOpen;
         persistState();
         broadcast({ type: "category-toggle", categoryId: data.categoryId, isOpen: category.isOpen }, ws);
+        break;
+      }
+
+      case "category-visibility": {
+        if (!ws.isAdmin) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          return;
+        }
+        const category = findCategory(data.categoryId);
+        if (!category || category.id !== "extras" || typeof data.isVisible !== "boolean") return;
+
+        category.isVisible = data.isVisible;
+        persistState();
+        broadcast({
+          type: "category-visibility",
+          categoryId: category.id,
+          isVisible: category.isVisible,
+        }, ws);
         break;
       }
 

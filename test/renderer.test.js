@@ -319,10 +319,100 @@ test("market stock controls expose an associated label and product-specific acti
     renderMarketSection(marketCategory(false), true);
 
     assert.equal(fixture.section.hidden, false);
+    assert.match(fixture.container.innerHTML, /class="owner-section-toolbar market-owner-toolbar"/);
+    assert.match(fixture.container.innerHTML, /Market closed/);
+    assert.match(fixture.container.innerHTML, /Tap to open/);
+    assert.match(fixture.container.innerHTML, /data-action="jump-to-add"/);
+    assert.match(fixture.container.innerHTML, />Add new item<\/button>/);
+    assert.doesNotMatch(fixture.container.innerHTML, /market-live-banner|Gazebo Valley · Saturdays/);
     assert.match(fixture.container.innerHTML, /<label class="admin-field-label" for="stock-market-pie">Stock available<\/label>/);
     assert.match(fixture.container.innerHTML, /Record one Chicken Pie sold/);
     assert.match(fixture.container.innerHTML, /Add one Chicken Pie back/);
   } finally {
     restoreDocument();
+  }
+});
+
+test("optional sections stay available to owners but hide from visitors", () => {
+  const previousDocument = globalThis.document;
+  const previousLocalStorage = globalThis.localStorage;
+  const sectionHeader = { hidden: false };
+  const section = {
+    hidden: false,
+    classList: createClassList(),
+    querySelector: (selector) => selector === ".section-header" ? sectionHeader : null,
+  };
+  const controls = { hidden: true, innerHTML: "" };
+  const navLink = { hidden: false };
+  const container = createMenuContainer();
+  const extras = {
+    ...weeklyMenu(1),
+    id: "extras",
+    title: "Clothing, Socks & Scarves",
+    isVisible: false,
+  };
+
+  globalThis.localStorage = { getItem: () => null };
+  globalThis.document = {
+    getElementById(id) {
+      if (id === "extras") return section;
+      if (id === "extras-owner-controls") return controls;
+      if (id === "extras-nav-link") return navLink;
+      return null;
+    },
+  };
+
+  try {
+    renderCategory(extras, container, false);
+    assert.equal(section.hidden, true);
+    assert.equal(navLink.hidden, true);
+    assert.equal(container.innerHTML, "");
+
+    renderCategory(extras, container, true);
+    assert.equal(section.hidden, false);
+    assert.equal(sectionHeader.hidden, true);
+    assert.equal(controls.hidden, false);
+    assert.match(controls.innerHTML, /Section hidden/);
+    assert.match(controls.innerHTML, /Show section/);
+    assert.match(controls.innerHTML, /Add new item/);
+    assert.doesNotMatch(controls.innerHTML, /[↑↓→]/);
+  } finally {
+    globalThis.document = previousDocument;
+    globalThis.localStorage = previousLocalStorage;
+  }
+});
+
+test("the full menu owner header uses the same compact add-item workflow", () => {
+  const previousDocument = globalThis.document;
+  const previousLocalStorage = globalThis.localStorage;
+  const sectionHeader = { hidden: false };
+  const section = {
+    hidden: false,
+    classList: createClassList(),
+    querySelector: (selector) => selector === ".section-header" ? sectionHeader : null,
+  };
+  const controls = { hidden: true, innerHTML: "" };
+  const container = createMenuContainer();
+  const menu = { ...weeklyMenu(1), title: "The Full Menu" };
+
+  globalThis.localStorage = { getItem: () => null };
+  globalThis.document = {
+    getElementById(id) {
+      if (id === "menu") return section;
+      if (id === "menu-owner-controls") return controls;
+      return null;
+    },
+  };
+
+  try {
+    renderCategory(menu, container, true);
+    assert.equal(sectionHeader.hidden, true);
+    assert.equal(controls.hidden, false);
+    assert.match(controls.innerHTML, /The Full Menu/);
+    assert.match(controls.innerHTML, /data-action="jump-to-add"/);
+    assert.doesNotMatch(controls.innerHTML, /toggle-section-visibility|[↑↓→]/);
+  } finally {
+    globalThis.document = previousDocument;
+    globalThis.localStorage = previousLocalStorage;
   }
 });

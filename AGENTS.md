@@ -24,6 +24,8 @@ Market stock uses atomic deltas. Rapid changes for one item are debounced for 1.
 
 The market item grid is visible to visitors only while `market.isOpen` is true. The owner must always be able to see it for setup.
 
+The `extras` category is optional. Its `isVisible` setting is authoritative server state, editable only by the authenticated owner, persisted with product state, and broadcast over WebSockets. Visitors must not see the section or its navigation link while it is hidden; the owner must still see it in edit mode so it can be restored.
+
 ## Development conventions
 
 - Use native ES modules and browser APIs; this project has no bundler or transpiler.

@@ -67,7 +67,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.4">
+  <link rel="stylesheet" href="styles.css?v=3.5">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -105,7 +105,7 @@
         <span>Live at the Market</span>
       </a>
       <a href="#menu">Menu</a>
-      <a href="#extras">Also at the Stall</a>
+      <a href="#extras" id="extras-nav-link">Also at the Stall</a>
       <a href="#find-us">Find Us</a>
       <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
         class="btn-book-nav" target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
@@ -158,6 +158,7 @@
 
     <section class="menu-section" id="menu">
       <div class="container">
+        <div class="owner-section-toolbar" id="menu-owner-controls" hidden></div>
         <div class="section-header">
           <p class="section-eyebrow">Order any day</p>
           <h2 class="section-title">The Full Menu</h2>
@@ -174,6 +175,7 @@
 
     <section class="menu-section" id="extras" style="background: var(--paper);">
       <div class="container">
+        <div class="owner-section-toolbar" id="extras-owner-controls" hidden></div>
         <div class="section-header">
           <p class="section-eyebrow">Also available</p>
           <h2 class="section-title">Clothing, Socks &amp; Scarves</h2>
@@ -294,7 +296,7 @@
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.3"></script>
+  <script type="module" src="js/main.js?v=3.5"></script>
 </body>
 
 </html>

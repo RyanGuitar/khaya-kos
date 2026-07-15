@@ -1608,6 +1608,169 @@ footer {
   }
 }
 
+/* ===== OWNER SECTION TOOLBARS ===== */
+.owner-section-toolbar[hidden],
+.section-header[hidden],
+#extras[hidden] {
+  display: none;
+}
+
+.owner-section-toolbar {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.owner-section-title {
+  color: var(--navy-deep);
+  font-family: 'Baloo 2', sans-serif;
+  font-size: clamp(2rem, 4.2vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.owner-section-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: min(100%, 720px);
+  margin: 24px auto 0;
+}
+
+.owner-section-actions > :only-child {
+  grid-column: 1 / -1;
+  width: min(100%, 350px);
+  justify-self: center;
+}
+
+.owner-state-btn,
+.owner-jump-btn {
+  min-height: 72px;
+  padding: 12px 22px;
+  border: 3px solid var(--gold);
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(12, 43, 69, 0.2);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.owner-state-btn:hover,
+.owner-jump-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(12, 43, 69, 0.27);
+}
+
+.owner-state-btn:active,
+.owner-jump-btn:active {
+  transform: scale(0.98);
+}
+
+.owner-state-btn {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  color: #fff;
+}
+
+.owner-state-btn.is-on {
+  background: var(--green);
+}
+
+.owner-state-btn.is-on:hover {
+  background: var(--green-deep);
+}
+
+.owner-state-btn.is-off {
+  background: var(--navy);
+}
+
+.owner-state-btn.is-off:hover {
+  background: var(--navy-deep);
+}
+
+.owner-state-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.owner-state-action {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.owner-state-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+.owner-state-btn.is-off .owner-state-dot {
+  background: #aebbc5;
+}
+
+.owner-jump-btn {
+  color: #fff;
+  background: var(--navy);
+}
+
+.owner-jump-btn:hover {
+  background: var(--navy-deep);
+}
+
+.market-section.owner-view {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 212, 71, 0.1), transparent 34%),
+    linear-gradient(140deg, var(--teal-deep), var(--navy-deep));
+  border-bottom-color: var(--gold);
+}
+
+.market-owner-toolbar .owner-section-title {
+  color: #fff;
+}
+
+.market-toggle-btn.owner-state-btn {
+  width: auto;
+  margin: 0;
+  padding: 12px 22px;
+  border-color: var(--gold);
+  border-radius: 24px;
+  color: #fff;
+}
+
+@media screen and (max-width: 640px) {
+  .owner-section-toolbar {
+    margin-bottom: 26px;
+  }
+
+  .owner-section-actions {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .owner-section-actions > :only-child {
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .owner-state-btn,
+  .owner-jump-btn {
+    width: 100%;
+    min-height: 68px;
+  }
+}
+
 /* ===== OPEN MARKET FOCUS ===== */
 .hero-market-status[hidden] {
   display: none;
