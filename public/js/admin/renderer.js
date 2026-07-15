@@ -284,19 +284,6 @@ function buildMarketBanner(isOpen) {
   `;
 }
 
-function buildMarketClosedState() {
-  return `
-    <div class="market-closed">
-      <img src="images/daisy.svg" alt="" class="daisy" aria-hidden="true">
-      <div class="market-closed-copy">
-        <p class="market-closed-text">The Saturday stall is closed right now.</p>
-        <p class="market-closed-sub">Live stock appears here when Khaya Kos opens at Gazebo Valley.</p>
-      </div>
-      <a href="#menu" class="market-menu-link">Order from the full menu ↓</a>
-    </div>
-  `;
-}
-
 function updateMarketStatus(category) {
   const isOpen = Boolean(category.isOpen);
   const heroStatus = document.getElementById("hero-market-status");
@@ -334,6 +321,16 @@ export function renderMarketSection(category, isAdmin) {
   section?.classList.toggle("is-closed", !category.isOpen);
   updateMarketStatus(category);
 
+  // Visitors already have the compact Saturday status in the hero. Keep the
+  // larger live-market section out of their way until it is actually open.
+  // Owners still see it while closed so they can prepare stock and products.
+  const showSection = Boolean(category.isOpen) || isAdmin;
+  if (section) section.hidden = !showSection;
+  if (!showSection) {
+    container.innerHTML = "";
+    return;
+  }
+
   const header = `
     <div class="section-header">
       <p class="section-eyebrow">${escapeHtml(category.eyebrow)}</p>
@@ -352,14 +349,11 @@ export function renderMarketSection(category, isAdmin) {
   // opening); everyone else only sees it once it's actually live.
   const showItems = shouldShowMarketItems(category.isOpen, isAdmin);
 
-  let body;
-  if (showItems) {
-    const cards = category.items.map((item) => buildMarketCard(category.id, item, isAdmin)).join("");
-    const addCard = isAdmin ? buildAddCard(category.id) : "";
-    body = `<div class="menu-grid market-grid">${cards}${addCard}</div>`;
-  } else {
-    body = buildMarketClosedState();
-  }
+  const cards = showItems
+    ? category.items.map((item) => buildMarketCard(category.id, item, isAdmin)).join("")
+    : "";
+  const addCard = showItems && isAdmin ? buildAddCard(category.id) : "";
+  const body = showItems ? `<div class="menu-grid market-grid">${cards}${addCard}</div>` : "";
 
   container.innerHTML = `${header}${toggle}${banner}${body}`;
 }

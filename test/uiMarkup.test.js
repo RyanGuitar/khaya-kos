@@ -40,3 +40,8 @@ test("landing copy prioritizes all-week ordering and keeps the Saturday stall se
   assert.doesNotMatch(indexHtml, />💬 Order on WhatsApp</);
   assert.doesNotMatch(indexHtml, /Saterdag Market Stall|Saterdag Menu/);
 });
+
+test("the decorative quote strip is removed from the route to the full menu", () => {
+  assert.doesNotMatch(indexHtml, /class="chalk-strip"/);
+  assert.doesNotMatch(indexHtml, /Vars gemaak met die beste bestandele/);
+});

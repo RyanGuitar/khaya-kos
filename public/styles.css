@@ -890,6 +890,10 @@ section {
 .rib-pink   { background: var(--pink); }
 
 /* ===== MARKET SECTION (live, quantity-tracked Saturday stock) ===== */
+.market-section[hidden] {
+  display: none;
+}
+
 .market-section {
   background: var(--cream);
   padding: 54px 0;
@@ -2906,6 +2910,9 @@ body.admin-mode .menu-card {
 .whatsapp-float img {
   width: 100%;
   height: 100%;
+  filter:
+    drop-shadow(0 0 2px #fff)
+    drop-shadow(0 5px 8px rgba(12, 43, 69, 0.28));
 }
 
 @media screen and (max-width: 640px) {
@@ -2916,5 +2923,18 @@ body.admin-mode .menu-card {
   .whatsapp-float {
     width: 48px;
     height: 48px;
+    right: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .whatsapp-float img {
+    transform: scale(1.16);
+  }
+
+  .owner-login-btn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
   }
 }

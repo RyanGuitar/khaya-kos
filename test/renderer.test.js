@@ -175,16 +175,15 @@ function marketCategory(isOpen) {
   };
 }
 
-test("closed market uses the compact menu route and closed status cues", () => {
+test("closed market hides the repeated visitor section and keeps hero status cues", () => {
   const fixture = createMarketPageFixture();
   const restoreDocument = useFakeMarketDocument(fixture);
 
   try {
     renderMarketSection(marketCategory(false), false);
 
-    assert.match(fixture.container.innerHTML, /market-closed/);
-    assert.match(fixture.container.innerHTML, /Order from the full menu/);
-    assert.doesNotMatch(fixture.container.innerHTML, /market-grid/);
+    assert.equal(fixture.container.innerHTML, "");
+    assert.equal(fixture.section.hidden, true);
     assert.equal(fixture.section.classList.contains("is-closed"), true);
     assert.equal(fixture.section.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
@@ -208,6 +207,7 @@ test("open market exposes stock and live status cues", () => {
     assert.match(fixture.container.innerHTML, /3 left/);
     assert.equal(fixture.section.classList.contains("is-live"), true);
     assert.equal(fixture.section.classList.contains("is-closed"), false);
+    assert.equal(fixture.section.hidden, false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), true);
     assert.equal(fixture.navLink.classList.contains("is-live"), true);
     assert.equal(fixture.kicker.textContent, "Open now");
@@ -309,6 +309,7 @@ test("market stock controls expose an associated label and product-specific acti
   try {
     renderMarketSection(marketCategory(false), true);
 
+    assert.equal(fixture.section.hidden, false);
     assert.match(fixture.container.innerHTML, /<label class="admin-field-label" for="stock-market-pie">Stock available<\/label>/);
     assert.match(fixture.container.innerHTML, /Record one Chicken Pie sold/);
     assert.match(fixture.container.innerHTML, /Add one Chicken Pie back/);
