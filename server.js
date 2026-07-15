@@ -5,6 +5,7 @@ import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
+import { applyStockDelta } from "./public/js/admin/stockLogic.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -272,8 +273,7 @@ wss.on("connection", (ws) => {
         const item = findItem(categoryId, itemId);
         if (!item) return;
 
-        const current = typeof item.stock === "number" ? item.stock : 0;
-        item.stock = Math.max(0, current + Number(delta));
+        item.stock = applyStockDelta(item.stock, delta);
         persistState();
         broadcast({ type: "product-update", categoryId, itemId, field: "stock", value: item.stock }, ws);
         break;

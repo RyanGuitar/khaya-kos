@@ -2,6 +2,8 @@
 // Rebuilds the #menu-grid / #extras-grid containers from store state.
 // Re-run on every state change (full-state, product-update/add/remove).
 
+import { shouldShowMarketItems } from "./marketLogic.js";
+
 const WHATSAPP_NUMBER = "27726785972";
 
 function escapeHtml(str = "") {
@@ -250,7 +252,7 @@ export function renderMarketSection(category, isAdmin) {
 
   // The owner can always see/edit the market list (to set it up before
   // opening); everyone else only sees it once it's actually live.
-  const showItems = isAdmin || category.isOpen;
+  const showItems = shouldShowMarketItems(category.isOpen, isAdmin);
 
   let body;
   if (showItems) {

@@ -3,6 +3,7 @@ import { store } from "./store.js";
 import { sync } from "./sync.js";
 import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
+import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
 let isAdmin = false;
 let pendingPhotoTarget = null; // { categoryId, itemId }
@@ -166,28 +167,28 @@ function showSoldToast(itemName, qty, isSoldOut) {
 // debounce window collapse into ONE combined delta and ONE toast, instead
 // of a stack of individual toasts piling up for every viewer on the site
 // (which is exactly what happened selling several items in quick succession).
-const pendingStockDeltas = new Map(); // key -> { categoryId, itemId, originalStock, timer }
-const STOCK_BATCH_DELAY = 1300;
+const stockBatcher = createStockBatcher({
+  onChange({ categoryId, itemId, nextStock }) {
+    store.applyUpdate(categoryId, itemId, "stock", nextStock);
+    patchStock(itemId, nextStock, isAdmin, { deferSoldOut: nextStock === 0 });
+  },
+  onFlush: flushStockDelta,
+});
 
 function queueStockChange(categoryId, itemId, newValue) {
   const item = store.getItem(categoryId, itemId);
   if (!item) return;
 
   const oldValue = typeof item.stock === "number" ? item.stock : 0;
-  const nextValue = Math.max(0, Number(newValue) || 0);
+  const nextValue = normalizeStock(newValue);
   const key = `${categoryId}:${itemId}`;
-  let pending = pendingStockDeltas.get(key);
-
-  if (!pending) {
-    pending = { categoryId, itemId, originalStock: oldValue };
-    pendingStockDeltas.set(key, pending);
-  }
-
-  store.applyUpdate(categoryId, itemId, "stock", nextValue);
-  patchStock(itemId, nextValue, isAdmin, { deferSoldOut: nextValue === 0 });
-
-  clearTimeout(pending.timer);
-  pending.timer = setTimeout(() => flushStockDelta(key), STOCK_BATCH_DELAY);
+  stockBatcher.queue({
+    key,
+    categoryId,
+    itemId,
+    originalStock: oldValue,
+    nextStock: nextValue,
+  });
 }
 
 function adjustStock(categoryId, itemId, delta) {
@@ -197,10 +198,7 @@ function adjustStock(categoryId, itemId, delta) {
   queueStockChange(categoryId, itemId, oldValue + delta);
 }
 
-function flushStockDelta(key) {
-  const pending = pendingStockDeltas.get(key);
-  if (!pending) return;
-  pendingStockDeltas.delete(key);
+function flushStockDelta(pending) {
   const item = store.getItem(pending.categoryId, pending.itemId);
   if (!item) return;
   const currentStock = typeof item.stock === "number" ? item.stock : 0;
@@ -407,7 +405,7 @@ function wireEvents() {
 
     if (field === "stock") {
       const current = store.getItem(category, item);
-      const newValue = Math.max(0, Number(e.target.value) || 0);
+      const newValue = normalizeStock(e.target.value);
       if (current) queueStockChange(category, item, newValue);
       return;
     }

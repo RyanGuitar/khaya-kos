@@ -5,7 +5,10 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test",
+    "check:js": "node scripts/check-js.js",
+    "check": "npm run check:js && npm test"
   },
   "engines": {
     "node": ">=18.0.0"
