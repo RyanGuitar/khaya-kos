@@ -23,6 +23,10 @@ function formatPrice(price) {
   return price > 0 ? `R${price}` : "Ask in-store";
 }
 
+function fieldId(field, itemId) {
+  return `${field}-${String(itemId).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+}
+
 const LIKED_ITEMS_KEY = "khayaKosLikedItems";
 
 function getLikedItems() {
@@ -47,18 +51,46 @@ function buildLikeButton(categoryId, item, isAdmin) {
   }
   return `
     <button type="button" class="like-btn ${isLiked ? "is-liked" : ""}" data-action="like"
-      data-category="${categoryId}" data-item="${item.id}" aria-label="Like ${escapeHtml(item.name)}">
-      <span class="like-icon">${isLiked ? "❤" : "♡"}</span>
-      <span class="like-count">${item.likes || 0}</span>
+      data-category="${categoryId}" data-item="${item.id}" data-name="${escapeHtml(item.name)}"
+      aria-pressed="${isLiked}">
+      <span class="like-icon" aria-hidden="true">${isLiked ? "❤" : "♡"}</span>
+      <span class="like-count" aria-hidden="true">${item.likes || 0}</span>
+      <span class="sr-only">${isLiked ? "Unlike" : "Like"} ${escapeHtml(item.name)}</span>
     </button>
   `;
 }
 
 function buildNameField(categoryId, item) {
+  const id = fieldId("name", item.id);
   return `
-    <input type="text" class="name-input" data-field="name"
-      data-category="${categoryId}" data-item="${item.id}"
-      placeholder="Product name" value="${escapeHtml(item.name)}">
+    <div class="admin-field">
+      <label class="admin-field-label" for="${id}">Product name</label>
+      <input id="${id}" type="text" class="name-input" data-field="name"
+        data-category="${categoryId}" data-item="${item.id}"
+        placeholder="Product name" value="${escapeHtml(item.name)}">
+    </div>
+  `;
+}
+
+function buildPriceField(categoryId, item) {
+  const id = fieldId("price", item.id);
+  return `
+    <div class="admin-field admin-price-field">
+      <label class="admin-field-label" for="${id}">Price (rand)</label>
+      <input id="${id}" type="number" min="0" step="1" class="price-input" data-field="price"
+        data-category="${categoryId}" data-item="${item.id}" value="${item.price}">
+    </div>
+  `;
+}
+
+function buildDescriptionField(categoryId, item, rows) {
+  const id = fieldId("description", item.id);
+  return `
+    <div class="admin-field">
+      <label class="admin-field-label" for="${id}">Description</label>
+      <textarea id="${id}" class="card-description-input" data-field="description"
+        data-category="${categoryId}" data-item="${item.id}" rows="${rows}">${escapeHtml(item.description)}</textarea>
+    </div>
   `;
 }
 
@@ -66,18 +98,13 @@ function buildCard(categoryId, item, isAdmin) {
   const ribbonClass = `rib-${item.ribbon || "navy"}`;
 
   const priceMarkup = isAdmin
-    ? `<input type="number" min="0" step="1" class="price-input" data-field="price"
-         data-category="${categoryId}" data-item="${item.id}" value="${item.price}">`
+    ? buildPriceField(categoryId, item)
     : `<span class="price-tag">${formatPrice(item.price)}</span>`;
 
   const nameFieldMarkup = isAdmin ? buildNameField(categoryId, item) : "";
 
   const descriptionMarkup = isAdmin
-    ? `<textarea class="card-description-input" data-field="description"
-         data-category="${categoryId}" data-item="${item.id}" rows="3"
-         style="width:100%;font-family:'Nunito',sans-serif;font-size:0.92rem;color:var(--ink-soft);
-         border:2px dashed var(--gold-deep);border-radius:8px;padding:8px 10px;margin-bottom:14px;
-         background:var(--cream);resize:vertical;">${escapeHtml(item.description)}</textarea>`
+    ? buildDescriptionField(categoryId, item, 3)
     : `<ul>${item.description
         .split("\n")
         .filter(Boolean)
@@ -86,9 +113,11 @@ function buildCard(categoryId, item, isAdmin) {
 
   const adminControls = isAdmin
     ? `<button type="button" class="admin-delete-btn" data-action="delete"
-         data-category="${categoryId}" data-item="${item.id}" aria-label="Delete this item">✕</button>
-       <div class="admin-photo-overlay" data-action="change-photo"
-         data-category="${categoryId}" data-item="${item.id}">📷 Change Photo</div>`
+         data-category="${categoryId}" data-item="${item.id}">
+         <span aria-hidden="true">✕</span><span class="sr-only">Delete ${escapeHtml(item.name)}</span>
+       </button>
+       <button type="button" class="admin-photo-overlay" data-action="change-photo"
+         data-category="${categoryId}" data-item="${item.id}">📷 Change photo</button>`
     : "";
 
   // The ribbon is a read-only live preview of the name now — it's layered
@@ -110,7 +139,8 @@ function buildCard(categoryId, item, isAdmin) {
         ${descriptionMarkup}
         <div class="card-footer-row">
           ${buildLikeButton(categoryId, item, isAdmin)}
-          <a href="${waLink(item.name)}" class="card-cta" target="_blank" rel="noopener noreferrer">Order on WhatsApp →</a>
+          <a href="${waLink(item.name)}" class="card-cta" target="_blank" rel="noopener noreferrer"
+            aria-label="Order on WhatsApp — ${escapeHtml(item.name)}">Order on WhatsApp →</a>
         </div>
       </div>
     </div>
@@ -119,9 +149,9 @@ function buildCard(categoryId, item, isAdmin) {
 
 function buildAddCard(categoryId) {
   return `
-    <div class="add-item-card" data-action="add" data-category="${categoryId}">
+    <button type="button" class="add-item-card" data-action="add" data-category="${categoryId}">
       <span>➕<br>Add Item</span>
-    </div>
+    </button>
   `;
 }
 
@@ -170,28 +200,31 @@ function buildMarketCard(categoryId, item, isAdmin) {
   const soldOut = hasStock && item.stock <= 0;
 
   const priceMarkup = isAdmin
-    ? `<input type="number" min="0" step="1" class="price-input" data-field="price"
-         data-category="${categoryId}" data-item="${item.id}" value="${item.price}">`
+    ? buildPriceField(categoryId, item)
     : `<span class="price-tag">${formatPrice(item.price)}</span>`;
 
   const nameFieldMarkup = isAdmin ? buildNameField(categoryId, item) : "";
 
   const descriptionMarkup = isAdmin
-    ? `<textarea class="card-description-input" data-field="description"
-         data-category="${categoryId}" data-item="${item.id}" rows="2"
-         style="width:100%;font-family:'Nunito',sans-serif;font-size:0.92rem;color:var(--ink-soft);
-         border:2px dashed var(--gold-deep);border-radius:8px;padding:8px 10px;margin-bottom:14px;
-         background:var(--cream);resize:vertical;">${escapeHtml(item.description)}</textarea>`
+    ? buildDescriptionField(categoryId, item, 2)
     : `<p class="market-card-desc">${escapeHtml(item.description)}</p>`;
 
+  const stockId = fieldId("stock", item.id);
   const stockMarkup = isAdmin
-    ? `<div class="stock-stepper">
-         <button type="button" class="stock-btn" data-action="stock-minus"
-           data-category="${categoryId}" data-item="${item.id}" aria-label="One sold">−</button>
-         <input type="number" min="0" step="1" class="stock-input" data-field="stock"
-           data-category="${categoryId}" data-item="${item.id}" value="${item.stock ?? ""}" placeholder="Set stock">
-         <button type="button" class="stock-btn" data-action="stock-plus"
-           data-category="${categoryId}" data-item="${item.id}" aria-label="Add one back">+</button>
+    ? `<div class="admin-field admin-stock-field">
+         <label class="admin-field-label" for="${stockId}">Stock available</label>
+         <div class="stock-stepper">
+           <button type="button" class="stock-btn" data-action="stock-minus"
+             data-category="${categoryId}" data-item="${item.id}">
+             <span aria-hidden="true">−</span><span class="sr-only">Record one ${escapeHtml(item.name)} sold</span>
+           </button>
+           <input id="${stockId}" type="number" min="0" step="1" class="stock-input" data-field="stock"
+             data-category="${categoryId}" data-item="${item.id}" value="${item.stock ?? ""}" placeholder="0">
+           <button type="button" class="stock-btn" data-action="stock-plus"
+             data-category="${categoryId}" data-item="${item.id}">
+             <span aria-hidden="true">+</span><span class="sr-only">Add one ${escapeHtml(item.name)} back</span>
+           </button>
+         </div>
        </div>`
     : `<span class="stock-badge ${soldOut ? "stock-out" : ""}">${
         !hasStock ? "Coming soon" : soldOut ? "Sold out" : `${item.stock} left`
@@ -199,9 +232,11 @@ function buildMarketCard(categoryId, item, isAdmin) {
 
   const adminControls = isAdmin
     ? `<button type="button" class="admin-delete-btn" data-action="delete"
-         data-category="${categoryId}" data-item="${item.id}" aria-label="Delete this item">✕</button>
-       <div class="admin-photo-overlay" data-action="change-photo"
-         data-category="${categoryId}" data-item="${item.id}">📷 Change Photo</div>`
+         data-category="${categoryId}" data-item="${item.id}">
+         <span aria-hidden="true">✕</span><span class="sr-only">Delete ${escapeHtml(item.name)}</span>
+       </button>
+       <button type="button" class="admin-photo-overlay" data-action="change-photo"
+         data-category="${categoryId}" data-item="${item.id}">📷 Change photo</button>`
     : "";
 
   // Read-only preview — see the comment in buildCard() for why this is no
@@ -375,8 +410,11 @@ export function patchLikeCount(itemId, value, isLiked) {
 
   const countEl = btn.querySelector(".like-count");
   const iconEl = btn.querySelector(".like-icon");
+  const labelEl = btn.querySelector(".sr-only");
   if (countEl) countEl.textContent = value;
   if (iconEl) iconEl.textContent = isLiked ? "❤" : "♡";
+  if (labelEl) labelEl.textContent = `${isLiked ? "Unlike" : "Like"} ${btn.dataset.name || "this item"}`;
+  btn.setAttribute("aria-pressed", String(isLiked));
   btn.classList.toggle("is-liked", isLiked);
   return true;
 }

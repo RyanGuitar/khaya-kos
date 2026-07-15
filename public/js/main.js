@@ -10,7 +10,7 @@ import { initMobileMenu } from './modules/mobileMenu.js';
 import { initScrollReveal } from './modules/scrollReveal.js';
 import { initLazyMap } from './modules/lazyMap.js';
 import { initOwnerButtonScroll } from './modules/ownerButtonScroll.js';
-import { engine } from './admin/engine.js?v=2.3';
+import { engine } from './admin/engine.js?v=3.0';
 
 function init() {
   initNavScroll();

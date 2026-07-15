@@ -1,52 +1,54 @@
 /* =====================================================
    Khaya Kos — Shared Stylesheet
-   A rustic, hand-lettered market-stall design system
-   pulled directly from the Saturday market pamphlet.
+   A bright, modern market-stall design system built for
+   clear reading on mobile screens and in outdoor light.
    ===================================================== */
 
 :root {
-  /* --- Kraft / wood --- */
-  --kraft: #dcbb8a;
-  --kraft-deep: #c49a63;
-  --kraft-shadow: #9c7644;
-  --cream: #faf3e3;
-  --paper: #fbf6ec;
+  /* Modern Market palette — every text pairing is WCAG AA or stronger. */
+  --kraft: #ffd447;
+  --kraft-deep: #f4b41a;
+  --kraft-shadow: #744600;
+  --cream: #fffdf7;
+  --paper: #ffffff;
 
-  /* --- Chalkboard --- */
-  --chalk-black: #2a231d;
-  --chalk-black-soft: #362c23;
-  --chalk-white: #f7f2e6;
+  --chalk-black: #153b5b;
+  --chalk-black-soft: #214f70;
+  --chalk-white: #ffffff;
 
-  /* --- Ink / text --- */
-  --ink: #3b2c1f;
-  --ink-soft: #6b5842;
-  --ink-faint: #8a7660;
+  --ink: #17202a;
+  --ink-soft: #4b5563;
+  --ink-faint: #5f6b76;
 
-  /* --- Market ribbon palette (matches pamphlet category tags) --- */
-  --red: #a63a2e;
-  --red-deep: #832d24;
-  --teal: #2c7a6d;
-  --teal-deep: #1f5a50;
-  --purple: #6a4a8a;
-  --purple-deep: #503670;
-  --green: #4f7a3d;
-  --green-deep: #3a5c2c;
-  --navy: #2c5478;
-  --navy-deep: #1f3d59;
-  --gold: #d99a2b;
-  --gold-deep: #b57e1c;
-  --gold-light: #f0c66a;
-  --pink: #c76a8a;
-  --pink-deep: #a34e6b;
-  --brown: #8a5a2e;
-  --brown-deep: #6b4522;
+  --red: #b9342b;
+  --red-deep: #8f251f;
+  --teal: #00766e;
+  --teal-deep: #005b55;
+  --purple: #6337a3;
+  --purple-deep: #4d2683;
+  --green: #087a3e;
+  --green-deep: #056030;
+  --navy: #153b5b;
+  --navy-deep: #0c2b45;
+  --gold: #ffd447;
+  --gold-deep: #744600;
+  --gold-light: #ffe88a;
+  --pink: #a83266;
+  --pink-deep: #82244d;
+  --brown: #b94f16;
+  --brown-deep: #7f330d;
+  --whatsapp: #087a3e;
+  --focus: #0066ff;
+  --line: #d9e1e7;
+  --surface-soft: #f3f8fb;
+  --surface-warm: #fff7d6;
 
-  --shadow-sm: 0 2px 8px rgba(43, 30, 12, 0.14);
-  --shadow-md: 0 10px 28px rgba(43, 30, 12, 0.20);
-  --shadow-lg: 0 22px 55px rgba(43, 30, 12, 0.28);
+  --shadow-sm: 0 3px 10px rgba(21, 59, 91, 0.10);
+  --shadow-md: 0 14px 34px rgba(21, 59, 91, 0.15);
+  --shadow-lg: 0 28px 70px rgba(21, 59, 91, 0.20);
 
-  --radius: 14px;
-  --radius-sm: 8px;
+  --radius: 20px;
+  --radius-sm: 12px;
   --dur: 0.3s;
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --space-section: 68px;
@@ -102,6 +104,18 @@ textarea,
   user-select: text;
 }
 
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 body.menu-open,
 body.dialog-open {
   overflow: hidden;
@@ -137,19 +151,20 @@ section {
 
 .section-eyebrow {
   display: inline-block;
-  font-family: 'Kalam', cursive;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--gold-deep);
-  margin-bottom: 6px;
-  transform: rotate(-1.5deg);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--teal-deep);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
 .section-title {
   font-family: 'Baloo 2', sans-serif;
   font-size: clamp(2rem, 4.2vw, 3rem);
   font-weight: 800;
-  color: var(--ink);
+  color: var(--navy-deep);
   line-height: 1.15;
 }
 
@@ -2184,5 +2199,587 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
 @media (prefers-reduced-motion: reduce) {
   .delete-modal {
     animation: none;
+  }
+}
+
+/* =====================================================
+   MODERN MARKET REFRESH
+   High-contrast surfaces, vibrant colour and quieter decoration.
+   ===================================================== */
+
+body {
+  background: var(--surface-soft);
+}
+
+#main-nav {
+  background: rgba(255, 255, 255, 0.97);
+  border-bottom: 4px solid var(--gold);
+  box-shadow: 0 3px 18px rgba(12, 43, 69, 0.12);
+}
+
+.logo-badge {
+  border-color: var(--gold);
+  background: var(--red);
+}
+
+.logo-main {
+  color: var(--navy-deep);
+}
+
+.logo-sub,
+.hero-eyebrow,
+.hero-ribbon .rib-top,
+.hero-badge,
+.chalk-box p,
+.map-placeholder,
+.footer-chalk p,
+.delete-modal-eyebrow {
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+
+.logo-sub {
+  color: var(--teal-deep);
+  font-weight: 800;
+}
+
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  color: var(--navy-deep);
+  background: var(--surface-warm);
+}
+
+#market-nav-link.is-live {
+  color: var(--red-deep);
+  background: #fae9e6;
+}
+
+.nav-live-dot {
+  box-shadow: 0 0 0 4px #fae9e6;
+}
+
+.btn-book-nav,
+.btn-primary,
+.login-submit-btn {
+  color: #fff !important;
+  background: var(--whatsapp) !important;
+}
+
+.btn-book-nav:hover,
+.btn-primary:hover,
+.login-submit-btn:hover {
+  background: var(--green-deep) !important;
+  box-shadow: 0 9px 22px rgba(5, 96, 48, 0.28) !important;
+}
+
+.menu-toggle {
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.menu-toggle:hover {
+  background: var(--surface-warm);
+}
+
+.bar {
+  background: var(--navy-deep);
+}
+
+.hero {
+  padding-top: 132px;
+  background:
+    radial-gradient(circle at 12% 24%, rgba(255, 212, 71, 0.9), transparent 32%),
+    radial-gradient(circle at 90% 18%, rgba(0, 118, 110, 0.20), transparent 34%),
+    radial-gradient(circle at 75% 92%, rgba(185, 52, 43, 0.14), transparent 30%),
+    linear-gradient(145deg, #fff8d8 0%, #edfafa 52%, #fff0e9 100%);
+}
+
+.hero-sign {
+  padding: 46px 42px 38px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  transform: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-sign::before {
+  display: none;
+}
+
+.hero-eyebrow {
+  color: var(--teal-deep);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+.hero-title {
+  color: var(--navy-deep);
+  text-shadow: none;
+}
+
+.hero-ribbon {
+  background: var(--red);
+  border-radius: 14px;
+  transform: none;
+  box-shadow: 0 8px 20px rgba(143, 37, 31, 0.22);
+}
+
+.hero-ribbon .rib-top {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-badge {
+  color: var(--navy-deep);
+  background: var(--gold);
+  border-color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  transform: rotate(5deg);
+}
+
+.btn-secondary {
+  color: #fff;
+  background: var(--navy);
+  border-color: var(--gold);
+}
+
+.btn-secondary:hover {
+  background: var(--navy-deep);
+}
+
+.hero-market-status {
+  color: var(--ink-soft);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.hero-market-status:hover {
+  background: #e7f2f7;
+}
+
+.hero-market-status.is-live {
+  color: var(--red-deep);
+  background: #fae9e6;
+  border-color: #efc7c2;
+}
+
+.hero-market-status.is-live .status-dot {
+  box-shadow: 0 0 0 4px #f4cdc7;
+}
+
+.chalk-strip {
+  background: linear-gradient(120deg, var(--navy-deep), var(--navy));
+}
+
+.chalk-box {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.chalk-box:nth-child(2) {
+  background: rgba(0, 118, 110, 0.42);
+}
+
+.chalk-box p,
+.footer-chalk p {
+  font-weight: 700;
+}
+
+.menu-section,
+.market-section,
+.map-section {
+  background: var(--surface-soft);
+}
+
+.menu-card {
+  border: 1px solid var(--line);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (hover: hover) {
+  .menu-card.revealed:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.card-ribbon {
+  top: 0;
+  left: 0;
+  border-radius: 0 0 14px 0;
+  transform: none;
+  box-shadow: none;
+}
+
+.card-body ul li::before {
+  color: var(--brown-deep);
+}
+
+.price-tag {
+  color: var(--navy-deep);
+  background: var(--gold-light);
+}
+
+.card-cta {
+  min-height: 44px;
+  color: #fff;
+  background: var(--green);
+}
+
+.card-cta:hover {
+  color: #fff;
+  background: var(--green-deep);
+}
+
+.like-btn {
+  min-height: 44px;
+  color: var(--red-deep);
+  background: #fae9e6;
+}
+
+.like-btn:hover,
+.like-btn.is-liked {
+  color: var(--red-deep);
+  background: #f4cdc7;
+}
+
+.like-btn.is-disabled:hover {
+  background: #fae9e6;
+}
+
+.menu-disclosure-btn {
+  min-height: 48px;
+  color: #fff;
+  background: var(--navy);
+  border-color: var(--gold);
+}
+
+.menu-disclosure-btn:hover {
+  background: var(--navy-deep);
+}
+
+.market-section {
+  border-color: var(--line);
+}
+
+.market-section.is-live {
+  background:
+    radial-gradient(circle at 10% 18%, rgba(255, 212, 71, 0.12), transparent 34%),
+    linear-gradient(140deg, var(--teal-deep), var(--navy-deep));
+  border-bottom-color: var(--gold);
+}
+
+.market-section.is-live .section-subtitle {
+  color: #eef7f8;
+}
+
+.market-live-banner {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.market-live-banner strong {
+  color: var(--gold-light);
+}
+
+.market-toggle-btn {
+  min-height: 48px;
+  border-color: var(--navy);
+}
+
+.market-toggle-btn.is-live {
+  border-color: var(--red-deep);
+  background: var(--red);
+}
+
+.market-closed {
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.market-closed-text {
+  color: var(--navy-deep);
+}
+
+.market-closed-sub {
+  color: var(--ink-soft);
+}
+
+.market-menu-link {
+  min-height: 44px;
+  color: var(--navy-deep);
+  background: var(--gold);
+}
+
+.market-menu-link:hover {
+  background: var(--gold-light);
+}
+
+.stock-badge {
+  color: var(--green-deep);
+  background: #dff3e6;
+}
+
+.stock-badge.stock-out {
+  color: var(--red-deep);
+  background: #fae2df;
+}
+
+.stock-btn {
+  border-color: var(--navy);
+}
+
+.stock-btn:hover {
+  color: #fff;
+  background: var(--navy);
+}
+
+.sold-out-stamp {
+  color: var(--red-deep);
+  background: rgba(255, 255, 255, 0.94);
+  border-color: var(--red-deep);
+}
+
+.trust-section,
+footer {
+  background: linear-gradient(125deg, var(--navy-deep), var(--navy));
+}
+
+.trust-icon {
+  color: var(--navy-deep);
+  border-color: var(--gold);
+  background: var(--gold);
+}
+
+.map-wrapper {
+  border: 1px solid var(--line);
+  background: var(--surface-warm);
+}
+
+.footer-bottom {
+  color: #dce7ee;
+}
+
+.whatsapp-float {
+  background: var(--whatsapp);
+  box-shadow: 0 7px 22px rgba(5, 96, 48, 0.34);
+}
+
+.whatsapp-float:hover {
+  background: var(--green-deep);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.admin-field {
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.admin-field-label,
+.login-field-label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--navy-deep);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.price-input,
+.name-input,
+.card-description-input,
+.stock-input {
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid #9aa9b5;
+  border-radius: 10px;
+}
+
+.price-input,
+.name-input {
+  margin-bottom: 0;
+}
+
+.price-input {
+  width: 120px;
+}
+
+.card-description-input {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 12px;
+  resize: vertical;
+  font: 600 0.92rem/1.5 'Nunito', sans-serif;
+}
+
+.admin-stock-field {
+  margin-bottom: 0;
+}
+
+.stock-stepper {
+  margin-bottom: 14px;
+}
+
+.owner-login-btn {
+  color: #fff;
+  background: var(--navy-deep);
+  border-color: var(--gold);
+}
+
+.owner-login-btn:hover {
+  background: var(--navy);
+}
+
+.owner-login-btn.is-admin {
+  background: var(--green);
+  border-color: #fff;
+}
+
+.login-modal-overlay,
+.delete-modal-overlay {
+  background: rgba(12, 43, 69, 0.70);
+}
+
+.login-modal,
+.delete-modal {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.login-modal h3,
+.delete-modal h3 {
+  color: var(--navy-deep);
+}
+
+.login-modal input[type="password"] {
+  border-color: #9aa9b5;
+}
+
+.login-modal input[type="password"]:focus {
+  border-color: var(--focus);
+}
+
+.login-cancel-btn,
+.delete-cancel-btn {
+  color: var(--navy-deep);
+  background: var(--surface-soft);
+  border-color: var(--navy);
+}
+
+.login-cancel-btn:hover,
+.delete-cancel-btn:hover {
+  background: #e2edf3;
+}
+
+.delete-modal::before {
+  display: none;
+}
+
+.delete-modal-seal {
+  background: var(--red);
+  transform: none;
+}
+
+.delete-modal-eyebrow {
+  color: var(--teal-deep);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transform: none;
+}
+
+.delete-modal-note {
+  color: var(--red-deep);
+  background: #fae9e6;
+}
+
+body.admin-mode .menu-card {
+  border: 2px solid var(--teal);
+}
+
+.admin-delete-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--red);
+}
+
+.admin-photo-overlay {
+  width: 100%;
+  border: 0;
+  color: #fff;
+  background: rgba(12, 43, 69, 0.80);
+}
+
+.add-item-card {
+  width: 100%;
+  min-height: 260px;
+  color: var(--navy-deep);
+  background: #fff;
+  border: 2px solid var(--teal);
+  font: inherit;
+}
+
+.add-item-card:hover {
+  background: #e8f6f4;
+  border-color: var(--teal-deep);
+}
+
+.add-item-card span {
+  color: var(--navy-deep);
+}
+
+.admin-toast,
+.sold-toast,
+.notice-toast {
+  color: #fff;
+  background: var(--navy-deep);
+  border-color: var(--gold);
+}
+
+@media screen and (max-width: 1015px) {
+  .nav-links {
+    border-top-color: var(--line);
+  }
+
+  .nav-backdrop {
+    background: rgba(12, 43, 69, 0.48);
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .hero {
+    padding-top: 112px;
+  }
+
+  .hero-sign {
+    padding: 34px 22px 28px;
+    border-radius: 22px;
+  }
+
+  .card-body {
+    padding: 18px;
   }
 }

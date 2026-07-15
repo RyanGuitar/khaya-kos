@@ -19,3 +19,13 @@ test("product deletion no longer invokes the browser-native confirm dialog", () 
   assert.match(engineSource, /openDeleteModal\(category, item, deleteBtn\)/);
   assert.match(engineSource, /sync\.removeProduct\(categoryId, itemId\)/);
 });
+
+test("owner login and upload controls have accessible names", () => {
+  assert.match(indexHtml, /<label class="login-field-label" for="login-password-input">Site password<\/label>/);
+  assert.match(indexHtml, /id="admin-photo-input"[^>]*aria-label="Choose a new product photo"/);
+});
+
+test("the logo uses its complete visible text as its accessible name", () => {
+  assert.match(indexHtml, /<a href="index\.html" class="logo">/);
+  assert.doesNotMatch(indexHtml, /class="logo"[^>]*aria-label=/);
+});

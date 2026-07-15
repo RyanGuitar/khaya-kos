@@ -60,14 +60,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap"
     media="print" onload="this.media='all'">
   <noscript>
     <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@700&family=Nunito:wght@400;600;700;800&display=swap">
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=2.3">
+  <link rel="stylesheet" href="styles.css?v=3.0">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -85,7 +85,7 @@
 
 
   <nav id="main-nav">
-    <a href="index.html" class="logo" aria-label="Khaya Kos Home">
+    <a href="index.html" class="logo">
       <span class="logo-badge" aria-hidden="true">🏠</span>
       <span class="logo-text">
         <span class="logo-main">Khaya Kos</span>
@@ -283,6 +283,7 @@
       <h3>Owner Login</h3>
       <p>Enter the site password to edit products live for everyone.</p>
       <form id="login-form">
+        <label class="login-field-label" for="login-password-input">Site password</label>
         <input type="password" id="login-password-input" placeholder="Password" autocomplete="current-password">
         <p class="login-error" id="login-error"></p>
         <div class="login-modal-actions">
@@ -312,9 +313,9 @@
 
   <div id="admin-toast" class="admin-toast"></div>
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
-  <input type="file" id="admin-photo-input" accept="image/*" hidden>
+  <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=2.3"></script>
+  <script type="module" src="js/main.js?v=3.0"></script>
 </body>
 
 </html>

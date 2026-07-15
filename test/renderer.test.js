@@ -278,3 +278,36 @@ test("owner and short weekly menus do not use progressive disclosure", () => {
     globalThis.localStorage = previousLocalStorage;
   }
 });
+
+test("owner product controls have visible labels and descriptive button names", () => {
+  const previousLocalStorage = globalThis.localStorage;
+  globalThis.localStorage = { getItem: () => null };
+  const container = createMenuContainer();
+
+  try {
+    renderCategory(weeklyMenu(1), container, true);
+
+    assert.match(container.innerHTML, /<label class="admin-field-label" for="name-item-1">Product name<\/label>/);
+    assert.match(container.innerHTML, /<label class="admin-field-label" for="price-item-1">Price \(rand\)<\/label>/);
+    assert.match(container.innerHTML, /<label class="admin-field-label" for="description-item-1">Description<\/label>/);
+    assert.match(container.innerHTML, /<span class="sr-only">Delete Item 1<\/span>/);
+    assert.match(container.innerHTML, /aria-label="Order on WhatsApp — Item 1"/);
+  } finally {
+    globalThis.localStorage = previousLocalStorage;
+  }
+});
+
+test("market stock controls expose an associated label and product-specific actions", () => {
+  const fixture = createMarketPageFixture();
+  const restoreDocument = useFakeMarketDocument(fixture);
+
+  try {
+    renderMarketSection(marketCategory(false), true);
+
+    assert.match(fixture.container.innerHTML, /<label class="admin-field-label" for="stock-market-pie">Stock available<\/label>/);
+    assert.match(fixture.container.innerHTML, /Record one Chicken Pie sold/);
+    assert.match(fixture.container.innerHTML, /Add one Chicken Pie back/);
+  } finally {
+    restoreDocument();
+  }
+});
