@@ -333,18 +333,21 @@ export function patchStock(itemId, value, isAdmin, { deferSoldOut = false } = {}
     // Don't stomp on it mid-edit if this happens to be the field the
     // admin is actively typing in right now.
     if (input && document.activeElement !== input) input.value = value;
-  } else {
+  }
+
+  // The owner still sees the numeric input reach zero immediately, but no
+  // customer-facing sold-out treatment is applied until the correction
+  // window has elapsed. This lets an accidental extra tap be corrected
+  // without briefly showing a sold-out badge, dimmed card, or stamp.
+  if (deferSoldOut && soldOut) return true;
+
+  if (!isAdmin) {
     const badge = card.querySelector(".stock-badge");
     if (badge) {
       badge.textContent = soldOut ? "Sold out" : `${value} left`;
       badge.classList.toggle("stock-out", soldOut);
     }
   }
-
-  // The number changes instantly for the owner, but reaching zero gets the
-  // same settling window as the network update. This lets an accidental
-  // extra tap be corrected before the stamp appears.
-  if (deferSoldOut && soldOut) return true;
 
   card.classList.toggle("is-sold-out", soldOut);
 
