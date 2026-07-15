@@ -156,6 +156,19 @@ function buildAddCard(categoryId) {
   `;
 }
 
+function buildSectionReturnButton(categoryId) {
+  return `
+    <div class="owner-section-return">
+      <button type="button" class="owner-return-btn" data-action="return-to-section"
+        data-category="${categoryId}">Back to section top</button>
+    </div>
+  `;
+}
+
+function isOptionalCategory(category) {
+  return category?.kind === "optional" || category?.id === "extras";
+}
+
 function buildOwnerJumpButton(categoryId) {
   return `
     <button type="button" class="owner-jump-btn" data-action="jump-to-add"
@@ -176,27 +189,80 @@ function buildVisibilityToggle(category) {
   `;
 }
 
-function buildOwnerSectionToolbar(category) {
-  const visibilityToggle = category.id === "extras" ? buildVisibilityToggle(category) : "";
+function buildCategoryTitleField(category) {
+  const id = fieldId("section-title", category.id);
   return `
-    <h2 class="owner-section-title">${escapeHtml(category.title)}</h2>
+    <div class="owner-section-name-field">
+      <label for="${id}">Section heading</label>
+      <input id="${id}" type="text" value="${escapeHtml(category.title)}" maxlength="80"
+        data-field="category-title" data-category="${category.id}">
+    </div>
+  `;
+}
+
+function buildOwnerSectionToolbar(category) {
+  const optional = isOptionalCategory(category);
+  const visibilityToggle = optional ? buildVisibilityToggle(category) : "";
+  const title = optional
+    ? buildCategoryTitleField(category)
+    : `<h2 class="owner-section-title">${escapeHtml(category.title)}</h2>`;
+  const removeButton = category.id !== "extras" && optional
+    ? `<button type="button" class="owner-remove-section-btn" data-action="remove-section"
+         data-category="${category.id}">Remove section</button>`
+    : "";
+  return `
+    ${title}
     <div class="owner-section-actions">
       ${visibilityToggle}
       ${buildOwnerJumpButton(category.id)}
+      ${removeButton}
     </div>
   `;
+}
+
+function ensureStandardSection(category) {
+  if (typeof document === "undefined") return null;
+  let section = document.getElementById(category.id);
+  if (section || !isOptionalCategory(category)) return section;
+
+  const host = document.getElementById("custom-sections");
+  if (!host) return null;
+  section = document.createElement("section");
+  section.id = category.id;
+  section.className = "menu-section optional-section dynamic-category-section";
+  section.innerHTML = `
+    <div class="container">
+      <div class="owner-section-toolbar" id="${category.id}-owner-controls" hidden></div>
+      <div class="section-header">
+        <p class="section-eyebrow"></p>
+        <h2 class="section-title"></h2>
+        <p class="section-subtitle"></p>
+      </div>
+      <div class="menu-grid" id="${category.id}-grid"></div>
+    </div>
+  `;
+  host.appendChild(section);
+  return section;
 }
 
 function updateStandardSection(category, isAdmin) {
   if (typeof document === "undefined") return true;
 
-  const section = document.getElementById(category.id);
-  const isVisible = category.id !== "extras" || category.isVisible !== false;
+  const section = ensureStandardSection(category);
+  const isVisible = !isOptionalCategory(category) || category.isVisible !== false;
   if (section) {
     section.hidden = !isAdmin && !isVisible;
     section.classList.toggle("owner-view", isAdmin);
     const publicHeader = section.querySelector(".section-header");
-    if (publicHeader) publicHeader.hidden = isAdmin;
+    if (publicHeader) {
+      publicHeader.hidden = isAdmin;
+      const eyebrow = publicHeader.querySelector?.(".section-eyebrow");
+      const title = publicHeader.querySelector?.(".section-title");
+      const subtitle = publicHeader.querySelector?.(".section-subtitle");
+      if (eyebrow) eyebrow.textContent = category.eyebrow || "Also available";
+      if (title) title.textContent = category.title;
+      if (subtitle) subtitle.textContent = category.subtitle || "A changing selection of items from Khaya Kos.";
+    }
   }
 
   const controls = document.getElementById(`${category.id}-owner-controls`);
@@ -226,6 +292,10 @@ function buildMenuDisclosure(totalItems, isExpanded) {
 }
 
 export function renderCategory(category, container, isAdmin) {
+  if (!container && typeof document !== "undefined") {
+    ensureStandardSection(category);
+    container = document.getElementById(`${category.id}-grid`);
+  }
   if (!container) return;
   const showSection = updateStandardSection(category, isAdmin);
   if (!showSection) {
@@ -241,7 +311,7 @@ export function renderCategory(category, container, isAdmin) {
   container.classList.toggle("has-six-or-fewer", hasDisclosure && category.items.length <= 6);
 
   const cards = category.items.map((item) => buildCard(category.id, item, isAdmin)).join("");
-  const addCard = isAdmin ? buildAddCard(category.id) : "";
+  const addCard = isAdmin ? buildAddCard(category.id) + buildSectionReturnButton(category.id) : "";
   const disclosure = hasDisclosure ? buildMenuDisclosure(category.items.length, isExpanded) : "";
   container.innerHTML = cards + addCard + disclosure;
 }
@@ -434,7 +504,9 @@ export function renderMarketSection(category, isAdmin) {
   const cards = showItems
     ? category.items.map((item) => buildMarketCard(category.id, item, isAdmin)).join("")
     : "";
-  const addCard = showItems && isAdmin ? buildAddCard(category.id) : "";
+  const addCard = showItems && isAdmin
+    ? buildAddCard(category.id) + buildSectionReturnButton(category.id)
+    : "";
   const body = showItems ? `<div class="menu-grid market-grid">${cards}${addCard}</div>` : "";
 
   container.innerHTML = `${header}${banner}${body}`;
@@ -545,6 +617,22 @@ export function patchStock(itemId, value, isAdmin, { deferSoldOut = false } = {}
 }
 
 export function renderAll(state, isAdmin) {
+  document.body.classList.toggle("admin-mode", isAdmin);
+  const editModeLabel = document.getElementById("edit-mode-label");
+  const exitButton = document.getElementById("owner-exit-btn");
+  const sectionManager = document.getElementById("owner-section-manager");
+  if (editModeLabel) editModeLabel.hidden = !isAdmin;
+  if (exitButton) exitButton.hidden = !isAdmin;
+  if (sectionManager) sectionManager.hidden = !isAdmin;
+
+  const activeDynamicIds = new Set(
+    state.categories.filter((category) => category.id !== "extras" && isOptionalCategory(category))
+      .map((category) => category.id)
+  );
+  document.querySelectorAll(".dynamic-category-section").forEach((section) => {
+    if (!activeDynamicIds.has(section.id)) section.remove();
+  });
+
   state.categories.forEach((category) => {
     if (category.id === "market") {
       renderMarketSection(category, isAdmin);
@@ -553,5 +641,4 @@ export function renderAll(state, isAdmin) {
       renderCategory(category, container, isAdmin);
     }
   });
-  document.body.classList.toggle("admin-mode", isAdmin);
 }

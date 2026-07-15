@@ -52,8 +52,27 @@ test("optional section visibility remains an authenticated server mutation", () 
   assert.match(syncSource, /type: "category-visibility", categoryId, isVisible/);
   assert.match(serverSource, /case "category-visibility"/);
   assert.match(serverSource, /if \(!ws\.isAdmin\)/);
-  assert.match(serverSource, /category\.id !== "extras"/);
+  assert.match(serverSource, /isOptionalCategory\(category\)/);
   assert.match(serverSource, /typeof data\.isVisible !== "boolean"/);
+});
+
+test("custom section lifecycle remains owner-authorized and live-synchronized", () => {
+  for (const type of ["category-update", "category-add", "category-remove"]) {
+    assert.match(serverSource, new RegExp(`case "${type}"`));
+  }
+  assert.match(syncSource, /type: "category-update", categoryId, field, value/);
+  assert.match(syncSource, /type: "category-add"/);
+  assert.match(syncSource, /type: "category-remove", categoryId/);
+  assert.match(serverSource, /optionalCount >= 8/);
+  assert.match(serverSource, /category\.id === "extras"/);
+});
+
+test("edit mode exposes a focused owner shell and accessible exit control", () => {
+  assert.match(indexHtml, /id="edit-mode-label"[^>]*hidden>Owner edit mode/);
+  assert.match(indexHtml, /id="owner-exit-btn"[^>]*hidden>Exit edit mode/);
+  assert.match(indexHtml, /id="owner-section-manager"[^>]*hidden/);
+  assert.match(indexHtml, /data-action="add-section"/);
+  assert.match(indexHtml, /id="section-delete-modal-overlay"[^>]*hidden/);
 });
 
 test("owner section controls use plain labels without arrow decoration", () => {

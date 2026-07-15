@@ -21,6 +21,7 @@ function freshState() {
       },
       {
         id: "extras",
+        kind: "optional",
         isVisible: true,
         items: [{ id: "scarf", name: "Scarf", price: 60 }],
       },
@@ -71,4 +72,24 @@ test("updates optional section visibility without replacing its products", () =>
 
   store.applyCategoryVisibility("extras", true);
   assert.equal(store.getCategory("extras").isVisible, true);
+});
+
+test("renames, adds, and removes optional sections without disturbing fixed categories", () => {
+  const menu = store.getCategory("menu");
+
+  store.applyCategoryUpdate("extras", "title", "Toys and Paintings");
+  assert.equal(store.getCategory("extras").title, "Toys and Paintings");
+
+  store.applyCategoryAdd({
+    id: "section-gifts",
+    kind: "optional",
+    isVisible: true,
+    title: "Gifts",
+    items: [],
+  });
+  assert.equal(store.getCategory("section-gifts").title, "Gifts");
+
+  store.applyCategoryRemove("section-gifts");
+  assert.equal(store.getCategory("section-gifts"), null);
+  assert.equal(store.getCategory("menu"), menu);
 });

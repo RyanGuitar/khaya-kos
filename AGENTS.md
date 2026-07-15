@@ -24,6 +24,8 @@ Market stock uses atomic deltas. Rapid changes for one item are debounced for 1.
 
 The market item grid is visible to visitors only while `market.isOpen` is true. The owner must always be able to see it for setup.
 
+Optional product sections use `kind: "optional"` with an authoritative `isVisible` flag. The built-in `extras` section is retained for backward compatibility; owners may rename it, hide it, or add further optional sections. Section add, rename, visibility, and removal mutations are owner-authorized, persisted, and broadcast over WebSockets. Fixed `menu` and `market` categories must not be removable through these controls.
+
 The `extras` category is optional. Its `isVisible` setting is authoritative server state, editable only by the authenticated owner, persisted with product state, and broadcast over WebSockets. Visitors must not see the section or its navigation link while it is hidden; the owner must still see it in edit mode so it can be restored.
 
 ## Development conventions
@@ -40,6 +42,8 @@ The `extras` category is optional. Its `isVisible` setting is authoritative serv
 ## Design constraints
 
 Preserve the responsive rustic design, existing typography, colors, card styling, and mobile behavior. Test changes at the existing responsive breakpoints when touching markup or CSS. Respect `prefers-reduced-motion`, focus visibility, accessible labels, and the market's open/closed presentation.
+
+Edit mode is intentionally a focused inventory workspace: retain the compact owner header and inventory sections, while hiding public-only landing, navigation menu, WhatsApp, trust, map, and footer content. Keep the market-opening confetti unless the user requests otherwise.
 
 Do not make broad HTML or CSS rewrites as part of logic-only work.
 

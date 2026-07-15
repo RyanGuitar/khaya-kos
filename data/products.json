@@ -109,6 +109,7 @@
     },
     {
       "id": "extras",
+      "kind": "optional",
       "isVisible": true,
       "eyebrow": "Also available",
       "title": "Clothing, Socks & Scarves",

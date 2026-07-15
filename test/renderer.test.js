@@ -375,6 +375,9 @@ test("optional sections stay available to owners but hide from visitors", () => 
     assert.match(controls.innerHTML, /Section hidden/);
     assert.match(controls.innerHTML, /Show section/);
     assert.match(controls.innerHTML, /Add new item/);
+    assert.match(controls.innerHTML, /data-field="category-title"/);
+    assert.match(controls.innerHTML, /Section heading/);
+    assert.match(container.innerHTML, /data-action="return-to-section"/);
     assert.doesNotMatch(controls.innerHTML, /[↑↓→]/);
   } finally {
     globalThis.document = previousDocument;
@@ -410,6 +413,7 @@ test("the full menu owner header uses the same compact add-item workflow", () =>
     assert.equal(controls.hidden, false);
     assert.match(controls.innerHTML, /The Full Menu/);
     assert.match(controls.innerHTML, /data-action="jump-to-add"/);
+    assert.match(container.innerHTML, /data-action="return-to-section"/);
     assert.doesNotMatch(controls.innerHTML, /toggle-section-visibility|[↑↓→]/);
   } finally {
     globalThis.document = previousDocument;

@@ -2415,6 +2415,218 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
   }
 }
 
+/* ===== FOCUSED OWNER WORKSPACE ===== */
+.edit-mode-label[hidden],
+.owner-exit-btn[hidden],
+.owner-section-manager[hidden] {
+  display: none;
+}
+
+.dynamic-category-section[hidden] {
+  display: none;
+}
+
+.edit-mode-label {
+  margin-left: auto;
+  color: var(--teal-deep);
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.owner-exit-btn {
+  min-height: 46px;
+  margin-left: 18px;
+  padding: 8px 18px;
+  border: 2px solid var(--navy);
+  border-radius: 16px;
+  color: #fff;
+  background: var(--navy);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.owner-exit-btn:hover {
+  background: var(--navy-deep);
+}
+
+body.admin-mode .hero,
+body.admin-mode .trust-section,
+body.admin-mode .map-section,
+body.admin-mode footer,
+body.admin-mode .whatsapp-float,
+body.admin-mode .menu-toggle,
+body.admin-mode .nav-links,
+body.admin-mode .nav-backdrop,
+body.admin-mode #owner-login-btn {
+  display: none !important;
+}
+
+body.admin-mode #main-nav {
+  display: flex;
+  border-bottom-width: 4px;
+  box-shadow: 0 8px 22px rgba(12, 43, 69, 0.14);
+}
+
+body.admin-mode main {
+  padding-top: 66px;
+  background: #edf4f7;
+}
+
+body.admin-mode .menu-section {
+  border-bottom: 4px solid rgba(21, 59, 91, 0.12);
+}
+
+.owner-section-name-field {
+  width: min(100%, 620px);
+  margin: 0 auto;
+  text-align: left;
+}
+
+.owner-section-name-field label {
+  display: block;
+  margin: 0 0 7px 4px;
+  color: var(--navy-deep);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.owner-section-name-field input {
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 16px;
+  border: 3px solid var(--navy);
+  border-radius: 18px;
+  color: var(--navy-deep);
+  background: #fff;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+.owner-remove-section-btn,
+.owner-return-btn,
+.owner-add-section-btn {
+  min-height: 52px;
+  padding: 10px 20px;
+  border-radius: 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.owner-remove-section-btn {
+  grid-column: 1 / -1;
+  width: min(100%, 350px);
+  justify-self: center;
+  border: 2px solid var(--red-deep);
+  color: var(--red-deep);
+  background: #fff;
+}
+
+.owner-remove-section-btn:hover {
+  color: #fff;
+  background: var(--red-deep);
+}
+
+.owner-section-return {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.owner-return-btn {
+  width: min(100%, 340px);
+  border: 2px solid var(--navy);
+  color: var(--navy);
+  background: #fff;
+}
+
+.owner-return-btn:hover {
+  color: #fff;
+  background: var(--navy);
+}
+
+.owner-section-manager {
+  padding: 46px 20px 70px;
+  background: #edf4f7;
+}
+
+.owner-section-manager .container {
+  display: flex;
+  justify-content: center;
+}
+
+.owner-add-section-btn {
+  width: min(100%, 440px);
+  min-height: 64px;
+  border: 3px solid var(--gold);
+  color: #fff;
+  background: var(--teal-deep);
+  box-shadow: 0 8px 20px rgba(12, 43, 69, 0.18);
+}
+
+.owner-add-section-btn:hover {
+  background: var(--navy-deep);
+  transform: translateY(-2px);
+}
+
+.optional-section:nth-child(even) {
+  background: var(--paper);
+}
+
+@media screen and (max-width: 640px) {
+  body.admin-mode #main-nav {
+    padding-inline: 14px;
+  }
+
+  body.admin-mode .logo-sub {
+    display: none;
+  }
+
+  .edit-mode-label {
+    max-width: 90px;
+    font-size: 0.72rem;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .owner-exit-btn {
+    min-height: 42px;
+    margin-left: 10px;
+    padding: 7px 11px;
+    font-size: 0.74rem;
+  }
+
+  .owner-section-name-field input {
+    min-height: 54px;
+    font-size: 1.35rem;
+  }
+
+  .owner-remove-section-btn {
+    grid-column: auto;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body.admin-mode .logo-text {
+    display: none;
+  }
+
+  body.admin-mode .edit-mode-label {
+    max-width: none;
+    margin-left: 8px;
+  }
+}
+
 @media screen and (max-width: 380px) {
   .delete-modal-actions {
     grid-template-columns: 1fr;

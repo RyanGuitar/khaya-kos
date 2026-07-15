@@ -1,7 +1,7 @@
 // js/admin/engine.js
-import { store } from "./store.js?v=3.5";
-import { sync } from "./sync.js?v=3.5";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.5";
+import { store } from "./store.js?v=3.6";
+import { sync } from "./sync.js?v=3.6";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.6";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
@@ -9,6 +9,8 @@ let isAdmin = false;
 let pendingPhotoTarget = null; // { categoryId, itemId }
 let pendingDeleteTarget = null; // { categoryId, itemId }
 let deleteTrigger = null;
+let pendingSectionDeleteId = null;
+let sectionDeleteTrigger = null;
 
 function render() {
   renderAll(store.state, isAdmin);
@@ -275,6 +277,50 @@ function confirmDelete() {
   showToast("Item removed.");
 }
 
+function openSectionDeleteModal(categoryId, trigger) {
+  const category = store.getCategory(categoryId);
+  const overlay = document.getElementById("section-delete-modal-overlay");
+  if (!category || !overlay || category.id === "extras") return;
+
+  pendingSectionDeleteId = categoryId;
+  sectionDeleteTrigger = trigger;
+  const name = document.getElementById("delete-section-name");
+  if (name) name.textContent = category.title || "This section";
+  overlay.hidden = false;
+  document.body.classList.add("dialog-open");
+  document.getElementById("section-delete-cancel-btn")?.focus();
+}
+
+function closeSectionDeleteModal({ restoreFocus = true } = {}) {
+  const overlay = document.getElementById("section-delete-modal-overlay");
+  if (overlay) overlay.hidden = true;
+  document.body.classList.remove("dialog-open");
+
+  const trigger = sectionDeleteTrigger;
+  pendingSectionDeleteId = null;
+  sectionDeleteTrigger = null;
+  if (restoreFocus && trigger?.isConnected) trigger.focus();
+}
+
+function confirmSectionDelete() {
+  if (!pendingSectionDeleteId) return;
+  const categoryId = pendingSectionDeleteId;
+  closeSectionDeleteModal({ restoreFocus: false });
+  store.applyCategoryRemove(categoryId);
+  render();
+  sync.removeCategory(categoryId);
+  showToast("Section removed.");
+}
+
+function leaveEditMode() {
+  isAdmin = false;
+  sessionStorage.removeItem("khayaKosAdminPw");
+  updateLoginButton();
+  render();
+  window.scrollTo({ top: 0, behavior: "auto" });
+  showToast("Logged out of edit mode.");
+}
+
 function updateLoginButton() {
   const btn = document.getElementById("owner-login-btn");
   if (!btn) return;
@@ -290,15 +336,13 @@ function wireEvents() {
   // Login button toggles modal open, or logs out if already admin.
   document.getElementById("owner-login-btn")?.addEventListener("click", () => {
     if (isAdmin) {
-      isAdmin = false;
-      sessionStorage.removeItem("khayaKosAdminPw");
-      updateLoginButton();
-      render();
-      showToast("Logged out of edit mode.");
+      leaveEditMode();
     } else {
       openLoginModal();
     }
   });
+
+  document.getElementById("owner-exit-btn")?.addEventListener("click", leaveEditMode);
 
   document.getElementById("login-cancel-btn")?.addEventListener("click", closeLoginModal);
 
@@ -308,13 +352,22 @@ function wireEvents() {
     if (e.target === e.currentTarget) closeDeleteModal();
   });
 
+  document.getElementById("section-delete-cancel-btn")?.addEventListener("click", () => closeSectionDeleteModal());
+  document.getElementById("section-delete-confirm-btn")?.addEventListener("click", confirmSectionDelete);
+  document.getElementById("section-delete-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeSectionDeleteModal();
+  });
+
   document.addEventListener("keydown", (e) => {
-    const overlay = document.getElementById("delete-modal-overlay");
-    if (!overlay || overlay.hidden) return;
+    const itemOverlay = document.getElementById("delete-modal-overlay");
+    const sectionOverlay = document.getElementById("section-delete-modal-overlay");
+    const overlay = !itemOverlay?.hidden ? itemOverlay : !sectionOverlay?.hidden ? sectionOverlay : null;
+    if (!overlay) return;
 
     if (e.key === "Escape") {
       e.preventDefault();
-      closeDeleteModal();
+      if (overlay === itemOverlay) closeDeleteModal();
+      else closeSectionDeleteModal();
       return;
     }
 
@@ -400,16 +453,39 @@ function wireEvents() {
       return;
     }
 
+    const returnToSectionBtn = e.target.closest('[data-action="return-to-section"]');
+    if (returnToSectionBtn) {
+      const section = document.getElementById(returnToSectionBtn.dataset.category);
+      if (!section) return;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      section.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      section.querySelector(".owner-section-title, .owner-section-name-field input")?.focus({ preventScroll: true });
+      return;
+    }
+
     const visibilityBtn = e.target.closest('[data-action="toggle-section-visibility"]');
     if (visibilityBtn) {
       const categoryId = visibilityBtn.dataset.category;
       const category = store.getCategory(categoryId);
-      if (!category || category.id !== "extras") return;
+      if (!category || (category.kind !== "optional" && category.id !== "extras")) return;
       const isVisible = category.isVisible === false;
       store.applyCategoryVisibility(categoryId, isVisible);
       renderCategoryById(categoryId);
       sync.setCategoryVisibility(categoryId, isVisible);
-      showToast(isVisible ? "Also Available is now visible." : "Also Available is now hidden.");
+      showToast(isVisible ? "Section is now visible." : "Section is now hidden.");
+      return;
+    }
+
+    const addSectionBtn = e.target.closest('[data-action="add-section"]');
+    if (addSectionBtn) {
+      sync.addCategory();
+      showToast("Adding a new section…");
+      return;
+    }
+
+    const removeSectionBtn = e.target.closest('[data-action="remove-section"]');
+    if (removeSectionBtn) {
+      openSectionDeleteModal(removeSectionBtn.dataset.category, removeSectionBtn);
       return;
     }
 
@@ -512,6 +588,21 @@ function wireEvents() {
   // Delegated commit of price/description/stock/name fields.
   document.addEventListener("change", (e) => {
     const field = e.target.dataset.field;
+    if (field === "category-title") {
+      const categoryId = e.target.dataset.category;
+      const category = store.getCategory(categoryId);
+      const value = e.target.value.trim();
+      if (!category || (category.kind !== "optional" && category.id !== "extras") || !value) {
+        if (category) e.target.value = category.title;
+        return;
+      }
+      store.applyCategoryUpdate(categoryId, "title", value);
+      renderCategoryById(categoryId);
+      sync.updateCategory(categoryId, "title", value);
+      showToast("Section heading updated.");
+      return;
+    }
+
     if (field !== "price" && field !== "description" && field !== "stock" && field !== "name") return;
 
     const { category, item } = e.target.dataset;
@@ -600,7 +691,27 @@ function wireSync() {
   sync.on("category-visibility", (msg) => {
     store.applyCategoryVisibility(msg.categoryId, msg.isVisible);
     renderCategoryById(msg.categoryId);
-    showToast(msg.isVisible ? "Also Available is now visible." : "Also Available is now hidden.");
+    showToast(msg.isVisible ? "Section is now visible." : "Section is now hidden.");
+  });
+
+  sync.on("category-update", (msg) => {
+    store.applyCategoryUpdate(msg.categoryId, msg.field, msg.value);
+    renderCategoryById(msg.categoryId);
+  });
+
+  sync.on("category-add", (msg) => {
+    store.applyCategoryAdd(msg.category);
+    render();
+    const section = document.getElementById(msg.category.id);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    section?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    section?.querySelector('[data-field="category-title"]')?.focus({ preventScroll: true });
+    showToast("New section added.");
+  });
+
+  sync.on("category-remove", (msg) => {
+    store.applyCategoryRemove(msg.categoryId);
+    render();
   });
 
   sync.on("product-add", (msg) => {
@@ -622,6 +733,7 @@ function wireSync() {
       closeLoginModal();
       updateLoginButton();
       render();
+      window.scrollTo({ top: 0, behavior: "auto" });
       showToast("Edit mode on — changes go live for everyone.");
     } else {
       const error = document.getElementById("login-error");

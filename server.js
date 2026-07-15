@@ -112,9 +112,11 @@ function backfillMissingCategorySettings(seed) {
     const savedCategory = state.categories.find((category) => category.id === seedCategory.id);
     if (!savedCategory) continue;
 
-    if (Object.hasOwn(seedCategory, "isVisible") && !Object.hasOwn(savedCategory, "isVisible")) {
-      savedCategory.isVisible = seedCategory.isVisible;
-      changed = true;
+    for (const setting of ["isVisible", "kind"]) {
+      if (Object.hasOwn(seedCategory, setting) && !Object.hasOwn(savedCategory, setting)) {
+        savedCategory[setting] = seedCategory[setting];
+        changed = true;
+      }
     }
   }
   if (changed) persistState();
@@ -175,6 +177,10 @@ function findItem(categoryId, itemId) {
   const category = findCategory(categoryId);
   if (!category) return null;
   return category.items.find((i) => i.id === itemId) || null;
+}
+
+function isOptionalCategory(category) {
+  return category?.kind === "optional" || category?.id === "extras";
 }
 
 /* =====================================================
@@ -319,7 +325,7 @@ wss.on("connection", (ws) => {
           return;
         }
         const category = findCategory(data.categoryId);
-        if (!category || category.id !== "extras" || typeof data.isVisible !== "boolean") return;
+        if (!isOptionalCategory(category) || typeof data.isVisible !== "boolean") return;
 
         category.isVisible = data.isVisible;
         persistState();
@@ -328,6 +334,62 @@ wss.on("connection", (ws) => {
           categoryId: category.id,
           isVisible: category.isVisible,
         }, ws);
+        break;
+      }
+
+      case "category-update": {
+        if (!ws.isAdmin) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          return;
+        }
+        const category = findCategory(data.categoryId);
+        if (!isOptionalCategory(category) || data.field !== "title" || typeof data.value !== "string") return;
+        const value = data.value.trim().slice(0, 80);
+        if (!value) return;
+
+        category.title = value;
+        persistState();
+        broadcast({ type: "category-update", categoryId: category.id, field: "title", value }, ws);
+        break;
+      }
+
+      case "category-add": {
+        if (!ws.isAdmin) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          return;
+        }
+        const optionalCount = state.categories.filter(isOptionalCategory).length;
+        if (optionalCount >= 8) {
+          ws.send(JSON.stringify({ type: "error", message: "The maximum of eight optional sections has been reached." }));
+          return;
+        }
+
+        const category = {
+          id: `section-${crypto.randomUUID()}`,
+          kind: "optional",
+          isVisible: true,
+          eyebrow: "Also available",
+          title: "New Section",
+          subtitle: "A changing selection of items from Khaya Kos.",
+          items: [],
+        };
+        state.categories.push(category);
+        persistState();
+        broadcast({ type: "category-add", category });
+        break;
+      }
+
+      case "category-remove": {
+        if (!ws.isAdmin) {
+          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          return;
+        }
+        const category = findCategory(data.categoryId);
+        if (!isOptionalCategory(category) || category.id === "extras") return;
+
+        state.categories = state.categories.filter((item) => item.id !== category.id);
+        persistState();
+        broadcast({ type: "category-remove", categoryId: category.id });
         break;
       }
 
