@@ -7,6 +7,8 @@ import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
 let isAdmin = false;
 let pendingPhotoTarget = null; // { categoryId, itemId }
+let pendingDeleteTarget = null; // { categoryId, itemId }
+let deleteTrigger = null;
 
 function render() {
   renderAll(store.state, isAdmin);
@@ -236,6 +238,43 @@ function closeLoginModal() {
   if (overlay) overlay.hidden = true;
 }
 
+function openDeleteModal(categoryId, itemId, trigger) {
+  const overlay = document.getElementById("delete-modal-overlay");
+  const itemName = document.getElementById("delete-item-name");
+  const cancelBtn = document.getElementById("delete-cancel-btn");
+  const item = store.getItem(categoryId, itemId);
+  if (!overlay || !item) return;
+
+  pendingDeleteTarget = { categoryId, itemId };
+  deleteTrigger = trigger;
+  if (itemName) itemName.textContent = item.name || "This item";
+  overlay.hidden = false;
+  document.body.classList.add("dialog-open");
+  cancelBtn?.focus();
+}
+
+function closeDeleteModal({ restoreFocus = true } = {}) {
+  const overlay = document.getElementById("delete-modal-overlay");
+  if (overlay) overlay.hidden = true;
+  document.body.classList.remove("dialog-open");
+
+  const trigger = deleteTrigger;
+  pendingDeleteTarget = null;
+  deleteTrigger = null;
+  if (restoreFocus && trigger?.isConnected) trigger.focus();
+}
+
+function confirmDelete() {
+  if (!pendingDeleteTarget) return;
+  const { categoryId, itemId } = pendingDeleteTarget;
+
+  closeDeleteModal({ restoreFocus: false });
+  store.applyRemove(categoryId, itemId);
+  renderCategoryById(categoryId);
+  sync.removeProduct(categoryId, itemId);
+  showToast("Item removed.");
+}
+
 function updateLoginButton() {
   const btn = document.getElementById("owner-login-btn");
   if (!btn) return;
@@ -262,6 +301,38 @@ function wireEvents() {
   });
 
   document.getElementById("login-cancel-btn")?.addEventListener("click", closeLoginModal);
+
+  document.getElementById("delete-cancel-btn")?.addEventListener("click", () => closeDeleteModal());
+  document.getElementById("delete-confirm-btn")?.addEventListener("click", confirmDelete);
+  document.getElementById("delete-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeDeleteModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const overlay = document.getElementById("delete-modal-overlay");
+    if (!overlay || overlay.hidden) return;
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeDeleteModal();
+      return;
+    }
+
+    if (e.key === "Tab") {
+      const focusable = [...overlay.querySelectorAll("button:not([disabled])")];
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) return;
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
 
   document.getElementById("login-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -322,12 +393,7 @@ function wireEvents() {
     const deleteBtn = e.target.closest('[data-action="delete"]');
     if (deleteBtn) {
       const { category, item } = deleteBtn.dataset;
-      if (confirm("Remove this item from the site for everyone?")) {
-        store.applyRemove(category, item);
-        renderCategoryById(category);
-        sync.removeProduct(category, item);
-        showToast("Item removed.");
-      }
+      openDeleteModal(category, item, deleteBtn);
       return;
     }
 
