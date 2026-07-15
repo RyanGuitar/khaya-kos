@@ -304,10 +304,16 @@ function updateMarketStatus(category) {
 
   if (heroStatus) {
     heroStatus.classList.toggle("is-live", isOpen);
+    const kicker = heroStatus.querySelector(".status-kicker");
     const label = heroStatus.querySelector(".status-label");
     const detail = heroStatus.querySelector(".status-detail");
-    if (label) label.textContent = isOpen ? "Market live now" : "Saturday market";
-    if (detail) detail.textContent = isOpen ? "See what’s left →" : "Check the live selection →";
+    if (kicker) kicker.textContent = isOpen ? "Open now" : "Closed now";
+    if (label) label.textContent = isOpen ? "Gazebo Valley stall is open" : "Saturday stall closed";
+    if (detail) {
+      detail.textContent = isOpen
+        ? "See today’s selection and remaining stock →"
+        : "Gazebo Valley opens on Saturdays.";
+    }
   }
 
   if (navLink) {

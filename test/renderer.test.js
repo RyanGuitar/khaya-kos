@@ -114,9 +114,11 @@ function createMarketPageFixture() {
   };
   const label = { textContent: "" };
   const detail = { textContent: "" };
+  const kicker = { textContent: "" };
   const heroStatus = {
     classList: createClassList(),
     querySelector(selector) {
+      if (selector === ".status-kicker") return kicker;
       if (selector === ".status-label") return label;
       if (selector === ".status-detail") return detail;
       return null;
@@ -130,7 +132,7 @@ function createMarketPageFixture() {
     },
   };
 
-  return { section, container, heroStatus, navLink, label, detail };
+  return { section, container, heroStatus, navLink, kicker, label, detail };
 }
 
 function useFakeMarketDocument(fixture) {
@@ -186,7 +188,9 @@ test("closed market uses the compact menu route and closed status cues", () => {
     assert.equal(fixture.section.classList.contains("is-closed"), true);
     assert.equal(fixture.section.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
-    assert.equal(fixture.label.textContent, "Saturday market");
+    assert.equal(fixture.kicker.textContent, "Closed now");
+    assert.equal(fixture.label.textContent, "Saturday stall closed");
+    assert.equal(fixture.detail.textContent, "Gazebo Valley opens on Saturdays.");
   } finally {
     restoreDocument();
   }
@@ -206,8 +210,9 @@ test("open market exposes stock and live status cues", () => {
     assert.equal(fixture.section.classList.contains("is-closed"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), true);
     assert.equal(fixture.navLink.classList.contains("is-live"), true);
-    assert.equal(fixture.label.textContent, "Market live now");
-    assert.equal(fixture.detail.textContent, "See what’s left →");
+    assert.equal(fixture.kicker.textContent, "Open now");
+    assert.equal(fixture.label.textContent, "Gazebo Valley stall is open");
+    assert.equal(fixture.detail.textContent, "See today’s selection and remaining stock →");
   } finally {
     restoreDocument();
   }

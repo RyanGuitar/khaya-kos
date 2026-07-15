@@ -29,3 +29,14 @@ test("the logo uses its complete visible text as its accessible name", () => {
   assert.match(indexHtml, /<a href="index\.html" class="logo">/);
   assert.doesNotMatch(indexHtml, /class="logo"[^>]*aria-label=/);
 });
+
+test("landing copy prioritizes all-week ordering and keeps the Saturday stall secondary", () => {
+  assert.match(indexHtml, /<span class="logo-sub">Gazebo Valley<\/span>/);
+  assert.match(indexHtml, /Available to order all week/);
+  assert.match(indexHtml, /Freshly made,<br>just for you/);
+  assert.match(indexHtml, /Browse the Full Menu/);
+  assert.match(indexHtml, /Saturday stall closed/);
+  assert.match(indexHtml, /Gazebo Valley opens on Saturdays\./);
+  assert.doesNotMatch(indexHtml, />💬 Order on WhatsApp</);
+  assert.doesNotMatch(indexHtml, /Saterdag Market Stall|Saterdag Menu/);
+});

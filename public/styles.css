@@ -2783,3 +2783,108 @@ body.admin-mode .menu-card {
     padding: 18px;
   }
 }
+
+/* ===== LANDING MESSAGE HIERARCHY ===== */
+.hero-inner {
+  max-width: 780px;
+}
+
+.hero-sign .hero-eyebrow {
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+.hero-desc-secondary {
+  margin-top: 10px;
+}
+
+.hero-cta-group > .btn-primary,
+.hero-cta-group > .btn-secondary {
+  flex: 1 1 0;
+  justify-content: center;
+  min-width: 0;
+  min-height: 54px;
+  padding: 13px 20px;
+  text-align: center;
+}
+
+.hero-market-status {
+  display: grid;
+  width: 100%;
+  gap: 5px;
+  margin: 24px auto 0;
+  padding: 22px 24px;
+  border-radius: 24px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-market-status:hover {
+  color: var(--ink);
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.hero-market-status .status-kicker {
+  justify-self: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  color: #fff;
+  background: #667580;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-market-status .status-label {
+  color: var(--navy-deep);
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.hero-market-status .status-detail {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.hero-market-status.is-live {
+  color: var(--green-deep);
+  background: #e7f5eb;
+  border-color: #92cba5;
+}
+
+.hero-market-status.is-live:hover {
+  background: #dff1e5;
+}
+
+.hero-market-status.is-live .status-kicker {
+  color: #fff;
+  background: var(--green);
+}
+
+.hero-market-status.is-live .status-label,
+.hero-market-status.is-live .status-detail {
+  color: var(--green-deep);
+}
+
+@media screen and (max-width: 480px) {
+  .hero-cta-group > .btn-primary,
+  .hero-cta-group > .btn-secondary {
+    flex-basis: 100%;
+  }
+
+  .hero-market-status {
+    padding: 20px 18px;
+  }
+}
