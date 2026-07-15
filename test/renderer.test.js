@@ -187,6 +187,7 @@ test("closed market hides the repeated visitor section and keeps hero status cue
     assert.equal(fixture.section.classList.contains("is-closed"), true);
     assert.equal(fixture.section.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
+    assert.equal(fixture.heroStatus.hidden, false);
     assert.equal(fixture.kicker.textContent, "Closed now");
     assert.equal(fixture.label.textContent, "Saturday stall closed");
     assert.equal(fixture.detail.textContent, "Gazebo Valley opens on Saturdays.");
@@ -202,14 +203,22 @@ test("open market exposes stock and live status cues", () => {
   try {
     renderMarketSection(marketCategory(true), false);
 
-    assert.match(fixture.container.innerHTML, /market-title-live/);
     assert.match(fixture.container.innerHTML, /market-grid/);
     assert.match(fixture.container.innerHTML, /3 left/);
+    assert.match(fixture.container.innerHTML, /Today’s stall selection updates in real time as items sell/);
+    assert.match(fixture.container.innerHTML, /<strong>Open now<\/strong>/);
+    assert.match(fixture.container.innerHTML, /While stock lasts/);
+    assert.doesNotMatch(fixture.container.innerHTML, /market-title-live/);
     assert.equal(fixture.section.classList.contains("is-live"), true);
     assert.equal(fixture.section.classList.contains("is-closed"), false);
     assert.equal(fixture.section.hidden, false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), true);
+    assert.equal(fixture.heroStatus.hidden, true);
     assert.equal(fixture.navLink.classList.contains("is-live"), true);
+    assert.equal(
+      fixture.navLink.attributes["aria-label"],
+      "Live at the Market — open now, see current stock"
+    );
     assert.equal(fixture.kicker.textContent, "Open now");
     assert.equal(fixture.label.textContent, "Gazebo Valley stall is open");
     assert.equal(fixture.detail.textContent, "See today’s selection and remaining stock →");

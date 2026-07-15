@@ -276,10 +276,12 @@ function buildMarketToggle(category) {
 function buildMarketBanner(isOpen) {
   if (!isOpen) return "";
   return `
-    <div class="market-live-banner">
-      <span class="live-dot"></span>
-      <strong>Live now</strong>
-      <span>at Gazebo Valley · while stock lasts</span>
+    <div class="market-live-banner" role="status">
+      <span class="live-dot" aria-hidden="true"></span>
+      <strong>Open now</strong>
+      <span>at Gazebo Valley</span>
+      <span class="market-live-divider" aria-hidden="true"></span>
+      <span>While stock lasts</span>
     </div>
   `;
 }
@@ -290,6 +292,7 @@ function updateMarketStatus(category) {
   const navLink = document.getElementById("market-nav-link");
 
   if (heroStatus) {
+    heroStatus.hidden = isOpen;
     heroStatus.classList.toggle("is-live", isOpen);
     const kicker = heroStatus.querySelector(".status-kicker");
     const label = heroStatus.querySelector(".status-label");
@@ -307,7 +310,7 @@ function updateMarketStatus(category) {
     navLink.classList.toggle("is-live", isOpen);
     navLink.setAttribute(
       "aria-label",
-      isOpen ? "Market live now — see current stock" : "Live at the Market"
+      isOpen ? "Live at the Market — open now, see current stock" : "Live at the Market"
     );
   }
 }
@@ -336,9 +339,10 @@ export function renderMarketSection(category, isAdmin) {
       <p class="section-eyebrow">${escapeHtml(category.eyebrow)}</p>
       <div class="market-title-row">
         <h2 class="section-title">${escapeHtml(category.title)}</h2>
-        ${category.isOpen ? `<span class="market-title-live"><span class="live-dot"></span> Live</span>` : ""}
       </div>
-      <p class="section-subtitle">${escapeHtml(category.subtitle)}</p>
+      <p class="section-subtitle">${escapeHtml(category.isOpen
+        ? "Today’s stall selection updates in real time as items sell. First come, first served."
+        : category.subtitle)}</p>
     </div>
   `;
 
