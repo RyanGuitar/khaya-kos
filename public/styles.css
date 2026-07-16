@@ -754,27 +754,6 @@ section {
   font-weight: 700;
 }
 
-.card-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: #1f8a4c;
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  min-height: 42px;
-  background: rgba(37, 211, 102, 0.12);
-  transition: background var(--dur) var(--ease), gap var(--dur) var(--ease);
-}
-
-.card-cta:hover {
-  background: rgba(37, 211, 102, 0.22);
-  gap: 10px;
-}
-
 .card-footer-row {
   display: flex;
   align-items: center;
@@ -1580,11 +1559,6 @@ footer {
     align-items: stretch;
   }
 
-  .card-cta {
-    flex: 1;
-    justify-content: center;
-  }
-
   .map-details {
     flex-direction: column;
     gap: 10px;
@@ -1861,14 +1835,7 @@ footer {
   }
 
   .card-footer-row {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .card-cta {
-    padding-left: 12px;
-    padding-right: 12px;
-    text-align: center;
+    display: flex;
   }
 }
 
@@ -2872,17 +2839,6 @@ body {
   background: var(--gold-light);
 }
 
-.card-cta {
-  min-height: 44px;
-  color: #fff;
-  background: var(--green);
-}
-
-.card-cta:hover {
-  color: #fff;
-  background: var(--green-deep);
-}
-
 .like-btn {
   min-height: 44px;
   color: var(--red-deep);
@@ -3361,6 +3317,33 @@ body.admin-mode .menu-card {
     drop-shadow(0 5px 8px rgba(12, 43, 69, 0.28));
 }
 
+.whatsapp-float::before {
+  content: attr(aria-label);
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 12px);
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--navy-deep);
+  box-shadow: 0 6px 16px rgba(12, 43, 69, 0.22);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(6px, -50%);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.whatsapp-float:hover::before,
+.whatsapp-float:focus-visible::before {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
 @media screen and (max-width: 640px) {
   .hero-badge {
     display: none;
@@ -3375,6 +3358,10 @@ body.admin-mode .menu-card {
 
   .whatsapp-float img {
     transform: scale(1.16);
+  }
+
+  .whatsapp-float::before {
+    display: none;
   }
 
   .owner-login-btn {

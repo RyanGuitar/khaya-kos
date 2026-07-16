@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const indexHtml = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
 const engineSource = await readFile(new URL("../public/js/admin/engine.js", import.meta.url), "utf8");
+const rendererSource = await readFile(new URL("../public/js/admin/renderer.js", import.meta.url), "utf8");
 const syncSource = await readFile(new URL("../public/js/admin/sync.js", import.meta.url), "utf8");
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 
@@ -25,6 +26,11 @@ test("product deletion no longer invokes the browser-native confirm dialog", () 
 test("owner login and upload controls have accessible names", () => {
   assert.match(indexHtml, /<label class="login-field-label" for="login-password-input">Site password<\/label>/);
   assert.match(indexHtml, /id="admin-photo-input"[^>]*aria-label="Choose a new product photo"/);
+});
+
+test("ordering uses one accessible floating WhatsApp action instead of card-level links", () => {
+  assert.match(indexHtml, /class="whatsapp-float"[^>]*aria-label="Order on WhatsApp"/);
+  assert.doesNotMatch(rendererSource, /card-cta|Order on WhatsApp/);
 });
 
 test("the logo uses its complete visible text as its accessible name", () => {

@@ -308,7 +308,7 @@ test("owner product controls have visible labels and descriptive button names", 
     assert.match(container.innerHTML, /<label class="admin-field-label" for="price-item-1">Price \(rand\)<\/label>/);
     assert.match(container.innerHTML, /<label class="admin-field-label" for="description-item-1">Description<\/label>/);
     assert.match(container.innerHTML, /<span class="sr-only">Delete Item 1<\/span>/);
-    assert.match(container.innerHTML, /aria-label="Order on WhatsApp — Item 1"/);
+    assert.doesNotMatch(container.innerHTML, /card-cta|Order on WhatsApp/);
   } finally {
     globalThis.localStorage = previousLocalStorage;
   }

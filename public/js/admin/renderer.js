@@ -4,19 +4,12 @@
 
 import { shouldShowMarketItems } from "./marketLogic.js";
 
-const WHATSAPP_NUMBER = "27726785972";
-
 function escapeHtml(str = "") {
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-function waLink(itemName) {
-  const text = encodeURIComponent(`Hi Khaya Kos! I'd like to order ${itemName}.`);
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
 }
 
 function formatPrice(price) {
@@ -139,8 +132,6 @@ function buildCard(categoryId, item, isAdmin) {
         ${descriptionMarkup}
         <div class="card-footer-row">
           ${buildLikeButton(categoryId, item, isAdmin)}
-          <a href="${waLink(item.name)}" class="card-cta" target="_blank" rel="noopener noreferrer"
-            aria-label="Order on WhatsApp — ${escapeHtml(item.name)}">Order on WhatsApp →</a>
         </div>
       </div>
     </div>
