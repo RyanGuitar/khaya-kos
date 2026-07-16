@@ -2,9 +2,9 @@
   "categories": [
     {
       "id": "menu",
-      "eyebrow": "Order any day",
-      "title": "Made-to-Order Menu",
-      "subtitle": "Choose your favourites below, then order on WhatsApp and arrange your collection day.",
+      "eyebrow": "Available to order all week",
+      "title": "The Full Menu",
+      "subtitle": "See something you love? Tap the heart to like it. Likes update live, so everyone can see what’s getting the most love.",
       "items": [
         {
           "id": "cappuccino-muffins",

@@ -49,8 +49,10 @@ test("landing banner focuses exclusively on all-week made-to-order food", () => 
   assert.match(indexHtml, /<span class="status-kicker">Gazebo Valley · Closed<\/span>/);
   assert.match(indexHtml, /Saturday market availability goes live here/);
   assert.match(indexHtml, /remaining stock update in real time/);
-  assert.match(indexHtml, /Made-to-Order Menu/);
-  assert.match(indexHtml, /Choose your favourites below, then order on WhatsApp and arrange/);
+  assert.match(indexHtml, /<p class="section-eyebrow">Available to order all week<\/p>/);
+  assert.match(indexHtml, /<h2 class="section-title">The Full Menu<\/h2>/);
+  assert.match(indexHtml, /Tap the heart to like it\. Likes update live/);
+  assert.doesNotMatch(indexHtml, /Choose your favourites below, then order on WhatsApp/);
   assert.doesNotMatch(indexHtml, />💬 Order on WhatsApp</);
   assert.doesNotMatch(indexHtml, /Saterdag Market Stall|Saterdag Menu/);
 });
