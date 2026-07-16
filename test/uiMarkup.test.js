@@ -80,6 +80,11 @@ test("the decorative quote strip is removed from the route to the full menu", ()
   assert.doesNotMatch(indexHtml, /Vars gemaak met die beste bestandele/);
 });
 
+test("the map does not repeat location details already stated in its heading", () => {
+  assert.doesNotMatch(indexHtml, /class="map-details"/);
+  assert.doesNotMatch(indexHtml, /🗓️ Saturdays/);
+});
+
 test("optional section visibility remains an authenticated server mutation", () => {
   assert.match(syncSource, /type: "category-visibility", categoryId, isVisible/);
   assert.match(serverSource, /case "category-visibility"/);

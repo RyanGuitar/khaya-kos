@@ -1329,23 +1329,6 @@ section {
   padding: 40px;
 }
 
-.map-details {
-  margin-top: 22px;
-  display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
-  justify-content: center;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.map-details span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 /* ===== FOOTER ===== */
 footer {
   background: var(--chalk-black);
@@ -1571,12 +1554,6 @@ footer {
 
   .card-footer-row {
     align-items: stretch;
-  }
-
-  .map-details {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
   }
 
   .map-wrapper,
