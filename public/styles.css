@@ -1250,57 +1250,6 @@ section {
   .market-confetti { display: none; }
 }
 
-/* ===== TRUST SECTION ===== */
-.trust-section {
-  background: var(--chalk-black);
-  padding: 56px 0;
-}
-
-.trust-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
-}
-
-.trust-section h3 {
-  font-family: 'Baloo 2', sans-serif;
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: var(--chalk-white);
-  text-align: center;
-}
-
-.trust-items {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 14px 40px;
-}
-
-.trust-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--chalk-white);
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.trust-icon {
-  width: 42px;
-  height: 42px;
-  background: var(--paper);
-  border: 2px solid var(--gold-light);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
 /* ===== MAP SECTION ===== */
 .map-section {
   background: var(--cream);
@@ -1613,16 +1562,6 @@ footer {
     height: 320px;
   }
 
-  .trust-items {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .trust-item {
-    width: 100%;
-    max-width: 280px;
-    justify-content: flex-start;
-  }
 }
 
 /* ===== OWNER SECTION TOOLBARS ===== */
@@ -2465,7 +2404,6 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
 }
 
 body.admin-mode .hero,
-body.admin-mode .trust-section,
 body.admin-mode .map-section,
 body.admin-mode footer,
 body.admin-mode .whatsapp-float,
@@ -2992,15 +2930,8 @@ body {
   border-color: var(--red-deep);
 }
 
-.trust-section,
 footer {
   background: linear-gradient(125deg, var(--navy-deep), var(--navy));
-}
-
-.trust-icon {
-  color: var(--navy-deep);
-  border-color: var(--gold);
-  background: var(--gold);
 }
 
 .map-wrapper {

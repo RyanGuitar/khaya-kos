@@ -80,6 +80,11 @@ test("the decorative quote strip is removed from the route to the full menu", ()
   assert.doesNotMatch(indexHtml, /Vars gemaak met die beste bestandele/);
 });
 
+test("live product likes replace the removed generic trust section", () => {
+  assert.doesNotMatch(indexHtml, /trust-section|Why Everyone Comes Back/);
+  assert.match(rendererSource, /data-action="like"/);
+});
+
 test("the map does not repeat location details already stated in its heading", () => {
   assert.doesNotMatch(indexHtml, /class="map-details"/);
   assert.doesNotMatch(indexHtml, /🗓️ Saturdays/);
