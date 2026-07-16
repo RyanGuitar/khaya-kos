@@ -21,6 +21,7 @@ function createClassList(initial = []) {
 function createMarketCard() {
   const badge = { textContent: "1 left", classList: createClassList() };
   const input = { value: "1" };
+  const decrementButton = { disabled: false };
   let stamp = null;
 
   const imageWrap = {
@@ -37,13 +38,14 @@ function createMarketCard() {
     querySelector(selector) {
       if (selector === ".stock-badge") return badge;
       if (selector === ".stock-input") return input;
+      if (selector === '[data-action="stock-minus"]') return decrementButton;
       if (selector === ".card-img-wrap") return imageWrap;
       if (selector === ".sold-out-stamp") return stamp;
       return null;
     },
   };
 
-  return { card, badge, input, getStamp: () => stamp };
+  return { card, badge, input, decrementButton, getStamp: () => stamp };
 }
 
 function useFakeDocument(card) {
@@ -99,8 +101,24 @@ test("the owner sees zero immediately while sold-out visuals are deferred", () =
     patchStock("last-pie", 0, true, { deferSoldOut: true });
 
     assert.equal(fixture.input.value, 0);
+    assert.equal(fixture.decrementButton.disabled, true);
     assert.equal(fixture.card.classList.contains("is-sold-out"), false);
     assert.equal(fixture.getStamp(), null);
+  } finally {
+    restoreDocument();
+  }
+});
+
+test("the owner stock decrement re-enables immediately after restocking", () => {
+  const fixture = createMarketCard();
+  const restoreDocument = useFakeDocument(fixture.card);
+
+  try {
+    patchStock("last-pie", 0, true);
+    assert.equal(fixture.decrementButton.disabled, true);
+
+    patchStock("last-pie", 1, true);
+    assert.equal(fixture.decrementButton.disabled, false);
   } finally {
     restoreDocument();
   }

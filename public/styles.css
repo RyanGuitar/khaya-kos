@@ -644,10 +644,6 @@ section {
   align-items: stretch;
 }
 
-#menu {
-  scroll-margin-top: 82px;
-}
-
 .weekly-menu-grid.is-collapsed > .menu-card:nth-child(n + 7) {
   display: none;
 }
@@ -1268,7 +1264,6 @@ section {
 .map-section {
   background: var(--cream);
   padding: var(--space-section) 0 0;
-  scroll-margin-top: 82px;
 }
 
 .map-section .section-header {
@@ -3568,12 +3563,16 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
    ===================================================== */
 
 html {
-  scroll-padding-top: calc(var(--nav-safe-height) + 18px);
+  /* One fixed-header offset for every native hash link and scrollIntoView().
+     Target margins must not repeat this value or the previous section remains
+     visible above the destination. */
+  scroll-padding-top: var(--nav-safe-height);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 body {
+  /* Deliberate responsive support floor; see README.md. */
   min-width: 280px;
   overflow-x: clip;
 }
@@ -3592,36 +3591,29 @@ section,
   min-width: 0;
 }
 
-section[id],
-header[id] {
-  scroll-margin-top: calc(var(--nav-safe-height) + 18px);
-}
-
-#menu,
-#market,
-#extras,
-#find-us {
-  scroll-margin-top: calc(var(--nav-safe-height) + 18px);
-}
-
 .skip-link {
   position: fixed;
   top: max(8px, env(safe-area-inset-top));
   left: max(8px, env(safe-area-inset-left));
   z-index: 2000;
+  max-width: calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
   padding: 11px 16px;
   border: 3px solid var(--gold);
   border-radius: 12px;
   color: #fff;
   background: var(--navy-deep);
   font-weight: 800;
+  line-height: 1.25;
   text-decoration: none;
+  overflow-wrap: anywhere;
   transform: translateY(calc(-100% - 20px));
   transition: transform 0.18s ease;
 }
 
-.skip-link:focus {
-  transform: translateY(0);
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: none;
+  transition: none;
 }
 
 .container {
@@ -3674,7 +3666,8 @@ section {
 }
 
 .logo {
-  min-width: 0;
+  min-width: 44px;
+  min-height: 44px;
   gap: 9px;
 }
 
@@ -3796,6 +3789,8 @@ body.menu-open .owner-login-btn {
 
 /* Landing */
 .hero {
+  min-height: 100vh;
+  min-height: 100dvh;
   padding: calc(var(--nav-safe-height) + 44px + clamp(24px, 7vw, 44px)) 0 var(--section-space);
 }
 
@@ -3868,6 +3863,13 @@ body.menu-open .owner-login-btn {
 }
 
 /* Product and market grids */
+.menu-section,
+.market-section,
+.map-section {
+  min-height: calc(100vh - var(--nav-safe-height));
+  min-height: calc(100dvh - var(--nav-safe-height));
+}
+
 .menu-grid {
   grid-template-columns: minmax(0, min(100%, 440px));
   justify-content: center;
@@ -4193,6 +4195,11 @@ body.admin-mode .market-section {
 .stock-input,
 .login-modal input[type="password"] {
   font-size: 16px;
+}
+
+.name-input,
+.price-input {
+  min-height: 44px;
 }
 
 .owner-section-name-field input {

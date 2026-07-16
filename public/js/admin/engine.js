@@ -4,6 +4,7 @@ import { sync } from "./sync.js?v=3.19";
 import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.19";
 import { createImageCropper } from "./imageCropper.js?v=3.19";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
+import { initMarketHashGuard } from "./marketRoute.js";
 
 let isAdmin = false;
 let pendingPhotoTarget = null; // { categoryId, itemId }
@@ -13,9 +14,19 @@ let pendingDeleteTarget = null; // { categoryId, itemId }
 let deleteTrigger = null;
 let loginTrigger = null;
 let notificationTimer = null;
+let marketHashGuard = null;
+
+function isMarketRouteAvailable() {
+  return isAdmin || Boolean(store.getCategory("market")?.isOpen);
+}
+
+function reconcileMarketHash() {
+  marketHashGuard?.reconcile();
+}
 
 function render() {
   renderAll(store.state, isAdmin);
+  reconcileMarketHash();
 }
 
 // Updates just the one card that changed instead of rebuilding the whole
@@ -34,6 +45,7 @@ function renderCategoryById(categoryId) {
   if (!category) return;
   if (category.id === "market") {
     renderMarketSection(category, isAdmin);
+    reconcileMarketHash();
   } else {
     renderCategory(category, document.getElementById(`${category.id}-grid`), isAdmin);
   }
@@ -640,6 +652,7 @@ function wireEvents() {
       const newIsOpen = !category.isOpen;
       store.applyCategoryToggle(categoryId, newIsOpen);
       renderMarketSection(category, isAdmin);
+      reconcileMarketHash();
       sync.toggleCategory(categoryId);
       showToast(newIsOpen ? "📣 Market is now open — live for everyone." : "Market closed.");
       if (newIsOpen) celebrateMarketOpen();
@@ -754,10 +767,26 @@ function wireEvents() {
       return;
     }
 
-    const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
+    if (field === "price") {
+      const raw = e.target.value.trim();
+      const parsed = Number(raw);
+      const isValid = raw !== "" && Number.isFinite(parsed) && parsed >= 0;
+      if (!isValid) {
+        // Empty/negative/non-numeric price reverts to the last saved value,
+        // matching the name field, instead of silently coercing to R0.
+        e.target.value = String(store.getItem(category, item)?.price ?? 0);
+        return;
+      }
+      moveOptionalSectionToDraft(category, { renderSection: false });
+      store.applyUpdate(category, item, "price", parsed);
+      e.target.value = String(parsed);
+      sync.updateProduct(category, item, "price", parsed);
+      return;
+    }
+
+    const value = e.target.value;
     moveOptionalSectionToDraft(category, { renderSection: false });
     store.applyUpdate(category, item, field, value);
-    if (field === "price") e.target.value = String(value);
     sync.updateProduct(category, item, field, value);
   });
 }
@@ -803,6 +832,7 @@ function wireSync() {
     const category = store.getCategory(msg.categoryId);
     if (category && category.id === "market") {
       renderMarketSection(category, isAdmin);
+      reconcileMarketHash();
     } else {
       render();
     }
@@ -887,6 +917,9 @@ function wireSync() {
 export const engine = {
   start() {
     render(); // paint instantly from the server-injected state
+    marketHashGuard = initMarketHashGuard({
+      getMarketAvailable: isMarketRouteAvailable,
+    });
     wireEvents();
     wireSync();
     updateLoginButton();

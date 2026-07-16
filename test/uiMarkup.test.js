@@ -91,6 +91,16 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
   assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
 });
 
+test("section routes use one fixed-nav offset and fill the visible viewport", () => {
+  assert.match(responsiveContract, /html\s*\{[^}]*scroll-padding-top:\s*var\(--nav-safe-height\)/s);
+  assert.doesNotMatch(stylesSource, /scroll-margin-top/);
+  assert.match(responsiveContract, /\.hero\s*\{[^}]*min-height:\s*100dvh/s);
+  assert.match(
+    responsiveContract,
+    /\.menu-section,\s*\.market-section,\s*\.map-section\s*\{[^}]*min-height:\s*calc\(100dvh - var\(--nav-safe-height\)\)/s
+  );
+});
+
 test("owner login recovers immediately while live sync is still connecting", () => {
   assert.match(syncSource, /sendAuth\(password\)\s*\{\s*return this\.send/);
   assert.match(syncSource, /return false/);
@@ -134,7 +144,15 @@ test("owner text edits preserve the active card instead of rebuilding the grid",
   assert.match(engineSource, /const ribbon = card\?\.querySelector\("\.card-ribbon"\)/);
   assert.match(engineSource, /if \(ribbon\) ribbon\.textContent = newValue/);
   assert.match(engineSource, /moveOptionalSectionToDraft\(category, \{ renderSection: false \}\)/);
-  assert.match(engineSource, /if \(field === "price"\) e\.target\.value = String\(value\)/);
+  assert.match(engineSource, /if \(field === "price"\) \{/);
+  assert.match(engineSource, /e\.target\.value = String\(store\.getItem\(category, item\)\?\.price \?\? 0\)/);
+  assert.match(engineSource, /e\.target\.value = String\(parsed\)/);
+});
+
+test("an empty, negative, or non-numeric price reverts instead of silently saving as free", () => {
+  assert.match(engineSource, /const isValid = raw !== "" && Number\.isFinite\(parsed\) && parsed >= 0/);
+  assert.match(engineSource, /if \(!isValid\) \{/);
+  assert.doesNotMatch(engineSource, /Number\(e\.target\.value\) \|\| 0/);
 });
 
 test("owner photos use an accessible square crop and zoom workflow", () => {

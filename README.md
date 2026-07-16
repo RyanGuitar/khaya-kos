@@ -58,6 +58,12 @@ which is fine for quick local testing. If you don't set `ADMIN_PASSWORD`,
 it falls back to `khayakos-dev-2026` for local testing only — never leave
 that unset in production.
 
+## Responsive support
+
+The frontend supports viewport widths of **280 CSS pixels and wider**. The
+intentional 280 px minimum preserves usable product cards and owner editing
+controls; narrower embedded views are outside the supported layout range.
+
 ## Deploying to Render
 
 1. Push this folder to a GitHub repo.

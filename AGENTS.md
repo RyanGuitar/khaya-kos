@@ -50,6 +50,8 @@ Do not make broad HTML or CSS rewrites as part of logic-only work.
 
 ## Verification
 
+The local development preview is `http://localhost:10000/`. When the server is running, use this URL for browser-based visual and interaction checks.
+
 Run these before handing off code changes:
 
 ```sh

@@ -329,6 +329,7 @@ function buildMarketCard(categoryId, item, isAdmin) {
   // item doesn't get stamped SOLD OUT before she's even priced it.
   const hasStock = typeof item.stock === "number";
   const soldOut = hasStock && item.stock <= 0;
+  const canDecrementStock = hasStock && item.stock > 0;
 
   const priceMarkup = isAdmin
     ? buildPriceField(categoryId, item)
@@ -350,7 +351,7 @@ function buildMarketCard(categoryId, item, isAdmin) {
          <label class="admin-field-label" for="${stockId}">Stock available</label>
          <div class="stock-stepper">
            <button type="button" class="stock-btn" data-action="stock-minus"
-             data-category="${categoryId}" data-item="${item.id}">
+             data-category="${categoryId}" data-item="${item.id}"${canDecrementStock ? "" : " disabled"}>
              <span aria-hidden="true">−</span><span class="sr-only">Record one ${escapeHtml(item.name)} sold</span>
            </button>
            <input id="${stockId}" type="number" min="0" step="1" class="stock-input" data-field="stock"
@@ -616,8 +617,10 @@ export function patchStock(itemId, value, isAdmin, { deferSoldOut = false } = {}
     // admin is actively typing in right now.
     if (input && document.activeElement !== input) input.value = value;
     const status = card.querySelector("[data-stock-status]");
+    const decrementButton = card.querySelector('[data-action="stock-minus"]');
     const itemName = card.querySelector(".card-ribbon")?.textContent.trim() || "items";
     if (status) status.textContent = `${value} ${itemName} in stock`;
+    if (decrementButton) decrementButton.disabled = soldOut;
   }
 
   // The owner still sees the numeric input reach zero immediately, but no
