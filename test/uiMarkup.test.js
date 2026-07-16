@@ -33,7 +33,9 @@ test("the logo uses its complete visible text as its accessible name", () => {
 });
 
 test("landing banner focuses exclusively on all-week made-to-order food", () => {
-  const banner = indexHtml.match(/<div class="hero-sign">([\s\S]*?)<\/div>\s*<a href="#market"/)?.[1] || "";
+  const banner = indexHtml.match(
+    /<div class="hero-sign">([\s\S]*?)<\/div>\s*<div id="hero-market-status"/
+  )?.[1] || "";
 
   assert.match(indexHtml, /<span class="logo-sub">Gazebo Valley<\/span>/);
   assert.match(banner, /Available to order all week/);
@@ -42,9 +44,11 @@ test("landing banner focuses exclusively on all-week made-to-order food", () => 
   assert.match(banner, /Browse the Full Menu/);
   assert.doesNotMatch(banner, /class="btn-primary"/);
   assert.doesNotMatch(banner, /Saturday|market|stall/i);
-  assert.match(indexHtml, /<span class="status-kicker">Gazebo Valley<\/span>/);
-  assert.match(indexHtml, /<span class="status-label">Market closed<\/span>/);
-  assert.match(indexHtml, /Market days are on Saturdays\./);
+  assert.match(indexHtml, /<div id="hero-market-status" class="hero-market-status">/);
+  assert.doesNotMatch(indexHtml, /<a href="#market" id="hero-market-status"/);
+  assert.match(indexHtml, /<span class="status-kicker">Gazebo Valley · Closed<\/span>/);
+  assert.match(indexHtml, /Saturday market availability goes live here/);
+  assert.match(indexHtml, /remaining stock update in real time/);
   assert.match(indexHtml, /Made-to-Order Menu/);
   assert.match(indexHtml, /Choose your favourites below, then order on WhatsApp and arrange/);
   assert.doesNotMatch(indexHtml, />💬 Order on WhatsApp</);

@@ -597,7 +597,8 @@ section {
   background: var(--chalk-black-soft);
   border: 2px dashed rgba(247, 242, 230, 0.35);
   border-radius: var(--radius-sm);
-  padding: 22px 24px;
+  max-width: 680px;
+  padding: 24px 26px;
   max-width: 360px;
   flex: 1 1 300px;
   position: relative;
@@ -3271,10 +3272,10 @@ body.admin-mode .menu-card {
 }
 
 .hero-market-status:hover {
-  color: var(--ink);
-  background: #fff;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.92);
+  transform: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .hero-market-status .status-kicker {
@@ -3293,15 +3294,18 @@ body.admin-mode .menu-card {
 .hero-market-status .status-label {
   color: var(--navy-deep);
   font-family: 'Baloo 2', sans-serif;
-  font-size: 1.25rem;
+  font-size: clamp(1.25rem, 3.5vw, 1.65rem);
   font-weight: 800;
   line-height: 1.25;
 }
 
 .hero-market-status .status-detail {
+  max-width: 560px;
+  margin: 2px auto 0;
   color: var(--ink-soft);
   font-size: 0.9rem;
   font-weight: 700;
+  line-height: 1.5;
 }
 
 .hero-market-status.is-live {

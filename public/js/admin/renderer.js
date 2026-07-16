@@ -444,12 +444,16 @@ function updateMarketStatus(category) {
     const kicker = heroStatus.querySelector(".status-kicker");
     const label = heroStatus.querySelector(".status-label");
     const detail = heroStatus.querySelector(".status-detail");
-    if (kicker) kicker.textContent = isOpen ? "Open now" : "Gazebo Valley";
-    if (label) label.textContent = isOpen ? "Gazebo Valley stall is open" : "Market closed";
+    if (kicker) kicker.textContent = isOpen ? "Open now" : "Gazebo Valley · Closed";
+    if (label) {
+      label.textContent = isOpen
+        ? "Gazebo Valley stall is open"
+        : "Saturday market availability goes live here";
+    }
     if (detail) {
       detail.textContent = isOpen
-        ? "See today’s selection and remaining stock →"
-        : "Market days are on Saturdays.";
+        ? "See today’s selection and remaining stock"
+        : "When the stall opens, you’ll see today’s selection and remaining stock update in real time.";
     }
   }
 

@@ -188,9 +188,12 @@ test("closed market hides the repeated visitor section and keeps hero status cue
     assert.equal(fixture.section.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.hidden, false);
-    assert.equal(fixture.kicker.textContent, "Gazebo Valley");
-    assert.equal(fixture.label.textContent, "Market closed");
-    assert.equal(fixture.detail.textContent, "Market days are on Saturdays.");
+    assert.equal(fixture.kicker.textContent, "Gazebo Valley · Closed");
+    assert.equal(fixture.label.textContent, "Saturday market availability goes live here");
+    assert.equal(
+      fixture.detail.textContent,
+      "When the stall opens, you’ll see today’s selection and remaining stock update in real time."
+    );
   } finally {
     restoreDocument();
   }
@@ -221,7 +224,7 @@ test("open market exposes stock and live status cues", () => {
     );
     assert.equal(fixture.kicker.textContent, "Open now");
     assert.equal(fixture.label.textContent, "Gazebo Valley stall is open");
-    assert.equal(fixture.detail.textContent, "See today’s selection and remaining stock →");
+    assert.equal(fixture.detail.textContent, "See today’s selection and remaining stock");
   } finally {
     restoreDocument();
   }
