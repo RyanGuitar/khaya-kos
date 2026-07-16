@@ -38,7 +38,9 @@ test("landing banner focuses exclusively on all-week made-to-order food", () => 
   assert.match(indexHtml, /<span class="logo-sub">Gazebo Valley<\/span>/);
   assert.match(banner, /Available to order all week/);
   assert.match(banner, /Freshly made,<br>just for you/);
+  assert.match(banner, /Browse the full menu below, then order your favourites on WhatsApp\./);
   assert.match(banner, /Browse the Full Menu/);
+  assert.doesNotMatch(banner, /class="btn-primary"/);
   assert.doesNotMatch(banner, /Saturday|market|stall/i);
   assert.match(indexHtml, /<span class="status-kicker">Gazebo Valley<\/span>/);
   assert.match(indexHtml, /<span class="status-label">Market closed<\/span>/);

@@ -3253,6 +3253,11 @@ body.admin-mode .menu-card {
   text-align: center;
 }
 
+.hero-cta-group > :only-child {
+  flex: 0 1 620px;
+  width: 100%;
+}
+
 .hero-market-status {
   display: grid;
   width: 100%;
