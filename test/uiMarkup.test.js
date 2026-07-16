@@ -85,6 +85,13 @@ test("the map does not repeat location details already stated in its heading", (
   assert.doesNotMatch(indexHtml, /🗓️ Saturdays/);
 });
 
+test("the live market links to the map and provides a state-controlled return path", () => {
+  assert.match(indexHtml, /id="map-market-return"[^>]*hidden/);
+  assert.match(indexHtml, /href="#market"[^>]*class="map-market-return"/);
+  assert.match(rendererSource, /href="#find-us" class="market-live-banner"/);
+  assert.match(rendererSource, /mapReturn\.hidden = !isOpen/);
+});
+
 test("optional section visibility remains an authenticated server mutation", () => {
   assert.match(syncSource, /type: "category-visibility", categoryId, isVisible/);
   assert.match(serverSource, /case "category-visibility"/);

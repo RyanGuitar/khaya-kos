@@ -974,6 +974,16 @@ section {
   padding: 10px 22px;
   max-width: 470px;
   margin: 0 auto 30px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.market-live-banner:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.17);
+  border-color: var(--gold-light);
+  transform: translateY(-2px);
 }
 
 .market-live-banner strong {
@@ -1295,6 +1305,7 @@ section {
 .map-section {
   background: var(--cream);
   padding: var(--space-section) 0 0;
+  scroll-margin-top: 82px;
 }
 
 .map-section .section-header {
@@ -1319,6 +1330,46 @@ section {
   height: 420px;
   border: 0;
   display: block;
+}
+
+.map-market-return-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.map-market-return-row:has(.map-market-return[hidden]) {
+  display: none;
+}
+
+.map-market-return[hidden] {
+  display: none;
+}
+
+.map-market-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 420px);
+  min-height: 52px;
+  padding: 10px 22px;
+  border: 3px solid var(--gold);
+  border-radius: 22px;
+  color: #fff;
+  background: var(--navy);
+  box-shadow: var(--shadow-sm);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.map-market-return:hover {
+  color: #fff;
+  background: var(--navy-deep);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .map-placeholder {

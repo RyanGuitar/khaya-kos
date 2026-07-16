@@ -417,13 +417,14 @@ function buildOwnerMarketToolbar(category) {
 function buildMarketBanner(isOpen) {
   if (!isOpen) return "";
   return `
-    <div class="market-live-banner" role="status">
+    <a href="#find-us" class="market-live-banner"
+      aria-label="Market open at Gazebo Valley. View map and directions">
       <span class="live-dot" aria-hidden="true"></span>
       <strong>Open now</strong>
       <span>at Gazebo Valley</span>
       <span class="market-live-divider" aria-hidden="true"></span>
-      <span>While stock lasts</span>
-    </div>
+      <span>View map and directions</span>
+    </a>
   `;
 }
 
@@ -431,6 +432,7 @@ function updateMarketStatus(category) {
   const isOpen = Boolean(category.isOpen);
   const heroStatus = document.getElementById("hero-market-status");
   const navLink = document.getElementById("market-nav-link");
+  const mapReturn = document.getElementById("map-market-return");
 
   if (heroStatus) {
     heroStatus.hidden = isOpen;
@@ -458,6 +460,8 @@ function updateMarketStatus(category) {
       isOpen ? "Live at the Market — open now, see current stock" : "Live at the Market"
     );
   }
+
+  if (mapReturn) mapReturn.hidden = !isOpen;
 }
 
 export function renderMarketSection(category, isAdmin) {

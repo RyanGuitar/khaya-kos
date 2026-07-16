@@ -131,8 +131,9 @@ function createMarketPageFixture() {
       this.attributes[name] = value;
     },
   };
+  const mapReturn = { hidden: true };
 
-  return { section, container, heroStatus, navLink, kicker, label, detail };
+  return { section, container, heroStatus, navLink, mapReturn, kicker, label, detail };
 }
 
 function useFakeMarketDocument(fixture) {
@@ -143,6 +144,7 @@ function useFakeMarketDocument(fixture) {
       if (id === "market-content") return fixture.container;
       if (id === "hero-market-status") return fixture.heroStatus;
       if (id === "market-nav-link") return fixture.navLink;
+      if (id === "map-market-return") return fixture.mapReturn;
       return null;
     },
   };
@@ -188,6 +190,7 @@ test("closed market hides the repeated visitor section and keeps hero status cue
     assert.equal(fixture.section.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.hidden, false);
+    assert.equal(fixture.mapReturn.hidden, true);
     assert.equal(fixture.kicker.textContent, "Gazebo Valley · Closed");
     assert.equal(fixture.label.textContent, "Saturday market availability goes live here");
     assert.equal(
@@ -217,13 +220,15 @@ test("open market exposes stock and live status cues", () => {
     assert.ok(marketPriceIndex < marketStockIndex);
     assert.match(fixture.container.innerHTML, /Today’s stall selection updates in real time as items sell/);
     assert.match(fixture.container.innerHTML, /<strong>Open now<\/strong>/);
-    assert.match(fixture.container.innerHTML, /While stock lasts/);
+    assert.match(fixture.container.innerHTML, /href="#find-us"/);
+    assert.match(fixture.container.innerHTML, /View map and directions/);
     assert.doesNotMatch(fixture.container.innerHTML, /market-title-live/);
     assert.equal(fixture.section.classList.contains("is-live"), true);
     assert.equal(fixture.section.classList.contains("is-closed"), false);
     assert.equal(fixture.section.hidden, false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), true);
     assert.equal(fixture.heroStatus.hidden, true);
+    assert.equal(fixture.mapReturn.hidden, false);
     assert.equal(fixture.navLink.classList.contains("is-live"), true);
     assert.equal(
       fixture.navLink.attributes["aria-label"],
