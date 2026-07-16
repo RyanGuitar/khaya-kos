@@ -5,10 +5,36 @@ import {
   exportSquareCrop,
   prepareImageForCrop,
   zoomCropAtPoint,
-} from "./imageUtils.js?v=3.16";
+} from "./imageUtils.js?v=3.19";
 
 const MAX_ZOOM_RATIO = 3;
 const ZOOM_STEP = 0.1;
+
+function setModalIsolation(activeOverlay, isolate) {
+  if (!activeOverlay) return;
+  [...document.body.children].forEach((element) => {
+    if (element === activeOverlay || ["SCRIPT", "STYLE"].includes(element.tagName)) return;
+    if (isolate) {
+      if (!element.inert) {
+        element.inert = true;
+        element.dataset.modalInertAdded = "true";
+      }
+      if (!element.hasAttribute("aria-hidden")) {
+        element.setAttribute("aria-hidden", "true");
+        element.dataset.modalAriaHiddenAdded = "true";
+      }
+      return;
+    }
+    if (element.dataset.modalInertAdded === "true") {
+      element.inert = false;
+      delete element.dataset.modalInertAdded;
+    }
+    if (element.dataset.modalAriaHiddenAdded === "true") {
+      element.removeAttribute("aria-hidden");
+      delete element.dataset.modalAriaHiddenAdded;
+    }
+  });
+}
 
 function sourceDimensions(source) {
   return {
@@ -149,6 +175,7 @@ export function createImageCropper({
     crop = null;
     busy = false;
     overlay.hidden = true;
+    setModalIsolation(overlay, false);
     document.body.classList.remove("dialog-open");
     canvas.removeAttribute("aria-busy");
     if (applyButton) {
@@ -212,6 +239,7 @@ export function createImageCropper({
     if (cancelButton) cancelButton.disabled = false;
     setStatus("Preparing your photo…");
     canvas.focus();
+    setModalIsolation(overlay, true);
 
     try {
       const preparedSource = await prepareImageForCrop(file);

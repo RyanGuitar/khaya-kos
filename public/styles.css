@@ -53,6 +53,18 @@
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --space-section: 68px;
   --space-section-mobile: 48px;
+
+  /* Responsive contract — all fixed and fluid geometry derives from these. */
+  --content-width: 1240px;
+  --reading-width: 720px;
+  --nav-height: 72px;
+  --nav-safe-height: calc(var(--nav-height) + env(safe-area-inset-top));
+  --page-gutter: clamp(14px, 4vw, 32px);
+  --section-space: clamp(46px, 8vw, 82px);
+  --section-gap: clamp(26px, 5vw, 40px);
+  --control-height: 48px;
+  --floating-size: 56px;
+  --floating-edge: clamp(14px, 3vw, 28px);
 }
 
 /* ===== RESET ===== */
@@ -816,11 +828,13 @@ section {
    not a real button. */
 .like-btn.is-disabled {
   cursor: default;
-  opacity: 0.6;
+  color: var(--red-deep);
+  background: #fae9e6;
+  opacity: 1;
 }
 
 .like-btn.is-disabled:hover {
-  background: rgba(166, 58, 46, 0.08);
+  background: #fae9e6;
   transform: none;
 }
 
@@ -2301,7 +2315,10 @@ textarea:focus-visible {
 }
 
 #photo-crop-canvas:focus-visible {
-  box-shadow: inset 0 0 0 5px var(--gold-light);
+  box-shadow:
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 8px var(--navy-deep),
+    inset 0 0 0 11px var(--gold-light);
 }
 
 .photo-crop-zoom-row {
@@ -3541,4 +3558,1263 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
   background: var(--navy-deep);
   border-color: var(--gold-light);
   box-shadow: 0 13px 32px rgba(5, 20, 31, 0.3);
+}
+
+/* =====================================================
+   RESPONSIVE CONTRACT
+   Mobile-first geometry for the complete visitor and owner UI.
+   This final layer intentionally owns layout, sizing, fixed positioning,
+   and breakpoint progression while the rules above own the visual theme.
+   ===================================================== */
+
+html {
+  scroll-padding-top: calc(var(--nav-safe-height) + 18px);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-width: 280px;
+  overflow-x: clip;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+main,
+section,
+.container,
+.menu-grid,
+.menu-card,
+.card-body,
+.section-header {
+  min-width: 0;
+}
+
+section[id],
+header[id] {
+  scroll-margin-top: calc(var(--nav-safe-height) + 18px);
+}
+
+#menu,
+#market,
+#extras,
+#find-us {
+  scroll-margin-top: calc(var(--nav-safe-height) + 18px);
+}
+
+.skip-link {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  left: max(8px, env(safe-area-inset-left));
+  z-index: 2000;
+  padding: 11px 16px;
+  border: 3px solid var(--gold);
+  border-radius: 12px;
+  color: #fff;
+  background: var(--navy-deep);
+  font-weight: 800;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 20px));
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.container {
+  width: 100%;
+  max-width: calc(var(--content-width) + (var(--page-gutter) * 2));
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+}
+
+section {
+  padding-block: var(--section-space);
+}
+
+.section-header {
+  width: min(100%, var(--reading-width));
+  margin: 0 auto var(--section-gap);
+}
+
+.section-eyebrow {
+  margin-bottom: 10px;
+  font-size: clamp(0.78rem, 2.6vw, 0.9rem);
+  line-height: 1.35;
+  letter-spacing: clamp(1.2px, 0.35vw, 2px);
+}
+
+.section-title,
+.owner-section-title {
+  overflow-wrap: anywhere;
+  font-size: clamp(2rem, 8.8vw, 3.35rem);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.section-subtitle {
+  max-width: 640px;
+  margin-top: 14px;
+  font-size: clamp(1rem, 3.8vw, 1.12rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+/* Navigation */
+#main-nav {
+  height: var(--nav-safe-height);
+  gap: 12px;
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+  padding-top: env(safe-area-inset-top);
+}
+
+.logo {
+  min-width: 0;
+  gap: 9px;
+}
+
+.logo-badge {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 5px 14px rgba(12, 43, 69, 0.16);
+}
+
+.logo-badge img {
+  width: 100%;
+  height: 100%;
+}
+
+.logo-text {
+  min-width: 0;
+}
+
+.logo-main {
+  font-size: clamp(1.2rem, 5.5vw, 1.48rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.logo-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: clamp(0.68rem, 2.9vw, 0.78rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.menu-toggle {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  margin-left: auto;
+  padding: 0;
+}
+
+.bar {
+  width: 26px;
+  height: 3px;
+}
+
+.nav-links {
+  position: fixed;
+  top: var(--nav-safe-height);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: none;
+  max-height: calc(100vh - var(--nav-safe-height));
+  max-height: calc(100dvh - var(--nav-safe-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 14px max(var(--page-gutter), env(safe-area-inset-right))
+    calc(20px + env(safe-area-inset-bottom))
+    max(var(--page-gutter), env(safe-area-inset-left));
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.99);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.nav-links.open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav-links a {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 16px;
+  text-align: center;
+}
+
+.btn-book-nav {
+  min-height: 50px;
+  margin-top: 4px;
+}
+
+.nav-backdrop {
+  position: fixed;
+  top: var(--nav-safe-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 998;
+  display: none;
+  background: rgba(12, 43, 69, 0.48);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.nav-backdrop.open {
+  display: block;
+  opacity: 1;
+}
+
+body.menu-open .whatsapp-float,
+body.menu-open .owner-login-btn {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Landing */
+.hero {
+  padding: calc(var(--nav-safe-height) + 44px + clamp(24px, 7vw, 44px)) 0 var(--section-space);
+}
+
+.hero-bunting {
+  top: var(--nav-safe-height);
+  height: 44px;
+  object-fit: cover;
+}
+
+.hero-inner {
+  width: min(100%, 900px);
+  max-width: 900px;
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+}
+
+.hero-sign {
+  padding: clamp(30px, 8vw, 56px) clamp(18px, 7vw, 58px) clamp(28px, 7vw, 48px);
+  border-radius: clamp(22px, 5vw, 32px);
+}
+
+.hero-title {
+  max-width: 720px;
+  font-size: clamp(2.35rem, 11vw, 5rem);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.hero-desc {
+  max-width: 620px;
+  margin-top: clamp(18px, 5vw, 26px);
+  font-size: clamp(1rem, 3.8vw, 1.16rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.hero-cta-group {
+  width: 100%;
+  margin-top: clamp(22px, 6vw, 32px);
+}
+
+.hero-cta-group > .btn-primary,
+.hero-cta-group > .btn-secondary {
+  width: 100%;
+  min-height: 54px;
+  flex-basis: 100%;
+  padding-inline: 18px;
+}
+
+.hero-market-status {
+  width: min(100%, 760px);
+  margin-top: clamp(20px, 5vw, 30px);
+  padding: clamp(20px, 5vw, 26px) clamp(16px, 5vw, 28px);
+  border-radius: clamp(20px, 5vw, 28px);
+}
+
+.hero-market-status .status-label {
+  font-size: clamp(1.22rem, 5vw, 1.7rem);
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.hero-market-status .status-detail {
+  font-size: clamp(0.92rem, 3.5vw, 1rem);
+  text-wrap: pretty;
+}
+
+.hero-badge {
+  display: none;
+}
+
+/* Product and market grids */
+.menu-grid {
+  grid-template-columns: minmax(0, min(100%, 440px));
+  justify-content: center;
+  gap: clamp(22px, 6vw, 32px);
+}
+
+body.admin-mode .menu-grid {
+  grid-template-columns: minmax(0, min(100%, 520px));
+}
+
+.weekly-menu-grid.is-collapsed > .menu-card:nth-child(n + 5) {
+  display: none;
+}
+
+.weekly-menu-grid.has-six-or-fewer .menu-disclosure-row {
+  display: flex;
+}
+
+.menu-card {
+  width: 100%;
+  max-width: 440px;
+  margin-inline: auto;
+  border-radius: clamp(18px, 4vw, 24px);
+}
+
+body.admin-mode .menu-card {
+  max-width: 520px;
+}
+
+.card-ribbon {
+  min-height: 46px;
+  max-width: calc(100% - 18px);
+  padding: 9px 16px 10px;
+  font-size: clamp(0.96rem, 4vw, 1.08rem);
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+body.admin-mode .card-ribbon {
+  max-width: calc(100% - 66px);
+}
+
+.card-body {
+  padding: clamp(18px, 5vw, 24px);
+}
+
+.card-body ul,
+.market-card-desc {
+  margin-bottom: clamp(16px, 4vw, 22px);
+}
+
+.card-body ul li,
+.market-card-desc {
+  overflow-wrap: anywhere;
+  font-size: clamp(0.96rem, 3.5vw, 1.02rem);
+}
+
+.card-footer-row {
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.price-tag,
+.like-btn,
+.stock-badge,
+.market-card-meta .stock-badge {
+  min-height: 48px;
+}
+
+.like-btn {
+  min-width: 62px;
+  justify-content: center;
+}
+
+.menu-disclosure-btn {
+  width: min(100%, 360px);
+  min-height: 50px;
+}
+
+#extras {
+  background: #fff;
+}
+
+.market-section,
+.market-section.is-live,
+.market-section.owner-view {
+  padding-block: var(--section-space);
+}
+
+.market-section .section-header {
+  margin-bottom: var(--section-gap);
+}
+
+.market-live-banner,
+.market-route-link {
+  width: min(100%, 720px);
+  min-height: 60px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px 9px;
+  padding: 14px clamp(16px, 5vw, 26px);
+  border-radius: 20px;
+  text-align: center;
+  line-height: 1.35;
+}
+
+.market-live-banner > :last-child,
+.map-market-return > :last-child {
+  flex-basis: 100%;
+}
+
+.market-live-divider {
+  display: none;
+}
+
+.market-grid {
+  margin-top: clamp(28px, 7vw, 44px);
+}
+
+.sold-toast-container {
+  top: calc(var(--nav-safe-height) + 12px);
+  right: max(var(--page-gutter), env(safe-area-inset-right));
+  left: max(var(--page-gutter), env(safe-area-inset-left));
+  width: auto;
+  max-width: 420px;
+  margin-inline: auto;
+  transform: none;
+}
+
+/* Map and footer */
+.map-section {
+  padding: var(--section-space) 0;
+}
+
+.map-section .section-header {
+  margin-bottom: var(--section-gap);
+}
+
+.map-wrapper,
+.map-wrapper iframe {
+  width: 100%;
+  height: clamp(300px, 64vw, 480px);
+  min-height: 300px;
+}
+
+.map-wrapper iframe {
+  border: 0;
+  display: block;
+}
+
+.map-market-return-row {
+  margin-top: clamp(20px, 5vw, 28px);
+}
+
+.footer-chalk {
+  padding-top: clamp(38px, 8vw, 58px);
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+  padding-bottom: clamp(38px, 8vw, 58px);
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+}
+
+.footer-chalk p {
+  font-size: clamp(1rem, 4vw, 1.22rem);
+  text-wrap: pretty;
+}
+
+.footer-bottom {
+  padding-top: 24px;
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+  padding-bottom: calc(var(--floating-size) + var(--floating-edge) + 26px + env(safe-area-inset-bottom));
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  font-size: clamp(0.82rem, 3vw, 0.94rem);
+}
+
+/* Balanced floating actions */
+.whatsapp-float,
+.owner-login-btn {
+  bottom: calc(var(--floating-edge) + env(safe-area-inset-bottom));
+  z-index: 990;
+  min-width: var(--floating-size);
+  height: var(--floating-size);
+}
+
+.whatsapp-float {
+  right: max(var(--floating-edge), env(safe-area-inset-right));
+  width: var(--floating-size);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.whatsapp-float:hover {
+  background: transparent;
+}
+
+.whatsapp-float img {
+  width: 100%;
+  height: 100%;
+  transform: none;
+}
+
+.owner-login-btn {
+  left: max(var(--floating-edge), env(safe-area-inset-left));
+  width: var(--floating-size);
+  padding: 0;
+  justify-content: center;
+}
+
+.owner-login-btn .btn-icon,
+.owner-login-btn .btn-icon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+
+.owner-login-btn .btn-label,
+.owner-login-btn.expanded .btn-label {
+  max-width: 0;
+  margin-left: 0;
+  opacity: 0;
+}
+
+/* Owner workspace */
+body.admin-mode #main-nav {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  height: var(--nav-safe-height);
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+}
+
+body.admin-mode main {
+  padding-top: var(--nav-safe-height);
+}
+
+body.admin-mode .logo-text {
+  display: none;
+}
+
+body.admin-mode .logo {
+  cursor: default;
+}
+
+.edit-mode-label {
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(0.72rem, 3.2vw, 0.95rem);
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.owner-exit-btn {
+  min-height: 48px;
+  margin-left: 0;
+  padding: 9px clamp(12px, 3vw, 18px);
+  border-radius: 16px;
+  font-size: clamp(0.76rem, 3vw, 0.92rem);
+  line-height: 1.15;
+}
+
+body.admin-mode .menu-section,
+body.admin-mode .market-section {
+  padding-block: clamp(38px, 7vw, 64px);
+}
+
+.owner-section-toolbar {
+  width: min(100%, 760px);
+  margin: 0 auto clamp(28px, 6vw, 40px);
+}
+
+.owner-section-actions {
+  grid-template-columns: 1fr;
+  width: min(100%, 720px);
+  gap: 12px;
+  margin-top: clamp(20px, 5vw, 28px);
+}
+
+.owner-section-actions > :only-child {
+  grid-column: auto;
+  width: 100%;
+}
+
+.owner-state-btn,
+.owner-jump-btn,
+.market-toggle-btn.owner-state-btn {
+  width: 100%;
+  min-height: 72px;
+  margin: 0;
+  padding: 12px clamp(16px, 5vw, 24px);
+}
+
+.owner-state-line {
+  font-size: clamp(1rem, 4vw, 1.12rem);
+}
+
+.owner-state-action {
+  font-size: 0.88rem;
+}
+
+.owner-section-copy-fields,
+.owner-section-name-field {
+  width: min(100%, 680px);
+}
+
+.owner-section-copy-fields {
+  gap: 16px;
+}
+
+.owner-section-name-field label,
+.admin-field-label,
+.login-field-label {
+  font-size: 0.875rem;
+}
+
+.owner-section-name-field input,
+.owner-section-name-field textarea,
+.name-input,
+.price-input,
+.card-description-input,
+.stock-input,
+.login-modal input[type="password"] {
+  font-size: 16px;
+}
+
+.owner-section-name-field input {
+  min-height: 56px;
+  font-size: clamp(1.22rem, 5vw, 1.8rem);
+}
+
+.owner-section-name-field textarea {
+  font-size: 1rem;
+}
+
+body.admin-mode .menu-card.revealed:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-delete-btn {
+  top: 10px;
+  right: 10px;
+  width: 48px;
+  height: 48px;
+  font-size: 1rem;
+}
+
+.admin-photo-overlay {
+  flex-direction: column;
+  gap: 10px;
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+body.admin-mode .admin-photo-overlay {
+  align-items: center;
+  justify-content: flex-end;
+  padding: 20px;
+  text-align: center;
+}
+
+.admin-photo-overlay:focus-visible {
+  outline: 4px solid var(--gold-light);
+  outline-offset: -7px;
+  box-shadow: inset 0 0 0 2px var(--navy-deep);
+}
+
+.admin-photo-icon {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 21px;
+  border: 3px solid currentColor;
+  border-radius: 5px;
+}
+
+.admin-photo-icon::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 5px;
+  width: 9px;
+  height: 5px;
+  border-radius: 3px 3px 0 0;
+  background: currentColor;
+}
+
+.admin-photo-icon::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 6px;
+  height: 6px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.add-item-card {
+  min-height: 180px;
+}
+
+.add-item-card span {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  font-size: 1.12rem;
+}
+
+.add-item-icon {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.add-item-icon::before,
+.add-item-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--teal-deep);
+  transform: translate(-50%, -50%);
+}
+
+.add-item-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.stock-stepper {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 52px;
+  width: 100%;
+  gap: 12px;
+}
+
+.stock-btn {
+  width: 52px;
+  height: 52px;
+}
+
+.stock-input {
+  width: 100%;
+  max-width: 120px;
+  min-width: 0;
+  min-height: 52px;
+  justify-self: center;
+}
+
+.owner-return-btn {
+  width: min(100%, 380px);
+  min-height: 54px;
+}
+
+/* Dialogs and the photo editor */
+.login-modal-overlay,
+.delete-modal-overlay,
+.photo-crop-overlay {
+  padding:
+    max(14px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(14px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+}
+
+.login-modal,
+.photo-crop-modal {
+  max-height: calc(100vh - 28px);
+  max-height: calc(
+    100dvh - max(14px, env(safe-area-inset-top)) - max(14px, env(safe-area-inset-bottom))
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.delete-modal-overlay {
+  align-items: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.login-modal {
+  width: min(100%, 420px);
+  max-width: 420px;
+  padding: clamp(24px, 7vw, 34px);
+}
+
+.login-modal h3 {
+  font-size: clamp(1.55rem, 7vw, 2rem);
+}
+
+.login-modal p {
+  font-size: 1rem;
+}
+
+.login-modal input[type="password"] {
+  min-height: 50px;
+}
+
+.login-modal input[type="password"]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.login-modal input[type="password"][aria-invalid="true"] {
+  border-color: var(--red);
+}
+
+.login-modal-actions button,
+.delete-modal-actions button,
+.photo-crop-actions button {
+  min-height: 50px;
+}
+
+.delete-modal {
+  width: min(100%, 600px);
+  max-width: 600px;
+  max-height: none;
+  margin-block: auto;
+  padding: clamp(30px, 7vw, 44px) clamp(20px, 7vw, 40px) clamp(24px, 6vw, 34px);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.delete-modal-seal {
+  pointer-events: none;
+}
+
+.photo-crop-modal {
+  width: min(100%, 580px);
+}
+
+.photo-crop-stage {
+  width: min(100%, 440px, max(220px, calc(100dvh - 340px)));
+}
+
+.photo-crop-actions {
+  position: sticky;
+  bottom: -1px;
+  z-index: 2;
+  padding-top: 10px;
+  padding-bottom: 2px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 14px);
+}
+
+/* Smallest phones */
+@media screen and (max-width: 359px) {
+  :root {
+    --page-gutter: 12px;
+    --floating-size: 54px;
+    --floating-edge: 12px;
+  }
+
+  .logo-badge {
+    width: 42px;
+    height: 42px;
+  }
+
+  .logo-main {
+    font-size: 1.14rem;
+  }
+
+  .logo-sub {
+    font-size: 0.66rem;
+  }
+
+  .hero-sign {
+    padding-inline: 16px;
+  }
+
+  .hero-title {
+    font-size: clamp(2.15rem, 11.5vw, 2.45rem);
+  }
+
+  body.admin-mode .owner-exit-btn {
+    width: 82px;
+    padding-inline: 7px;
+    font-size: 0.72rem;
+  }
+
+  body.admin-mode .edit-mode-label {
+    font-size: 0.68rem;
+  }
+
+  .card-footer-row {
+    gap: 8px;
+  }
+
+  .price-tag,
+  .like-btn,
+  .stock-badge {
+    padding-inline: 12px;
+  }
+
+  .login-modal-actions,
+  .delete-modal-actions,
+  .photo-crop-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .delete-confirm-btn {
+    grid-row: 2;
+  }
+}
+
+/* Larger phones and small tablets */
+@media screen and (min-width: 720px) {
+  :root {
+    --page-gutter: clamp(22px, 4vw, 30px);
+  }
+
+  .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-cta-group > .btn-primary,
+  .hero-cta-group > .btn-secondary {
+    flex: 0 1 620px;
+  }
+
+  body.admin-mode .logo-text {
+    display: block;
+  }
+
+  body.admin-mode .logo-sub {
+    display: none;
+  }
+
+  .owner-section-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .owner-section-actions > :only-child {
+    grid-column: 1 / -1;
+    width: min(100%, 360px);
+  }
+
+  .market-live-banner > :last-child,
+  .map-market-return > :last-child {
+    flex-basis: auto;
+  }
+
+  .market-live-divider {
+    display: block;
+  }
+}
+
+@media screen and (min-width: 900px) {
+  body.admin-mode .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.admin-mode .add-item-card {
+    min-height: 240px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  :root {
+    --nav-height: 76px;
+    --floating-size: 60px;
+  }
+
+  .hero-badge {
+    display: flex;
+    width: 92px;
+    height: 92px;
+    top: -28px;
+    right: -18px;
+  }
+
+  .hero-sign {
+    padding-inline: clamp(48px, 8vw, 72px);
+  }
+
+  .map-wrapper,
+  .map-wrapper iframe {
+    min-height: 400px;
+  }
+
+  .market-live-banner,
+  .market-route-link {
+    border-radius: 999px;
+  }
+}
+
+/* Full desktop navigation and three-card rhythm */
+@media screen and (min-width: 1100px) {
+  :root {
+    --nav-height: 78px;
+    --page-gutter: 32px;
+    --floating-size: 66px;
+    --floating-edge: 28px;
+  }
+
+  #main-nav {
+    padding-left: max(32px, env(safe-area-inset-left), calc((100vw - var(--content-width)) / 2));
+    padding-right: max(32px, env(safe-area-inset-right), calc((100vw - var(--content-width)) / 2));
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .nav-links {
+    position: static;
+    display: flex;
+    max-height: none;
+    overflow: visible;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .nav-links a {
+    min-height: 44px;
+    padding: 8px 11px;
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+
+  .btn-book-nav {
+    min-height: 48px;
+    margin: 0 0 0 4px;
+    padding-inline: 18px !important;
+  }
+
+  .nav-backdrop {
+    display: none !important;
+  }
+
+  .menu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.admin-mode .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weekly-menu-grid.is-collapsed > .menu-card:nth-child(n + 5) {
+    display: flex;
+  }
+
+  .weekly-menu-grid.is-collapsed > .menu-card:nth-child(n + 7) {
+    display: none;
+  }
+
+  .weekly-menu-grid.has-six-or-fewer .menu-disclosure-row {
+    display: none;
+  }
+
+  .whatsapp-float::before {
+    right: calc(100% + 14px);
+  }
+
+  .owner-login-btn {
+    width: auto;
+    min-width: var(--floating-size);
+    padding-inline: 20px;
+  }
+
+  .owner-login-btn .btn-label,
+  .owner-login-btn.expanded .btn-label {
+    max-width: 200px;
+    margin-left: 10px;
+    opacity: 1;
+  }
+
+  body.admin-mode #main-nav {
+    padding-left: max(32px, env(safe-area-inset-left), calc((100vw - var(--content-width)) / 2));
+    padding-right: max(32px, env(safe-area-inset-right), calc((100vw - var(--content-width)) / 2));
+  }
+}
+
+@media screen and (min-width: 1240px) {
+  body.admin-mode .menu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.admin-mode .add-item-card {
+    min-height: 260px;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .nav-links {
+    gap: 8px;
+  }
+
+  .nav-links a {
+    padding-inline: 14px;
+    font-size: 0.92rem;
+  }
+
+  .menu-grid {
+    gap: 32px;
+  }
+}
+
+/* Keep cards physically stable as columns are added. Visitor cards gain a
+   third track only when three complete cards fit; owner forms stay wider and
+   use at most two tracks so editing never becomes cramped on desktop. */
+@media screen and (min-width: 860px) and (max-width: 1279px) {
+  body:not(.admin-mode) .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 384px));
+    justify-content: center;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  body:not(.admin-mode) .menu-grid {
+    grid-template-columns: repeat(3, minmax(0, 384px));
+    justify-content: center;
+  }
+}
+
+@media screen and (min-width: 900px) and (max-width: 1135px) {
+  body.admin-mode .menu-grid {
+    grid-template-columns: minmax(0, 520px);
+    justify-content: center;
+  }
+}
+
+@media screen and (min-width: 1136px) {
+  body.admin-mode .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 520px));
+    justify-content: center;
+  }
+}
+
+/* Short landscape phones and compact browser windows */
+@media screen and (max-width: 1099px) and (max-height: 560px) and (orientation: landscape) {
+  :root {
+    --nav-height: 64px;
+    --floating-size: 52px;
+    --floating-edge: 10px;
+  }
+
+  .logo-badge {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hero-badge {
+    display: none;
+  }
+
+  .nav-links a {
+    min-height: 44px;
+  }
+
+  .login-modal-overlay,
+  .delete-modal-overlay,
+  .photo-crop-overlay {
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .login-modal,
+  .photo-crop-modal {
+    max-height: calc(
+      100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom))
+    );
+  }
+
+  .photo-crop-stage {
+    width: min(100%, clamp(160px, calc(100dvh - 280px), 260px));
+  }
+
+  .map-wrapper,
+  .map-wrapper iframe {
+    height: 240px;
+    min-height: 240px;
+  }
+}
+
+@media screen and (max-width: 1099px) and (max-height: 560px) and (orientation: landscape) {
+  .nav-links {
+    padding-block: 10px calc(12px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (hover: none) {
+  .menu-card.revealed:hover,
+  .owner-state-btn:hover,
+  .owner-jump-btn:hover,
+  .whatsapp-float:hover,
+  .owner-login-btn:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .hero-sign,
+  .hero-market-status,
+  .menu-card,
+  .map-wrapper,
+  .market-live-banner {
+    border-width: 2px;
+  }
+
+  .section-subtitle,
+  .hero-desc,
+  .card-body ul li,
+  .market-card-desc {
+    color: #273746;
+  }
+}
+
+@media (forced-colors: active) {
+  .live-dot,
+  .nav-live-dot,
+  .owner-state-dot {
+    border: 2px solid currentColor;
+  }
+
+  .whatsapp-float,
+  .owner-login-btn,
+  .menu-card,
+  .market-live-banner {
+    forced-color-adjust: auto;
+  }
 }

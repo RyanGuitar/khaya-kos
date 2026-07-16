@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const indexHtml = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
+const notFoundHtml = await readFile(new URL("../public/404.html", import.meta.url), "utf8");
 const engineSource = await readFile(new URL("../public/js/admin/engine.js", import.meta.url), "utf8");
 const rendererSource = await readFile(new URL("../public/js/admin/renderer.js", import.meta.url), "utf8");
 const cropperSource = await readFile(new URL("../public/js/admin/imageCropper.js", import.meta.url), "utf8");
@@ -10,6 +11,8 @@ const imageUtilsSource = await readFile(new URL("../public/js/admin/imageUtils.j
 const syncSource = await readFile(new URL("../public/js/admin/sync.js", import.meta.url), "utf8");
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 const stylesSource = await readFile(new URL("../public/styles.css", import.meta.url), "utf8");
+const mobileMenuSource = await readFile(new URL("../public/js/modules/mobileMenu.js", import.meta.url), "utf8");
+const responsiveContract = stylesSource.slice(stylesSource.indexOf("RESPONSIVE CONTRACT"));
 const seedState = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
 
 test("delete confirmation uses an accessible custom dialog", () => {
@@ -30,6 +33,108 @@ test("product deletion no longer invokes the browser-native confirm dialog", () 
 test("owner login and upload controls have accessible names", () => {
   assert.match(indexHtml, /<label class="login-field-label" for="login-password-input">Site password<\/label>/);
   assert.match(indexHtml, /id="admin-photo-input"[^>]*aria-label="Choose a new product photo"/);
+});
+
+test("primary navigation and owner login expose complete keyboard semantics", () => {
+  assert.match(indexHtml, /<nav id="main-nav" aria-label="Primary navigation">/);
+  assert.match(indexHtml, /id="mobile-menu"[^>]*aria-controls="nav-list"/s);
+  assert.match(indexHtml, /class="skip-link" href="#main-content"/);
+  assert.match(indexHtml, /<main id="main-content" tabindex="-1">/);
+  assert.match(indexHtml, /class="login-modal" role="dialog" aria-modal="true"/);
+  assert.match(indexHtml, /id="login-error" aria-live="polite"/);
+  assert.match(mobileMenuSource, /event\.key === 'Escape'/);
+  assert.match(mobileMenuSource, /event\.key !== 'Tab'/);
+  assert.match(mobileMenuSource, /function|const setMenuIsolation/);
+  assert.match(mobileMenuSource, /element\.inert = true/);
+  assert.match(engineSource, /document\.body\.classList\.add\("dialog-open"\)/);
+});
+
+test("landmarks, dialogs, and live controls remain accessible in every interaction mode", () => {
+  assert.ok(indexHtml.indexOf('id="owner-login-btn"') < indexHtml.indexOf('<main id="main-content"'));
+  assert.match(indexHtml, /<main id="main-content" tabindex="-1">[\s\S]*?<header class="hero" id="hero">/);
+  assert.match(indexHtml, /id="owner-workspace-title" hidden>Owner edit mode<\/h1>/);
+  assert.match(indexHtml, /id="login-password-input"[^>]*required[^>]*aria-invalid="false"/s);
+  assert.match(engineSource, /function setModalIsolation/);
+  assert.match(cropperSource, /function setModalIsolation/);
+  assert.match(rendererSource, /data-stock-status aria-live="polite"/);
+  assert.match(rendererSource, /sold-out-stamp" aria-hidden="true"/);
+  assert.match(engineSource, /prefers-reduced-motion: reduce/);
+});
+
+test("the responsive contract is mobile-first and derives fixed geometry from shared tokens", () => {
+  assert.notEqual(responsiveContract.length, 0);
+  assert.match(indexHtml, /viewport-fit=cover/);
+  assert.match(stylesSource, /--nav-safe-height:/);
+  assert.match(stylesSource, /--page-gutter:/);
+  assert.match(stylesSource, /--floating-size:/);
+  assert.match(responsiveContract, /\.menu-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0, min\(100%, 440px\)\)/s);
+  assert.match(responsiveContract, /@media screen and \(min-width: 720px\)/);
+  assert.match(responsiveContract, /@media screen and \(min-width: 1100px\)/);
+  assert.match(responsiveContract, /@media screen and \(min-width: 860px\) and \(max-width: 1279px\)/);
+  assert.match(responsiveContract, /@media screen and \(min-width: 1136px\)/);
+  assert.match(responsiveContract, /body:not\(\.admin-mode\) \.menu-grid\s*\{[^}]*repeat\(3, minmax\(0, 384px\)\)/s);
+  assert.match(responsiveContract, /body\.admin-mode \.menu-grid\s*\{[^}]*repeat\(2, minmax\(0, 520px\)\)/s);
+  assert.match(responsiveContract, /--floating-size:\s*66px/);
+  assert.match(responsiveContract, /\.whatsapp-float,\s*\.owner-login-btn\s*\{[^}]*height:\s*var\(--floating-size\)/s);
+  assert.match(responsiveContract, /\.name-input,[\s\S]*\.login-modal input\[type="password"\][\s\S]*font-size:\s*16px/);
+});
+
+test("responsive edge cases cover display cutouts, short landscape, and the 404 page", () => {
+  assert.match(responsiveContract, /padding-left:\s*max\(var\(--page-gutter\), env\(safe-area-inset-left\)\)/);
+  assert.match(responsiveContract, /@media screen and \(max-width: 1099px\) and \(max-height: 560px\) and \(orientation: landscape\)/);
+  assert.match(responsiveContract, /\.delete-modal\s*\{[^}]*overflow:\s*visible/s);
+  assert.match(responsiveContract, /body\.admin-mode \.admin-photo-overlay\s*\{[^}]*align-items:\s*center[^}]*justify-content:\s*flex-end/s);
+  assert.match(notFoundHtml, /viewport-fit=cover/);
+  assert.doesNotMatch(notFoundHtml, /user-scalable=no|maximum-scale/);
+  assert.match(notFoundHtml, /styles\.css\?v=3\.19/);
+  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.19"/);
+  assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
+});
+
+test("owner login recovers immediately while live sync is still connecting", () => {
+  assert.match(syncSource, /sendAuth\(password\)\s*\{\s*return this\.send/);
+  assert.match(syncSource, /return false/);
+  assert.match(engineSource, /const sent = sync\.sendAuth\(password\)/);
+  assert.match(engineSource, /Live connection is still starting\. Please try again\./);
+});
+
+test("renaming a product updates every visible and assistive card label in place", () => {
+  assert.match(engineSource, /if \(image\) image\.alt = newValue/);
+  assert.match(engineSource, /likeButton\.dataset\.name = newValue/);
+  assert.match(engineSource, /stockMinusLabel\.textContent = `Record one \$\{newValue\} sold`/);
+  assert.match(engineSource, /stockPlusLabel\.textContent = `Add one \$\{newValue\} back`/);
+  assert.match(engineSource, /Stock has not been set for \$\{newValue\}/);
+});
+
+test("static Afrikaans phrases declare their pronunciation language", () => {
+  assert.match(indexHtml, /class="hero-badge" lang="af"/);
+  assert.match(indexHtml, /<p lang="af">Dankie dat jy plaaslik ondersteun/);
+});
+
+test("dynamic sections start hidden and only expose valid navigation targets", () => {
+  assert.match(indexHtml, /id="market-nav-link" hidden/);
+  assert.match(indexHtml, /id="extras-nav-link" hidden/);
+  assert.match(indexHtml, /id="market" hidden/);
+  assert.match(indexHtml, /id="extras" hidden/);
+  assert.match(rendererSource, /navLink\.hidden = !isOpen/);
+});
+
+test("square product media reserves square intrinsic space before images decode", () => {
+  const squareImages = rendererSource.match(/width="900" height="900"/g) || [];
+  assert.equal(squareImages.length, 2);
+});
+
+test("optional content moves to draft on a real edit, not merely on field focus", () => {
+  assert.doesNotMatch(engineSource, /addEventListener\("focusin"/);
+  assert.match(engineSource, /moveOptionalSectionToDraft\(categoryId, \{ renderSection: false \}\)/);
+  assert.match(engineSource, /moveOptionalSectionToDraft\(category, \{ renderSection: false \}\)/);
+});
+
+test("owner text edits preserve the active card instead of rebuilding the grid", () => {
+  assert.match(engineSource, /const ribbon = card\?\.querySelector\("\.card-ribbon"\)/);
+  assert.match(engineSource, /if \(ribbon\) ribbon\.textContent = newValue/);
+  assert.match(engineSource, /moveOptionalSectionToDraft\(category, \{ renderSection: false \}\)/);
+  assert.match(engineSource, /if \(field === "price"\) e\.target\.value = String\(value\)/);
 });
 
 test("owner photos use an accessible square crop and zoom workflow", () => {

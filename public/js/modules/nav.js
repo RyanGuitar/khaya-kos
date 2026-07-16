@@ -7,11 +7,7 @@ export function initNavScroll() {
   const nav = document.getElementById('main-nav');
   if (!nav) return;
 
-  window.addEventListener(
-    'scroll',
-    () => {
-      nav.classList.toggle('scrolled', window.scrollY > 10);
-    },
-    { passive: true }
-  );
+  const update = () => nav.classList.toggle('scrolled', window.scrollY > 10);
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 }

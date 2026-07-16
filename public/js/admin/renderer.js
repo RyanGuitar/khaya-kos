@@ -32,13 +32,16 @@ function getLikedItems() {
 
 function buildLikeButton(categoryId, item, isAdmin) {
   const isLiked = getLikedItems().has(item.id);
+  const likes = item.likes || 0;
+  const likesLabel = `${likes} ${likes === 1 ? "like" : "likes"}`;
   if (isAdmin) {
     // Owners shouldn't be able to like their own items — shown as an
     // informational, non-interactive count instead of a real button.
     return `
-      <span class="like-btn is-disabled" aria-hidden="true">
-        <span class="like-icon">♡</span>
-        <span class="like-count">${item.likes || 0}</span>
+      <span class="like-btn is-disabled" data-item="${item.id}" data-name="${escapeHtml(item.name)}">
+        <span class="like-icon" aria-hidden="true">♡</span>
+        <span class="like-count">${likes}</span>
+        <span class="sr-only"> ${likes === 1 ? "like" : "likes"} for ${escapeHtml(item.name)}</span>
       </span>
     `;
   }
@@ -47,8 +50,8 @@ function buildLikeButton(categoryId, item, isAdmin) {
       data-category="${categoryId}" data-item="${item.id}" data-name="${escapeHtml(item.name)}"
       aria-pressed="${isLiked}">
       <span class="like-icon" aria-hidden="true">${isLiked ? "❤" : "♡"}</span>
-      <span class="like-count" aria-hidden="true">${item.likes || 0}</span>
-      <span class="sr-only">${isLiked ? "Unlike" : "Like"} ${escapeHtml(item.name)}</span>
+      <span class="like-count" aria-hidden="true">${likes}</span>
+      <span class="sr-only">${isLiked ? "Unlike" : "Like"} ${escapeHtml(item.name)}, ${likesLabel}</span>
     </button>
   `;
 }
@@ -110,7 +113,10 @@ function buildCard(categoryId, item, isAdmin) {
          <span aria-hidden="true">✕</span><span class="sr-only">Delete ${escapeHtml(item.name)}</span>
        </button>
        <button type="button" class="admin-photo-overlay" data-action="change-photo"
-         data-category="${categoryId}" data-item="${item.id}">📷 Change photo</button>`
+         data-category="${categoryId}" data-item="${item.id}"
+         aria-label="Change photo for ${escapeHtml(item.name)}">
+         <span class="admin-photo-icon" aria-hidden="true"></span>Change photo
+       </button>`
     : "";
 
   // The ribbon is a read-only live preview of the name now — it's layered
@@ -123,7 +129,7 @@ function buildCard(categoryId, item, isAdmin) {
     <div class="menu-card revealed" data-item-id="${item.id}">
       <div class="card-img-wrap">
         ${nameMarkup}
-        <img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy" width="400" height="300">
+        <img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy" width="900" height="900">
         ${adminControls}
       </div>
       <div class="card-body">
@@ -142,8 +148,9 @@ function buildCard(categoryId, item, isAdmin) {
 function buildAddCard(categoryId) {
   return `
     <button type="button" class="add-item-card" id="add-item-${categoryId}"
-      data-action="add" data-category="${categoryId}">
-      <span>➕<br>Add Item</span>
+      data-action="add" data-category="${categoryId}"
+      aria-label="Add a new item to the ${categoryId} section">
+      <span><span class="add-item-icon" aria-hidden="true"></span>Add Item</span>
     </button>
   `;
 }
@@ -211,7 +218,7 @@ function buildOwnerSectionToolbar(category) {
   const optional = isOptionalCategory(category);
   const visibilityToggle = optional ? buildVisibilityToggle(category) : "";
   const title = optional
-    ? buildCategoryCopyFields(category)
+    ? `<h2 class="sr-only">Optional section</h2>${buildCategoryCopyFields(category)}`
     : `<h2 class="owner-section-title">${escapeHtml(category.title)}</h2>`;
   return `
     ${title}
@@ -233,6 +240,9 @@ function updateStandardSection(category, isAdmin) {
   const section = ensureStandardSection(category);
   const isVisible = !isOptionalCategory(category) || category.isVisible !== false;
   if (section) {
+    if (!isAdmin && !isVisible && section.contains?.(document.activeElement)) {
+      document.getElementById("main-content")?.focus({ preventScroll: true });
+    }
     section.hidden = !isAdmin && !isVisible;
     section.classList.toggle("owner-view", isAdmin);
     const publicHeader = section.querySelector(".section-header");
@@ -255,7 +265,13 @@ function updateStandardSection(category, isAdmin) {
 
   if (category.id === "extras") {
     const navLink = document.getElementById("extras-nav-link");
-    if (navLink) navLink.hidden = !isAdmin && !isVisible;
+    if (navLink) {
+      const hideNavLink = !isAdmin && !isVisible;
+      if (hideNavLink && document.activeElement === navLink) {
+        document.querySelector('#nav-list a[href="#menu"]')?.focus();
+      }
+      navLink.hidden = hideNavLink;
+    }
   }
 
   return isAdmin || isVisible;
@@ -325,6 +341,10 @@ function buildMarketCard(categoryId, item, isAdmin) {
     : `<p class="market-card-desc">${escapeHtml(item.description)}</p>`;
 
   const stockId = fieldId("stock", item.id);
+  const stockStatusId = fieldId("stock-status", item.id);
+  const stockStatusText = !hasStock
+    ? `Stock has not been set for ${escapeHtml(item.name)}`
+    : `${item.stock} ${escapeHtml(item.name)} in stock`;
   const stockMarkup = isAdmin
     ? `<div class="admin-field admin-stock-field">
          <label class="admin-field-label" for="${stockId}">Stock available</label>
@@ -334,12 +354,14 @@ function buildMarketCard(categoryId, item, isAdmin) {
              <span aria-hidden="true">−</span><span class="sr-only">Record one ${escapeHtml(item.name)} sold</span>
            </button>
            <input id="${stockId}" type="number" min="0" step="1" class="stock-input" data-field="stock"
-             data-category="${categoryId}" data-item="${item.id}" value="${item.stock ?? ""}" placeholder="0">
+             data-category="${categoryId}" data-item="${item.id}" value="${item.stock ?? ""}" placeholder="0"
+             aria-describedby="${stockStatusId}">
            <button type="button" class="stock-btn" data-action="stock-plus"
              data-category="${categoryId}" data-item="${item.id}">
              <span aria-hidden="true">+</span><span class="sr-only">Add one ${escapeHtml(item.name)} back</span>
            </button>
          </div>
+         <span id="${stockStatusId}" class="sr-only" data-stock-status aria-live="polite">${stockStatusText}</span>
        </div>`
     : `<span class="stock-badge ${soldOut ? "stock-out" : ""}">${
         !hasStock ? "Coming soon" : soldOut ? "Sold out" : `${item.stock} left`
@@ -351,20 +373,23 @@ function buildMarketCard(categoryId, item, isAdmin) {
          <span aria-hidden="true">✕</span><span class="sr-only">Delete ${escapeHtml(item.name)}</span>
        </button>
        <button type="button" class="admin-photo-overlay" data-action="change-photo"
-         data-category="${categoryId}" data-item="${item.id}">📷 Change photo</button>`
+         data-category="${categoryId}" data-item="${item.id}"
+         aria-label="Change photo for ${escapeHtml(item.name)}">
+         <span class="admin-photo-icon" aria-hidden="true"></span>Change photo
+       </button>`
     : "";
 
   // Read-only preview — see the comment in buildCard() for why this is no
   // longer contentEditable.
   const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)}</h3>`;
 
-  const soldOutStamp = soldOut ? `<div class="sold-out-stamp">Sold<br>Out</div>` : "";
+  const soldOutStamp = soldOut ? `<div class="sold-out-stamp" aria-hidden="true">Sold<br>Out</div>` : "";
 
   return `
     <div class="menu-card revealed market-card ${soldOut ? "is-sold-out" : ""}" data-item-id="${item.id}">
       <div class="card-img-wrap">
         ${nameMarkup}
-        <img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy" width="400" height="300">
+        <img src="${item.image}" alt="${escapeHtml(item.name)}" loading="lazy" width="900" height="900">
         ${soldOutStamp}
         ${adminControls}
       </div>
@@ -444,6 +469,10 @@ function updateMarketStatus(category) {
   }
 
   if (navLink) {
+    if (!isOpen && document.activeElement === navLink) {
+      document.querySelector('#nav-list a[href="#menu"]')?.focus();
+    }
+    navLink.hidden = !isOpen;
     navLink.classList.toggle("is-live", isOpen);
     navLink.setAttribute(
       "aria-label",
@@ -468,6 +497,9 @@ export function renderMarketSection(category, isAdmin) {
   // larger live-market section out of their way until it is actually open.
   // Owners still see it while closed so they can prepare stock and products.
   const showSection = Boolean(category.isOpen) || isAdmin;
+  if (section && !showSection && section.contains?.(document.activeElement)) {
+    document.getElementById("main-content")?.focus({ preventScroll: true });
+  }
   if (section) section.hidden = !showSection;
   if (!showSection) {
     container.innerHTML = "";
@@ -559,9 +591,16 @@ export function patchLikeCount(itemId, value, isLiked) {
   const labelEl = btn.querySelector(".sr-only");
   if (countEl) countEl.textContent = value;
   if (iconEl) iconEl.textContent = isLiked ? "❤" : "♡";
-  if (labelEl) labelEl.textContent = `${isLiked ? "Unlike" : "Like"} ${btn.dataset.name || "this item"}`;
-  btn.setAttribute("aria-pressed", String(isLiked));
-  btn.classList.toggle("is-liked", isLiked);
+  if (labelEl && btn.matches("button")) {
+    const likesLabel = `${value} ${value === 1 ? "like" : "likes"}`;
+    labelEl.textContent = `${isLiked ? "Unlike" : "Like"} ${btn.dataset.name || "this item"}, ${likesLabel}`;
+  } else if (labelEl) {
+    labelEl.textContent = ` ${value === 1 ? "like" : "likes"} for ${btn.dataset.name || "this item"}`;
+  }
+  if (btn.matches("button")) {
+    btn.setAttribute("aria-pressed", String(isLiked));
+    btn.classList.toggle("is-liked", isLiked);
+  }
   return true;
 }
 
@@ -576,6 +615,9 @@ export function patchStock(itemId, value, isAdmin, { deferSoldOut = false } = {}
     // Don't stomp on it mid-edit if this happens to be the field the
     // admin is actively typing in right now.
     if (input && document.activeElement !== input) input.value = value;
+    const status = card.querySelector("[data-stock-status]");
+    const itemName = card.querySelector(".card-ribbon")?.textContent.trim() || "items";
+    if (status) status.textContent = `${value} ${itemName} in stock`;
   }
 
   // The owner still sees the numeric input reach zero immediately, but no
@@ -599,6 +641,7 @@ export function patchStock(itemId, value, isAdmin, { deferSoldOut = false } = {}
   if (soldOut && !existingStamp && imgWrap) {
     const stamp = document.createElement("div");
     stamp.className = "sold-out-stamp";
+    stamp.setAttribute?.("aria-hidden", "true");
     stamp.innerHTML = "Sold<br>Out";
     imgWrap.appendChild(stamp);
   } else if (!soldOut && existingStamp) {
@@ -612,8 +655,22 @@ export function renderAll(state, isAdmin) {
   document.body.classList.toggle("admin-mode", isAdmin);
   const editModeLabel = document.getElementById("edit-mode-label");
   const exitButton = document.getElementById("owner-exit-btn");
+  const ownerWorkspaceTitle = document.getElementById("owner-workspace-title");
+  const logo = document.querySelector("#main-nav .logo");
   if (editModeLabel) editModeLabel.hidden = !isAdmin;
   if (exitButton) exitButton.hidden = !isAdmin;
+  if (ownerWorkspaceTitle) ownerWorkspaceTitle.hidden = !isAdmin;
+  if (logo) {
+    if (isAdmin) {
+      logo.setAttribute("aria-disabled", "true");
+      logo.setAttribute("aria-label", "Khaya Kos");
+      logo.setAttribute("tabindex", "-1");
+    } else {
+      logo.removeAttribute("aria-disabled");
+      logo.removeAttribute("aria-label");
+      logo.removeAttribute("tabindex");
+    }
+  }
 
   state.categories.forEach((category) => {
     if (category.id === "market") {

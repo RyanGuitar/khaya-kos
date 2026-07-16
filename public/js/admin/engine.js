@@ -1,8 +1,8 @@
 // js/admin/engine.js
-import { store } from "./store.js?v=3.16";
-import { sync } from "./sync.js?v=3.16";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.16";
-import { createImageCropper } from "./imageCropper.js?v=3.16";
+import { store } from "./store.js?v=3.19";
+import { sync } from "./sync.js?v=3.19";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.19";
+import { createImageCropper } from "./imageCropper.js?v=3.19";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
 let isAdmin = false;
@@ -11,6 +11,7 @@ let pendingPhotoTrigger = null;
 let photoCropper = null;
 let pendingDeleteTarget = null; // { categoryId, itemId }
 let deleteTrigger = null;
+let loginTrigger = null;
 let notificationTimer = null;
 
 function render() {
@@ -44,6 +45,32 @@ function clearNotifications() {
   clearTimeout(notificationTimer);
   notificationTimer = null;
   container.querySelectorAll(".sold-toast").forEach((toast) => toast.remove());
+}
+
+function setModalIsolation(activeOverlay, isolate) {
+  if (!activeOverlay) return;
+  [...document.body.children].forEach((element) => {
+    if (element === activeOverlay || ["SCRIPT", "STYLE"].includes(element.tagName)) return;
+    if (isolate) {
+      if (!element.inert) {
+        element.inert = true;
+        element.dataset.modalInertAdded = "true";
+      }
+      if (!element.hasAttribute("aria-hidden")) {
+        element.setAttribute("aria-hidden", "true");
+        element.dataset.modalAriaHiddenAdded = "true";
+      }
+      return;
+    }
+    if (element.dataset.modalInertAdded === "true") {
+      element.inert = false;
+      delete element.dataset.modalInertAdded;
+    }
+    if (element.dataset.modalAriaHiddenAdded === "true") {
+      element.removeAttribute("aria-hidden");
+      delete element.dataset.modalAriaHiddenAdded;
+    }
+  });
 }
 
 function showToast(message) {
@@ -106,11 +133,13 @@ function saveLikedItems(set) {
 // The floating-hearts burst everyone sees when they tap like — several
 // small hearts drift up from the button and fade out.
 function spawnFloatingHearts(button) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const rect = button.getBoundingClientRect();
   const count = 5;
   for (let i = 0; i < count; i++) {
     const heart = document.createElement("span");
     heart.className = "floating-heart";
+    heart.setAttribute("aria-hidden", "true");
     heart.textContent = "❤";
     heart.style.left = `${rect.left + rect.width / 2 + (Math.random() * 40 - 20)}px`;
     heart.style.top = `${rect.top + (Math.random() * 10 - 5)}px`;
@@ -129,6 +158,7 @@ const AMBIENT_MIN_INTERVAL = 1200; // ms — caps how often this can fire even
                                      // if someone rapidly toggles likes
 
 function spawnAmbientHearts() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const now = Date.now();
   if (now - lastAmbientBurst < AMBIENT_MIN_INTERVAL) return;
   lastAmbientBurst = now;
@@ -140,6 +170,7 @@ function spawnAmbientHearts() {
   for (let i = 0; i < count; i++) {
     const heart = document.createElement("span");
     heart.className = "ambient-heart";
+    heart.setAttribute("aria-hidden", "true");
     heart.textContent = "❤";
     heart.style.left = `${leftBase + Math.random() * leftRange}px`;
     heart.style.animationDelay = `${i * 130}ms`;
@@ -266,16 +297,27 @@ function openLoginModal() {
   const overlay = document.getElementById("login-modal-overlay");
   const input = document.getElementById("login-password-input");
   const error = document.getElementById("login-error");
+  const submitButton = document.querySelector("#login-form button[type='submit']");
   if (!overlay) return;
+  loginTrigger = document.activeElement;
   error.textContent = "";
+  input.setAttribute("aria-invalid", "false");
+  if (submitButton) submitButton.disabled = false;
   overlay.hidden = false;
+  document.body.classList.add("dialog-open");
   input.value = "";
   input.focus();
+  setModalIsolation(overlay, true);
 }
 
-function closeLoginModal() {
+function closeLoginModal({ restoreFocus = true } = {}) {
   const overlay = document.getElementById("login-modal-overlay");
   if (overlay) overlay.hidden = true;
+  setModalIsolation(overlay, false);
+  document.body.classList.remove("dialog-open");
+  const trigger = loginTrigger;
+  loginTrigger = null;
+  if (restoreFocus && trigger?.isConnected) trigger.focus();
 }
 
 function openDeleteModal(categoryId, itemId, trigger) {
@@ -292,11 +334,13 @@ function openDeleteModal(categoryId, itemId, trigger) {
   overlay.hidden = false;
   document.body.classList.add("dialog-open");
   cancelBtn?.focus();
+  setModalIsolation(overlay, true);
 }
 
 function closeDeleteModal({ restoreFocus = true } = {}) {
   const overlay = document.getElementById("delete-modal-overlay");
   if (overlay) overlay.hidden = true;
+  setModalIsolation(overlay, false);
   document.body.classList.remove("dialog-open");
 
   const trigger = deleteTrigger;
@@ -314,6 +358,9 @@ function confirmDelete() {
   store.applyRemove(categoryId, itemId);
   renderCategoryById(categoryId);
   sync.removeProduct(categoryId, itemId);
+  requestAnimationFrame(() => {
+    document.getElementById(`add-item-${categoryId}`)?.focus();
+  });
 }
 
 function leaveEditMode() {
@@ -322,6 +369,7 @@ function leaveEditMode() {
   updateLoginButton();
   render();
   window.scrollTo({ top: 0, behavior: "auto" });
+  requestAnimationFrame(() => document.getElementById("owner-login-btn")?.focus());
 }
 
 function updateLoginButton() {
@@ -329,7 +377,8 @@ function updateLoginButton() {
   if (!btn) return;
   const icon = btn.querySelector(".btn-icon");
   const label = btn.querySelector(".btn-label");
-  if (icon) icon.textContent = isAdmin ? "🔓" : "🔒";
+  const iconImage = icon?.querySelector("img");
+  if (iconImage) iconImage.src = isAdmin ? "images/unlock.svg" : "images/lock.svg";
   if (label) label.textContent = isAdmin ? "Exit Edit Mode" : "Owner Login";
   btn.classList.toggle("is-admin", isAdmin);
 }
@@ -377,7 +426,14 @@ function wireEvents() {
 
   document.getElementById("owner-exit-btn")?.addEventListener("click", leaveEditMode);
 
+  document.querySelector("#main-nav .logo")?.addEventListener("click", (event) => {
+    if (isAdmin) event.preventDefault();
+  });
+
   document.getElementById("login-cancel-btn")?.addEventListener("click", closeLoginModal);
+  document.getElementById("login-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeLoginModal();
+  });
 
   document.getElementById("delete-cancel-btn")?.addEventListener("click", () => closeDeleteModal());
   document.getElementById("delete-confirm-btn")?.addEventListener("click", confirmDelete);
@@ -386,18 +442,26 @@ function wireEvents() {
   });
 
   document.addEventListener("keydown", (e) => {
-    const overlay = document.getElementById("delete-modal-overlay");
-    if (overlay?.hidden) return;
+    const deleteOverlay = document.getElementById("delete-modal-overlay");
+    const loginOverlay = document.getElementById("login-modal-overlay");
+    const overlay = !deleteOverlay?.hidden
+      ? deleteOverlay
+      : !loginOverlay?.hidden
+        ? loginOverlay
+        : null;
     if (!overlay) return;
 
     if (e.key === "Escape") {
       e.preventDefault();
-      closeDeleteModal();
+      if (overlay === deleteOverlay) closeDeleteModal();
+      else closeLoginModal();
       return;
     }
 
     if (e.key === "Tab") {
-      const focusable = [...overlay.querySelectorAll("button:not([disabled])")];
+      const focusable = [...overlay.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex="0"]'
+      )];
       const first = focusable[0];
       const last = focusable.at(-1);
       if (!first || !last) return;
@@ -414,9 +478,33 @@ function wireEvents() {
 
   document.getElementById("login-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const password = document.getElementById("login-password-input").value;
-    if (!password) return;
-    sync.sendAuth(password);
+    const input = document.getElementById("login-password-input");
+    const error = document.getElementById("login-error");
+    const password = input.value;
+    if (!password.trim()) {
+      if (error) error.textContent = "Enter the site password.";
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+      return;
+    }
+    if (error) error.textContent = "";
+    input.setAttribute("aria-invalid", "false");
+    const submitButton = e.currentTarget.querySelector("button[type='submit']");
+    if (submitButton) submitButton.disabled = true;
+    const sent = sync.sendAuth(password);
+    if (!sent) {
+      if (submitButton) submitButton.disabled = false;
+      if (error) error.textContent = "Live connection is still starting. Please try again.";
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+    }
+  });
+
+  document.getElementById("login-password-input")?.addEventListener("input", (e) => {
+    if (!e.target.value) return;
+    e.target.setAttribute("aria-invalid", "false");
+    const error = document.getElementById("login-error");
+    if (error) error.textContent = "";
   });
 
   // Hidden file input used for photo uploads.
@@ -486,7 +574,9 @@ function wireEvents() {
       if (!section) return;
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       section.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-      section.querySelector(".owner-section-title, [data-field='category-eyebrow']")?.focus({ preventScroll: true });
+      section.querySelector(
+        ".owner-state-btn, .owner-jump-btn, [data-field='category-eyebrow']"
+      )?.focus({ preventScroll: true });
       return;
     }
 
@@ -500,6 +590,11 @@ function wireEvents() {
       renderCategoryById(categoryId);
       sync.setCategoryVisibility(categoryId, isVisible);
       if (isVisible) showToast("The optional section is now live for visitors.");
+      requestAnimationFrame(() => {
+        document.querySelector(
+          `.owner-state-btn[data-action="toggle-section-visibility"][data-category="${CSS.escape(categoryId)}"]`
+        )?.focus();
+      });
       return;
     }
 
@@ -548,6 +643,11 @@ function wireEvents() {
       sync.toggleCategory(categoryId);
       showToast(newIsOpen ? "📣 Market is now open — live for everyone." : "Market closed.");
       if (newIsOpen) celebrateMarketOpen();
+      requestAnimationFrame(() => {
+        document.querySelector(
+          `.owner-state-btn[data-action="toggle-market"][data-category="${CSS.escape(categoryId)}"]`
+        )?.focus();
+      });
       return;
     }
 
@@ -584,29 +684,6 @@ function wireEvents() {
     }
   });
 
-  // Start each text/price edit with a clean field. Stock deliberately keeps
-  // its value visible so the owner never loses track of the live count.
-  document.addEventListener("focusin", (e) => {
-    const field = e.target.dataset.field;
-    const draftFields = [
-      "name", "description", "price",
-      "category-eyebrow", "category-title", "category-subtitle",
-    ];
-    if (isAdmin && e.target.dataset.category === "extras" && draftFields.includes(field)) {
-      moveOptionalSectionToDraft("extras", { renderSection: false });
-    }
-    if (!isAdmin || !["name", "description", "price"].includes(field)) return;
-    e.target.dataset.editOriginal = e.target.value;
-    e.target.dataset.editTyped = "false";
-    e.target.value = "";
-  });
-
-  document.addEventListener("input", (e) => {
-    if (e.target.dataset.editTyped !== undefined) {
-      e.target.dataset.editTyped = "true";
-    }
-  });
-
   // Delegated commit of price/description/stock/name fields.
   document.addEventListener("change", (e) => {
     const field = e.target.dataset.field;
@@ -621,7 +698,6 @@ function wireEvents() {
       }
       moveOptionalSectionToDraft(categoryId, { renderSection: false });
       store.applyCategoryUpdate(categoryId, categoryField, value);
-      renderCategoryById(categoryId);
       sync.updateCategory(categoryId, categoryField, value);
       return;
     }
@@ -629,11 +705,6 @@ function wireEvents() {
     if (field !== "price" && field !== "description" && field !== "stock" && field !== "name") return;
 
     const { category, item } = e.target.dataset;
-
-    if (field !== "stock" && e.target.dataset.editTyped === "false") {
-      e.target.value = e.target.dataset.editOriginal ?? "";
-      return;
-    }
 
     if (field === "stock") {
       const current = store.getItem(category, item);
@@ -645,20 +716,48 @@ function wireEvents() {
     if (field === "name") {
       const newValue = e.target.value.trim();
       if (!newValue) {
-        patchOrRender(category, item); // snap back to the clean stored value
+        e.target.value = store.getItem(category, item)?.name || "";
         return;
       }
-      moveOptionalSectionToDraft(category);
+      moveOptionalSectionToDraft(category, { renderSection: false });
       store.applyUpdate(category, item, "name", newValue);
-      patchOrRender(category, item);
+      const card = e.target.closest(".menu-card");
+      const ribbon = card?.querySelector(".card-ribbon");
+      const image = card?.querySelector(".card-img-wrap img");
+      const photoButton = card?.querySelector(".admin-photo-overlay");
+      const deleteLabel = card?.querySelector(".admin-delete-btn .sr-only");
+      const likeButton = card?.querySelector(".like-btn");
+      const likeLabel = likeButton?.querySelector(".sr-only");
+      const likeCount = Number(likeButton?.querySelector(".like-count")?.textContent) || 0;
+      const stockMinusLabel = card?.querySelector('[data-action="stock-minus"] .sr-only');
+      const stockPlusLabel = card?.querySelector('[data-action="stock-plus"] .sr-only');
+      const stockStatus = card?.querySelector("[data-stock-status]");
+      const updatedItem = store.getItem(category, item);
+      if (ribbon) ribbon.textContent = newValue;
+      if (image) image.alt = newValue;
+      if (photoButton) photoButton.setAttribute("aria-label", `Change photo for ${newValue}`);
+      if (deleteLabel) deleteLabel.textContent = `Delete ${newValue}`;
+      if (likeButton) likeButton.dataset.name = newValue;
+      if (likeLabel) {
+        likeLabel.textContent = likeButton.matches("button")
+          ? `${likeButton.getAttribute("aria-pressed") === "true" ? "Unlike" : "Like"} ${newValue}, ${likeCount} ${likeCount === 1 ? "like" : "likes"}`
+          : ` ${likeCount === 1 ? "like" : "likes"} for ${newValue}`;
+      }
+      if (stockMinusLabel) stockMinusLabel.textContent = `Record one ${newValue} sold`;
+      if (stockPlusLabel) stockPlusLabel.textContent = `Add one ${newValue} back`;
+      if (stockStatus) {
+        stockStatus.textContent = typeof updatedItem?.stock === "number"
+          ? `${updatedItem.stock} ${newValue} in stock`
+          : `Stock has not been set for ${newValue}`;
+      }
       sync.updateProduct(category, item, "name", newValue);
       return;
     }
 
     const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
-    moveOptionalSectionToDraft(category);
+    moveOptionalSectionToDraft(category, { renderSection: false });
     store.applyUpdate(category, item, field, value);
-    patchOrRender(category, item);
+    if (field === "price") e.target.value = String(value);
     sync.updateProduct(category, item, field, value);
   });
 }
@@ -727,11 +826,23 @@ function wireSync() {
   sync.on("product-add", (msg) => {
     store.applyAdd(msg.categoryId, msg.item);
     renderCategoryById(msg.categoryId);
+    if (isAdmin) {
+      requestAnimationFrame(() => {
+        document.querySelector(
+          `.menu-card[data-item-id="${CSS.escape(msg.item.id)}"] .name-input`
+        )?.focus();
+      });
+    }
   });
 
   sync.on("product-remove", (msg) => {
     store.applyRemove(msg.categoryId, msg.itemId);
     renderCategoryById(msg.categoryId);
+    if (isAdmin) {
+      requestAnimationFrame(() => {
+        document.getElementById(`add-item-${msg.categoryId}`)?.focus();
+      });
+    }
   });
 
   sync.on("auth-result", (msg) => {
@@ -739,19 +850,34 @@ function wireSync() {
     if (msg.success) {
       isAdmin = true;
       sessionStorage.setItem("khayaKosAdminPw", document.getElementById("login-password-input").value);
-      closeLoginModal();
+      closeLoginModal({ restoreFocus: false });
       updateLoginButton();
       render();
       window.scrollTo({ top: 0, behavior: "auto" });
+      requestAnimationFrame(() => document.getElementById("owner-exit-btn")?.focus());
     } else {
       const error = document.getElementById("login-error");
       if (error) error.textContent = "Incorrect password.";
+      const input = document.getElementById("login-password-input");
+      input?.setAttribute("aria-invalid", "true");
+      input?.focus();
       sessionStorage.removeItem("khayaKosAdminPw");
     }
     if (submitBtn) submitBtn.disabled = false;
   });
 
   sync.on("error", (msg) => {
+    const loginOverlay = document.getElementById("login-modal-overlay");
+    if (loginOverlay && !loginOverlay.hidden) {
+      const error = document.getElementById("login-error");
+      const input = document.getElementById("login-password-input");
+      const submitButton = document.querySelector("#login-form button[type='submit']");
+      if (error) error.textContent = msg.message || "Could not sign in. Please try again.";
+      if (submitButton) submitButton.disabled = false;
+      input?.setAttribute("aria-invalid", "true");
+      input?.focus();
+      return;
+    }
     showToast(msg.message || "Something went wrong.");
   });
 

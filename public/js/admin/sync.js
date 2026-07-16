@@ -77,11 +77,13 @@ class Sync {
   send(payload) {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(payload));
+      return true;
     }
+    return false;
   }
 
   sendAuth(password) {
-    this.send({ type: "auth", password });
+    return this.send({ type: "auth", password });
   }
 
   updateProduct(categoryId, itemId, field, value) {

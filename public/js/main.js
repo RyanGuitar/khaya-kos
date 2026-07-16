@@ -5,18 +5,16 @@
    Loaded via <script type="module" src="js/main.js">.
    ===================================================== */
 
-import { initNavScroll } from './modules/nav.js';
-import { initMobileMenu } from './modules/mobileMenu.js';
+import { initNavScroll } from './modules/nav.js?v=3.19';
+import { initMobileMenu } from './modules/mobileMenu.js?v=3.19';
 import { initScrollReveal } from './modules/scrollReveal.js';
 import { initLazyMap } from './modules/lazyMap.js';
-import { initOwnerButtonScroll } from './modules/ownerButtonScroll.js';
-import { engine } from './admin/engine.js?v=3.16';
+import { engine } from './admin/engine.js?v=3.19';
 
 function init() {
   initNavScroll();
   initMobileMenu();
   initLazyMap();
-  initOwnerButtonScroll();
   engine.start();     // renders product cards into the DOM first...
   initScrollReveal(); // ...so the reveal observer has cards to watch
 }

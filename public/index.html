@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <title>Khaya Kos | Fresh Food Made to Order — Pearly Beach</title>
   <meta name="description"
@@ -60,14 +60,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap"
     media="print" onload="this.media='all'">
   <noscript>
     <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.16">
+  <link rel="stylesheet" href="styles.css?v=3.19">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -81,12 +81,16 @@
 
 <body>
 
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <!-- WhatsApp number: +27726785972 (Khaya Kos owner) -->
 
 
-  <nav id="main-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
     <a href="index.html" class="logo">
-      <span class="logo-badge" aria-hidden="true">🏠</span>
+      <span class="logo-badge" aria-hidden="true">
+        <img src="images/favicon.svg" alt="" width="44" height="44">
+      </span>
       <span class="logo-text">
         <span class="logo-main">Khaya Kos</span>
         <span class="logo-sub">Gazebo Valley</span>
@@ -97,19 +101,20 @@
 
     <button type="button" class="owner-exit-btn" id="owner-exit-btn" hidden>Exit edit mode</button>
 
-    <button class="menu-toggle" id="mobile-menu" aria-label="Toggle navigation" aria-expanded="false">
+    <button type="button" class="menu-toggle" id="mobile-menu" aria-label="Open navigation"
+      aria-expanded="false" aria-controls="nav-list">
       <span class="bar"></span>
       <span class="bar"></span>
       <span class="bar"></span>
     </button>
 
-    <div class="nav-links" id="nav-list" role="navigation">
-      <a href="#market" id="market-nav-link">
+    <div class="nav-links" id="nav-list">
+      <a href="#market" id="market-nav-link" hidden>
         <span class="nav-live-dot" aria-hidden="true"></span>
         <span>Live at the Market</span>
       </a>
       <a href="#menu">Menu</a>
-      <a href="#extras" id="extras-nav-link">Also at the Stall</a>
+      <a href="#extras" id="extras-nav-link" hidden>Also at the Stall</a>
       <a href="#find-us">Find Us</a>
       <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
         class="btn-book-nav" target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
@@ -118,36 +123,46 @@
 
   <div class="nav-backdrop" id="nav-backdrop"></div>
 
-  <header class="hero" id="hero">
-    <img src="images/bunting.svg" alt="" class="hero-bunting" aria-hidden="true">
+  <button type="button" id="owner-login-btn" class="owner-login-btn">
+    <span class="btn-icon" aria-hidden="true">
+      <img src="images/lock.svg" alt="" width="24" height="24">
+    </span>
+    <span class="btn-label">Owner Login</span>
+  </button>
 
-    <div class="hero-inner">
-      <div class="hero-sign">
-        <span class="hero-badge">Alles met liefde gemaak!</span>
-        <p class="hero-eyebrow">Available to order all week</p>
-        <h1 class="hero-title">Freshly made,<br>just for you</h1>
+  <main id="main-content" tabindex="-1">
+    <h1 class="sr-only" id="owner-workspace-title" hidden>Owner edit mode</h1>
 
-        <p class="hero-desc">
-          Browse the full menu below, then order your favourites on WhatsApp.
-        </p>
+    <header class="hero" id="hero">
+      <img src="images/bunting.svg" alt="" class="hero-bunting" aria-hidden="true"
+        width="1200" height="44">
 
-        <div class="hero-cta-group">
-          <a href="#menu" class="btn-secondary">Browse the Full Menu</a>
+      <div class="hero-inner">
+        <div class="hero-sign">
+          <span class="hero-badge" lang="af">Alles met liefde gemaak!</span>
+          <p class="hero-eyebrow">Available to order all week</p>
+          <h1 class="hero-title">Freshly made,<br>just for you</h1>
+
+          <p class="hero-desc">
+            Browse the full menu below, then order your favourites on WhatsApp.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#menu" class="btn-secondary">Browse the Full Menu</a>
+          </div>
+        </div>
+
+        <div id="hero-market-status" class="hero-market-status">
+          <span class="status-kicker">Gazebo Valley · Closed</span>
+          <span class="status-label">Saturday market availability goes live here</span>
+          <span class="status-detail">
+            When the stall opens, you’ll see today’s selection and remaining stock update in real time.
+          </span>
         </div>
       </div>
+    </header>
 
-      <div id="hero-market-status" class="hero-market-status">
-        <span class="status-kicker">Gazebo Valley · Closed</span>
-        <span class="status-label">Saturday market availability goes live here</span>
-        <span class="status-detail">
-          When the stall opens, you’ll see today’s selection and remaining stock update in real time.
-        </span>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <section class="menu-section market-section" id="market">
+    <section class="menu-section market-section" id="market" hidden>
       <div class="container">
         <!-- Entirely rendered live by js/admin/renderer.js — header,
              open/closed state, live banner, and item grid all change
@@ -174,7 +189,7 @@
       </div>
     </section>
 
-    <section class="menu-section" id="extras" style="background: var(--paper);">
+    <section class="menu-section" id="extras" hidden>
       <div class="container">
         <div class="owner-section-toolbar" id="extras-owner-controls" hidden></div>
         <div class="section-header">
@@ -205,7 +220,7 @@
         <div class="map-wrapper">
           <iframe title="Map showing Gazebo Valley, Pearly Beach"
             data-src="https://www.google.com/maps?q=Pearly+Beach+Club,+Pearly+Beach,+Western+Cape&z=17&output=embed"
-            width="100%" height="420" style="border:0; display:block;" loading="lazy" allowfullscreen
+            width="100%" height="420" loading="lazy" allowfullscreen
             referrerpolicy="no-referrer-when-downgrade">
           </iframe>
         </div>
@@ -225,7 +240,7 @@
   <footer>
     <div class="bunting"></div>
     <div class="footer-chalk">
-      <p>Dankie dat jy plaaslik ondersteun — ons waardeer elke besoek en elke glimlag. ♥</p>
+      <p lang="af">Dankie dat jy plaaslik ondersteun — ons waardeer elke besoek en elke glimlag. ♥</p>
     </div>
     <div class="footer-bottom">
       <p>© 2026 Khaya Kos. All rights reserved.</p>
@@ -234,23 +249,20 @@
 
   <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
     class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Order on WhatsApp">
-    <img src="images/whatsapp.svg" alt="" loading="lazy">
+    <img src="images/whatsapp.svg" alt="" width="64" height="64">
   </a>
 
   <!-- ===== OWNER EDIT-MODE UI ===== -->
-  <button type="button" id="owner-login-btn" class="owner-login-btn">
-    <span class="btn-icon" aria-hidden="true">🔒</span>
-    <span class="btn-label">Owner Login</span>
-  </button>
-
   <div id="login-modal-overlay" class="login-modal-overlay" hidden>
-    <div class="login-modal">
-      <h3>Owner Login</h3>
-      <p>Enter the site password to edit products live for everyone.</p>
-      <form id="login-form">
+    <div class="login-modal" role="dialog" aria-modal="true"
+      aria-labelledby="login-modal-title" aria-describedby="login-modal-description login-error">
+      <h3 id="login-modal-title">Owner Login</h3>
+      <p id="login-modal-description">Enter the site password to edit products live for everyone.</p>
+      <form id="login-form" novalidate>
         <label class="login-field-label" for="login-password-input">Site password</label>
-        <input type="password" id="login-password-input" placeholder="Password" autocomplete="current-password">
-        <p class="login-error" id="login-error"></p>
+        <input type="password" id="login-password-input" placeholder="Password" autocomplete="current-password"
+          required aria-describedby="login-error" aria-invalid="false">
+        <p class="login-error" id="login-error" aria-live="polite"></p>
         <div class="login-modal-actions">
           <button type="button" class="login-cancel-btn" id="login-cancel-btn">Cancel</button>
           <button type="submit" class="login-submit-btn">Unlock</button>
@@ -313,7 +325,7 @@
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.16"></script>
+  <script type="module" src="js/main.js?v=3.19"></script>
 </body>
 
 </html>
