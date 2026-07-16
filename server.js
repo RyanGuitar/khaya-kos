@@ -122,6 +122,24 @@ function backfillMissingCategorySettings(seed) {
   if (changed) persistState();
 }
 
+// Menu headings are fixed visitor copy rather than owner-editable content.
+// Refresh only this fixed category from the seed so legacy wording stored in
+// Redis cannot reappear; optional section names remain entirely owner-managed.
+function syncFixedMenuCopy(seed) {
+  const seedMenu = seed.categories.find((category) => category.id === "menu");
+  const savedMenu = state.categories.find((category) => category.id === "menu");
+  if (!seedMenu || !savedMenu) return;
+
+  let changed = false;
+  for (const field of ["eyebrow", "title", "subtitle"]) {
+    if (savedMenu[field] !== seedMenu[field]) {
+      savedMenu[field] = seedMenu[field];
+      changed = true;
+    }
+  }
+  if (changed) persistState();
+}
+
 async function loadState() {
   const seed = await loadSeed();
 
@@ -133,6 +151,7 @@ async function loadState() {
         console.log("✅ Loaded product state from Upstash Redis");
         backfillMissingCategories(seed);
         backfillMissingCategorySettings(seed);
+        syncFixedMenuCopy(seed);
         return;
       }
       console.log("ℹ️  No product state in Redis yet — seeding it from data/products.json");

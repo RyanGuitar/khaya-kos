@@ -444,12 +444,12 @@ function updateMarketStatus(category) {
     const kicker = heroStatus.querySelector(".status-kicker");
     const label = heroStatus.querySelector(".status-label");
     const detail = heroStatus.querySelector(".status-detail");
-    if (kicker) kicker.textContent = isOpen ? "Open now" : "Closed now";
-    if (label) label.textContent = isOpen ? "Gazebo Valley stall is open" : "Saturday stall closed";
+    if (kicker) kicker.textContent = isOpen ? "Open now" : "Gazebo Valley";
+    if (label) label.textContent = isOpen ? "Gazebo Valley stall is open" : "Market closed";
     if (detail) {
       detail.textContent = isOpen
         ? "See today’s selection and remaining stock →"
-        : "Gazebo Valley opens on Saturdays.";
+        : "Market days are on Saturdays.";
     }
   }
 

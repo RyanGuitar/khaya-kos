@@ -188,9 +188,9 @@ test("closed market hides the repeated visitor section and keeps hero status cue
     assert.equal(fixture.section.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.classList.contains("is-live"), false);
     assert.equal(fixture.heroStatus.hidden, false);
-    assert.equal(fixture.kicker.textContent, "Closed now");
-    assert.equal(fixture.label.textContent, "Saturday stall closed");
-    assert.equal(fixture.detail.textContent, "Gazebo Valley opens on Saturdays.");
+    assert.equal(fixture.kicker.textContent, "Gazebo Valley");
+    assert.equal(fixture.label.textContent, "Market closed");
+    assert.equal(fixture.detail.textContent, "Market days are on Saturdays.");
   } finally {
     restoreDocument();
   }
@@ -396,7 +396,7 @@ test("the full menu owner header uses the same compact add-item workflow", () =>
   };
   const controls = { hidden: true, innerHTML: "" };
   const container = createMenuContainer();
-  const menu = { ...weeklyMenu(1), title: "The Full Menu" };
+  const menu = { ...weeklyMenu(1), title: "Made-to-Order Menu" };
 
   globalThis.localStorage = { getItem: () => null };
   globalThis.document = {
@@ -411,7 +411,7 @@ test("the full menu owner header uses the same compact add-item workflow", () =>
     renderCategory(menu, container, true);
     assert.equal(sectionHeader.hidden, true);
     assert.equal(controls.hidden, false);
-    assert.match(controls.innerHTML, /The Full Menu/);
+    assert.match(controls.innerHTML, /Made-to-Order Menu/);
     assert.match(controls.innerHTML, /data-action="jump-to-add"/);
     assert.match(container.innerHTML, /data-action="return-to-section"/);
     assert.doesNotMatch(controls.innerHTML, /toggle-section-visibility|[↑↓→]/);

@@ -3,8 +3,8 @@
     {
       "id": "menu",
       "eyebrow": "Order any day",
-      "title": "The Full Menu",
-      "subtitle": "Everything below is made to order, any day of the week — WhatsApp Khaya Kos to arrange yours. You don't need to wait for Saturday.",
+      "title": "Made-to-Order Menu",
+      "subtitle": "Choose your favourites below, then order on WhatsApp and arrange your collection day.",
       "items": [
         {
           "id": "cappuccino-muffins",
