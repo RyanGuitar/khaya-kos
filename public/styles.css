@@ -1085,6 +1085,13 @@ section {
   background: rgba(166, 58, 46, 0.14);
 }
 
+.market-card-meta .stock-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 0;
+}
+
 /* ----- stock stepper (admin view) ----- */
 .stock-stepper {
   display: flex;

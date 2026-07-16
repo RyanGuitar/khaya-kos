@@ -208,6 +208,13 @@ test("open market exposes stock and live status cues", () => {
 
     assert.match(fixture.container.innerHTML, /market-grid/);
     assert.match(fixture.container.innerHTML, /3 left/);
+    const marketDescriptionIndex = fixture.container.innerHTML.indexOf("Chicken and mushroom");
+    const marketMetaIndex = fixture.container.innerHTML.indexOf('class="card-footer-row market-card-meta"');
+    const marketPriceIndex = fixture.container.innerHTML.indexOf('class="price-tag"');
+    const marketStockIndex = fixture.container.innerHTML.indexOf('class="stock-badge');
+    assert.ok(marketDescriptionIndex < marketMetaIndex);
+    assert.ok(marketMetaIndex < marketPriceIndex);
+    assert.ok(marketPriceIndex < marketStockIndex);
     assert.match(fixture.container.innerHTML, /Today’s stall selection updates in real time as items sell/);
     assert.match(fixture.container.innerHTML, /<strong>Open now<\/strong>/);
     assert.match(fixture.container.innerHTML, /While stock lasts/);

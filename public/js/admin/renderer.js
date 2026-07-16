@@ -379,10 +379,12 @@ function buildMarketCard(categoryId, item, isAdmin) {
         ${adminControls}
       </div>
       <div class="card-body">
-        ${priceMarkup}
+        ${isAdmin ? priceMarkup : ""}
         ${nameFieldMarkup}
         ${descriptionMarkup}
-        ${stockMarkup}
+        ${isAdmin
+          ? stockMarkup
+          : `<div class="card-footer-row market-card-meta">${priceMarkup}${stockMarkup}</div>`}
       </div>
     </div>
   `;
