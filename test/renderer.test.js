@@ -314,6 +314,27 @@ test("owner product controls have visible labels and descriptive button names", 
   }
 });
 
+test("visitor cards balance price and live likes after the description", () => {
+  const previousLocalStorage = globalThis.localStorage;
+  globalThis.localStorage = { getItem: () => null };
+  const container = createMenuContainer();
+
+  try {
+    renderCategory(weeklyMenu(1), container, false);
+
+    const descriptionIndex = container.innerHTML.indexOf("Description 1");
+    const footerIndex = container.innerHTML.indexOf('class="card-footer-row"');
+    const priceIndex = container.innerHTML.indexOf('class="price-tag"');
+    const likeIndex = container.innerHTML.indexOf('data-action="like"');
+    assert.ok(descriptionIndex < footerIndex);
+    assert.ok(footerIndex < priceIndex);
+    assert.ok(priceIndex < likeIndex);
+    assert.doesNotMatch(container.innerHTML, /Item 1 ♡/);
+  } finally {
+    globalThis.localStorage = previousLocalStorage;
+  }
+});
+
 test("market stock controls expose an associated label and product-specific actions", () => {
   const fixture = createMarketPageFixture();
   const restoreDocument = useFakeMarketDocument(fixture);

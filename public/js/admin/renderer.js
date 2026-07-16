@@ -117,7 +117,7 @@ function buildCard(categoryId, item, isAdmin) {
   // over the photo overlay in admin mode, so making it independently
   // clickable there caused clicks meant for it to land on "change photo"
   // instead. Editing happens through the clearly-labelled field below.
-  const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</h3>`;
+  const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)}</h3>`;
 
   return `
     <div class="menu-card revealed" data-item-id="${item.id}">
@@ -127,10 +127,11 @@ function buildCard(categoryId, item, isAdmin) {
         ${adminControls}
       </div>
       <div class="card-body">
-        ${priceMarkup}
+        ${isAdmin ? priceMarkup : ""}
         ${nameFieldMarkup}
         ${descriptionMarkup}
         <div class="card-footer-row">
+          ${isAdmin ? "" : priceMarkup}
           ${buildLikeButton(categoryId, item, isAdmin)}
         </div>
       </div>
@@ -365,7 +366,7 @@ function buildMarketCard(categoryId, item, isAdmin) {
 
   // Read-only preview — see the comment in buildCard() for why this is no
   // longer contentEditable.
-  const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)} ♡</h3>`;
+  const nameMarkup = `<h3 class="card-ribbon ${ribbonClass}">${escapeHtml(item.name)}</h3>`;
 
   const soldOutStamp = soldOut ? `<div class="sold-out-stamp">Sold<br>Out</div>` : "";
 

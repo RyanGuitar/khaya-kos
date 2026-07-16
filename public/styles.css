@@ -762,6 +762,13 @@ section {
   flex-wrap: wrap;
 }
 
+.card-footer-row .price-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 0;
+}
+
 .like-btn {
   display: inline-flex;
   align-items: center;
