@@ -24,9 +24,7 @@ Market stock uses atomic deltas. Rapid changes for one item are debounced for 1.
 
 The market item grid is visible to visitors only while `market.isOpen` is true. The owner must always be able to see it for setup.
 
-Optional product sections use `kind: "optional"` with an authoritative `isVisible` flag. The built-in `extras` section is retained for backward compatibility; owners may rename it, hide it, or add further optional sections. Section add, rename, visibility, and removal mutations are owner-authorized, persisted, and broadcast over WebSockets. Fixed `menu` and `market` categories must not be removable through these controls.
-
-The `extras` category is optional. Its `isVisible` setting is authoritative server state, editable only by the authenticated owner, persisted with product state, and broadcast over WebSockets. Visitors must not see the section or its navigation link while it is hidden; the owner must still see it in edit mode so it can be restored.
+The built-in `extras` category is the one supported optional product section. Its eyebrow, heading, description, items, and authoritative `isVisible` setting are owner-editable, persisted, and broadcast over WebSockets. It starts as a hidden draft, remains visible to the owner in edit mode, and must be explicitly published before visitors see it or its navigation link. Editing its copy or products automatically moves a published section back to draft. Legacy saved optional sections are consolidated into `extras` without dropping their products.
 
 ## Development conventions
 

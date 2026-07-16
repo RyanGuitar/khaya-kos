@@ -74,22 +74,15 @@ test("updates optional section visibility without replacing its products", () =>
   assert.equal(store.getCategory("extras").isVisible, true);
 });
 
-test("renames, adds, and removes optional sections without disturbing fixed categories", () => {
+test("updates every editable optional-section text field without disturbing fixed categories", () => {
   const menu = store.getCategory("menu");
 
+  store.applyCategoryUpdate("extras", "eyebrow", "Also at the Stall");
   store.applyCategoryUpdate("extras", "title", "Toys and Paintings");
+  store.applyCategoryUpdate("extras", "subtitle", "A changing collection every Saturday.");
+
+  assert.equal(store.getCategory("extras").eyebrow, "Also at the Stall");
   assert.equal(store.getCategory("extras").title, "Toys and Paintings");
-
-  store.applyCategoryAdd({
-    id: "section-gifts",
-    kind: "optional",
-    isVisible: true,
-    title: "Gifts",
-    items: [],
-  });
-  assert.equal(store.getCategory("section-gifts").title, "Gifts");
-
-  store.applyCategoryRemove("section-gifts");
-  assert.equal(store.getCategory("section-gifts"), null);
+  assert.equal(store.getCategory("extras").subtitle, "A changing collection every Saturday.");
   assert.equal(store.getCategory("menu"), menu);
 });

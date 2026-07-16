@@ -110,8 +110,8 @@
     {
       "id": "extras",
       "kind": "optional",
-      "isVisible": true,
-      "eyebrow": "Also available",
+      "isVisible": false,
+      "eyebrow": "Also at the Stall",
       "title": "Clothing, Socks & Scarves",
       "subtitle": "Alongside the baking, Khaya Kos also has a small selection of new and preloved clothing, socks and scarves — stock varies, so WhatsApp to check what's currently available.",
       "items": [

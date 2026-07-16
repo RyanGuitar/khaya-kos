@@ -7,6 +7,7 @@ const engineSource = await readFile(new URL("../public/js/admin/engine.js", impo
 const rendererSource = await readFile(new URL("../public/js/admin/renderer.js", import.meta.url), "utf8");
 const syncSource = await readFile(new URL("../public/js/admin/sync.js", import.meta.url), "utf8");
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
+const seedState = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
 
 test("delete confirmation uses an accessible custom dialog", () => {
   assert.match(indexHtml, /id="delete-modal-overlay"[^>]*hidden/);
@@ -103,27 +104,51 @@ test("optional section visibility remains an authenticated server mutation", () 
   assert.match(syncSource, /type: "category-visibility", categoryId, isVisible/);
   assert.match(serverSource, /case "category-visibility"/);
   assert.match(serverSource, /if \(!ws\.isAdmin\)/);
-  assert.match(serverSource, /isOptionalCategory\(category\)/);
+  assert.match(serverSource, /category\?\.id !== "extras"/);
   assert.match(serverSource, /typeof data\.isVisible !== "boolean"/);
 });
 
-test("custom section lifecycle remains owner-authorized and live-synchronized", () => {
-  for (const type of ["category-update", "category-add", "category-remove"]) {
-    assert.match(serverSource, new RegExp(`case "${type}"`));
-  }
+test("the free editor supports one hidden-by-default optional section", () => {
+  const extras = seedState.categories.find((category) => category.id === "extras");
+
+  assert.equal(extras.isVisible, false);
+  assert.equal(extras.eyebrow, "Also at the Stall");
+  assert.doesNotMatch(indexHtml, /custom-sections|owner-section-manager|Add another section/);
+  assert.doesNotMatch(indexHtml, /section-delete-modal-overlay/);
+  assert.doesNotMatch(serverSource, /case "category-add"|case "category-remove"/);
+  assert.doesNotMatch(syncSource, /addCategory\(|removeCategory\(/);
+  assert.match(serverSource, /consolidateOptionalSections\(\)/);
+  assert.match(serverSource, /extras\.isVisible = false/);
+});
+
+test("all optional-section copy is owner-authorized and live-synchronized", () => {
+  assert.match(serverSource, /case "category-update"/);
   assert.match(syncSource, /type: "category-update", categoryId, field, value/);
-  assert.match(syncSource, /type: "category-add"/);
-  assert.match(syncSource, /type: "category-remove", categoryId/);
-  assert.match(serverSource, /optionalCount >= 8/);
-  assert.match(serverSource, /category\.id === "extras"/);
+  assert.match(serverSource, /limits = \{ eyebrow: 80, title: 80, subtitle: 320 \}/);
+  assert.match(rendererSource, /data-field="category-\$\{field\}"/);
+  assert.match(rendererSource, /"Small heading"/);
+  assert.match(rendererSource, /"Main heading"/);
+  assert.match(rendererSource, /"Description"/);
+  assert.match(rendererSource, /Draft — hidden from visitors/);
+  assert.match(rendererSource, /Publish section/);
 });
 
 test("edit mode exposes a focused owner shell and accessible exit control", () => {
   assert.match(indexHtml, /id="edit-mode-label"[^>]*hidden>Owner edit mode/);
   assert.match(indexHtml, /id="owner-exit-btn"[^>]*hidden>Exit edit mode/);
-  assert.match(indexHtml, /id="owner-section-manager"[^>]*hidden/);
-  assert.match(indexHtml, /data-action="add-section"/);
-  assert.match(indexHtml, /id="section-delete-modal-overlay"[^>]*hidden/);
+  assert.doesNotMatch(indexHtml, /data-action="add-section"/);
+  assert.doesNotMatch(indexHtml, /section-delete-modal-overlay/);
+});
+
+test("editing optional content moves it back to draft without routine popup noise", () => {
+  assert.match(engineSource, /function moveOptionalSectionToDraft/);
+  assert.match(engineSource, /sync\.setCategoryVisibility\(categoryId, false\)/);
+  assert.match(serverSource, /function moveExtrasToDraft/);
+  assert.match(serverSource, /moveExtrasToDraft\(category, ws\)/);
+  assert.match(engineSource, /clearNotifications\(\)/);
+  assert.match(engineSource, /if \(isAdmin\) clearNotifications\(\)/);
+  assert.doesNotMatch(engineSource, /Adding new item|New item added|Section heading updated|Edit mode on|Logged out/);
+  assert.match(engineSource, /optional section is now live for visitors/);
 });
 
 test("owner section controls use plain labels without arrow decoration", () => {

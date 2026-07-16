@@ -158,7 +158,7 @@ function buildSectionReturnButton(categoryId) {
 }
 
 function isOptionalCategory(category) {
-  return category?.kind === "optional" || category?.id === "extras";
+  return category?.id === "extras";
 }
 
 function buildOwnerJumpButton(categoryId) {
@@ -175,19 +175,34 @@ function buildVisibilityToggle(category) {
       data-action="toggle-section-visibility" data-category="${category.id}"
       aria-pressed="${isVisible}">
       <span class="owner-state-line"><span class="owner-state-dot" aria-hidden="true"></span>
-        Section ${isVisible ? "visible" : "hidden"}</span>
-      <span class="owner-state-action">${isVisible ? "Hide section" : "Show section"}</span>
+        ${isVisible ? "Published — visible to visitors" : "Draft — hidden from visitors"}</span>
+      <span class="owner-state-action">${isVisible ? "Hide section" : "Publish section"}</span>
     </button>
   `;
 }
 
-function buildCategoryTitleField(category) {
-  const id = fieldId("section-title", category.id);
+function buildCategoryTextField(category, field, label, { multiline = false, maxlength = 80 } = {}) {
+  const id = fieldId(`section-${field}`, category.id);
+  const value = escapeHtml(category[field] || "");
+  const control = multiline
+    ? `<textarea id="${id}" rows="4" maxlength="${maxlength}"
+        data-field="category-${field}" data-category="${category.id}">${value}</textarea>`
+    : `<input id="${id}" type="text" value="${value}" maxlength="${maxlength}"
+        data-field="category-${field}" data-category="${category.id}">`;
   return `
     <div class="owner-section-name-field">
-      <label for="${id}">Section heading</label>
-      <input id="${id}" type="text" value="${escapeHtml(category.title)}" maxlength="80"
-        data-field="category-title" data-category="${category.id}">
+      <label for="${id}">${label}</label>
+      ${control}
+    </div>
+  `;
+}
+
+function buildCategoryCopyFields(category) {
+  return `
+    <div class="owner-section-copy-fields">
+      ${buildCategoryTextField(category, "eyebrow", "Small heading")}
+      ${buildCategoryTextField(category, "title", "Main heading")}
+      ${buildCategoryTextField(category, "subtitle", "Description", { multiline: true, maxlength: 320 })}
     </div>
   `;
 }
@@ -196,45 +211,20 @@ function buildOwnerSectionToolbar(category) {
   const optional = isOptionalCategory(category);
   const visibilityToggle = optional ? buildVisibilityToggle(category) : "";
   const title = optional
-    ? buildCategoryTitleField(category)
+    ? buildCategoryCopyFields(category)
     : `<h2 class="owner-section-title">${escapeHtml(category.title)}</h2>`;
-  const removeButton = category.id !== "extras" && optional
-    ? `<button type="button" class="owner-remove-section-btn" data-action="remove-section"
-         data-category="${category.id}">Remove section</button>`
-    : "";
   return `
     ${title}
     <div class="owner-section-actions">
       ${visibilityToggle}
       ${buildOwnerJumpButton(category.id)}
-      ${removeButton}
     </div>
   `;
 }
 
 function ensureStandardSection(category) {
   if (typeof document === "undefined") return null;
-  let section = document.getElementById(category.id);
-  if (section || !isOptionalCategory(category)) return section;
-
-  const host = document.getElementById("custom-sections");
-  if (!host) return null;
-  section = document.createElement("section");
-  section.id = category.id;
-  section.className = "menu-section optional-section dynamic-category-section";
-  section.innerHTML = `
-    <div class="container">
-      <div class="owner-section-toolbar" id="${category.id}-owner-controls" hidden></div>
-      <div class="section-header">
-        <p class="section-eyebrow"></p>
-        <h2 class="section-title"></h2>
-        <p class="section-subtitle"></p>
-      </div>
-      <div class="menu-grid" id="${category.id}-grid"></div>
-    </div>
-  `;
-  host.appendChild(section);
-  return section;
+  return document.getElementById(category.id);
 }
 
 function updateStandardSection(category, isAdmin) {
@@ -622,18 +612,8 @@ export function renderAll(state, isAdmin) {
   document.body.classList.toggle("admin-mode", isAdmin);
   const editModeLabel = document.getElementById("edit-mode-label");
   const exitButton = document.getElementById("owner-exit-btn");
-  const sectionManager = document.getElementById("owner-section-manager");
   if (editModeLabel) editModeLabel.hidden = !isAdmin;
   if (exitButton) exitButton.hidden = !isAdmin;
-  if (sectionManager) sectionManager.hidden = !isAdmin;
-
-  const activeDynamicIds = new Set(
-    state.categories.filter((category) => category.id !== "extras" && isOptionalCategory(category))
-      .map((category) => category.id)
-  );
-  document.querySelectorAll(".dynamic-category-section").forEach((section) => {
-    if (!activeDynamicIds.has(section.id)) section.remove();
-  });
 
   state.categories.forEach((category) => {
     if (category.id === "market") {

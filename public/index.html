@@ -67,7 +67,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.14">
+  <link rel="stylesheet" href="styles.css?v=3.15">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -178,7 +178,7 @@
       <div class="container">
         <div class="owner-section-toolbar" id="extras-owner-controls" hidden></div>
         <div class="section-header">
-          <p class="section-eyebrow">Also available</p>
+          <p class="section-eyebrow">Also at the Stall</p>
           <h2 class="section-title">Clothing, Socks &amp; Scarves</h2>
           <p class="section-subtitle">
             Alongside the baking, Khaya Kos also has a small selection of new
@@ -189,16 +189,6 @@
 
         <!-- Rendered live by js/admin/renderer.js from product state -->
         <div class="menu-grid" id="extras-grid"></div>
-      </div>
-    </section>
-
-    <div id="custom-sections"></div>
-
-    <section class="owner-section-manager" id="owner-section-manager" hidden>
-      <div class="container">
-        <button type="button" class="owner-add-section-btn" data-action="add-section">
-          Add another section
-        </button>
       </div>
     </section>
 
@@ -286,28 +276,11 @@
     </div>
   </div>
 
-  <div id="section-delete-modal-overlay" class="delete-modal-overlay" hidden>
-    <div class="delete-modal" role="dialog" aria-modal="true"
-      aria-labelledby="section-delete-modal-title" aria-describedby="section-delete-modal-description">
-      <span class="delete-modal-seal" aria-hidden="true">✕</span>
-      <p class="delete-modal-eyebrow">Owner edit</p>
-      <h3 id="section-delete-modal-title">Remove this section?</h3>
-      <p id="section-delete-modal-description" class="delete-modal-description">
-        <strong id="delete-section-name">This section</strong> and all its items will be removed for everyone.
-      </p>
-      <p class="delete-modal-note">This cannot be undone.</p>
-      <div class="delete-modal-actions">
-        <button type="button" class="delete-cancel-btn" id="section-delete-cancel-btn">Keep section</button>
-        <button type="button" class="delete-confirm-btn" id="section-delete-confirm-btn">Remove section</button>
-      </div>
-    </div>
-  </div>
-
   <div id="admin-toast" class="admin-toast"></div>
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.14"></script>
+  <script type="module" src="js/main.js?v=3.15"></script>
 </body>
 
 </html>

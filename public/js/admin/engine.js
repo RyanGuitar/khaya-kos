@@ -1,7 +1,7 @@
 // js/admin/engine.js
-import { store } from "./store.js?v=3.14";
-import { sync } from "./sync.js?v=3.14";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.14";
+import { store } from "./store.js?v=3.15";
+import { sync } from "./sync.js?v=3.15";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.15";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
@@ -9,8 +9,7 @@ let isAdmin = false;
 let pendingPhotoTarget = null; // { categoryId, itemId }
 let pendingDeleteTarget = null; // { categoryId, itemId }
 let deleteTrigger = null;
-let pendingSectionDeleteId = null;
-let sectionDeleteTrigger = null;
+let notificationTimer = null;
 
 function render() {
   renderAll(store.state, isAdmin);
@@ -37,15 +36,24 @@ function renderCategoryById(categoryId) {
   }
 }
 
-function showToast(message) {
+function clearNotifications() {
   const container = document.getElementById("sold-toast-container");
   if (!container) return;
+  clearTimeout(notificationTimer);
+  notificationTimer = null;
+  container.querySelectorAll(".sold-toast").forEach((toast) => toast.remove());
+}
+
+function showToast(message) {
+  const container = document.getElementById("sold-toast-container");
+  if (!container || (isAdmin && document.body.classList.contains("dialog-open"))) return;
+  clearNotifications();
   const toast = document.createElement("div");
   toast.className = "sold-toast notice-toast";
   toast.textContent = message;
   container.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add("show"));
-  setTimeout(() => {
+  notificationTimer = setTimeout(() => {
     toast.classList.remove("show");
     setTimeout(() => toast.remove(), 400);
   }, 2800);
@@ -143,7 +151,8 @@ function spawnAmbientHearts() {
 // quietly changing.
 function showSoldToast(itemName, qty, isSoldOut) {
   const container = document.getElementById("sold-toast-container");
-  if (!container) return;
+  if (!container || (isAdmin && document.body.classList.contains("dialog-open"))) return;
+  if (isAdmin) clearNotifications();
 
   const toast = document.createElement("div");
   toast.className = "sold-toast" + (isSoldOut ? " sold-toast-out" : "");
@@ -163,6 +172,33 @@ function showSoldToast(itemName, qty, isSoldOut) {
     toast.classList.remove("show");
     setTimeout(() => toast.remove(), 400);
   }, 3200);
+}
+
+function moveOptionalSectionToDraft(categoryId, { renderSection = true } = {}) {
+  if (categoryId !== "extras") return false;
+  const category = store.getCategory(categoryId);
+  if (!category || category.isVisible === false) return false;
+
+  store.applyCategoryVisibility(categoryId, false);
+  if (renderSection) {
+    renderCategoryById(categoryId);
+  } else {
+    const button = document.querySelector(
+      '.owner-state-btn[data-action="toggle-section-visibility"][data-category="extras"]'
+    );
+    if (button) {
+      button.classList.remove("is-on");
+      button.classList.add("is-off");
+      button.setAttribute("aria-pressed", "false");
+      const line = button.querySelector(".owner-state-line");
+      const dot = line?.querySelector(".owner-state-dot");
+      if (line && dot) line.replaceChildren(dot, document.createTextNode(" Draft — hidden from visitors"));
+      const action = button.querySelector(".owner-state-action");
+      if (action) action.textContent = "Publish section";
+    }
+  }
+  sync.setCategoryVisibility(categoryId, false);
+  return true;
 }
 
 // The stepper buttons update the visible number instantly on every tap
@@ -249,6 +285,7 @@ function openDeleteModal(categoryId, itemId, trigger) {
 
   pendingDeleteTarget = { categoryId, itemId };
   deleteTrigger = trigger;
+  clearNotifications();
   if (itemName) itemName.textContent = item.name || "This item";
   overlay.hidden = false;
   document.body.classList.add("dialog-open");
@@ -271,45 +308,10 @@ function confirmDelete() {
   const { categoryId, itemId } = pendingDeleteTarget;
 
   closeDeleteModal({ restoreFocus: false });
+  moveOptionalSectionToDraft(categoryId);
   store.applyRemove(categoryId, itemId);
   renderCategoryById(categoryId);
   sync.removeProduct(categoryId, itemId);
-  showToast("Item removed.");
-}
-
-function openSectionDeleteModal(categoryId, trigger) {
-  const category = store.getCategory(categoryId);
-  const overlay = document.getElementById("section-delete-modal-overlay");
-  if (!category || !overlay || category.id === "extras") return;
-
-  pendingSectionDeleteId = categoryId;
-  sectionDeleteTrigger = trigger;
-  const name = document.getElementById("delete-section-name");
-  if (name) name.textContent = category.title || "This section";
-  overlay.hidden = false;
-  document.body.classList.add("dialog-open");
-  document.getElementById("section-delete-cancel-btn")?.focus();
-}
-
-function closeSectionDeleteModal({ restoreFocus = true } = {}) {
-  const overlay = document.getElementById("section-delete-modal-overlay");
-  if (overlay) overlay.hidden = true;
-  document.body.classList.remove("dialog-open");
-
-  const trigger = sectionDeleteTrigger;
-  pendingSectionDeleteId = null;
-  sectionDeleteTrigger = null;
-  if (restoreFocus && trigger?.isConnected) trigger.focus();
-}
-
-function confirmSectionDelete() {
-  if (!pendingSectionDeleteId) return;
-  const categoryId = pendingSectionDeleteId;
-  closeSectionDeleteModal({ restoreFocus: false });
-  store.applyCategoryRemove(categoryId);
-  render();
-  sync.removeCategory(categoryId);
-  showToast("Section removed.");
 }
 
 function leaveEditMode() {
@@ -318,7 +320,6 @@ function leaveEditMode() {
   updateLoginButton();
   render();
   window.scrollTo({ top: 0, behavior: "auto" });
-  showToast("Logged out of edit mode.");
 }
 
 function updateLoginButton() {
@@ -352,22 +353,14 @@ function wireEvents() {
     if (e.target === e.currentTarget) closeDeleteModal();
   });
 
-  document.getElementById("section-delete-cancel-btn")?.addEventListener("click", () => closeSectionDeleteModal());
-  document.getElementById("section-delete-confirm-btn")?.addEventListener("click", confirmSectionDelete);
-  document.getElementById("section-delete-modal-overlay")?.addEventListener("click", (e) => {
-    if (e.target === e.currentTarget) closeSectionDeleteModal();
-  });
-
   document.addEventListener("keydown", (e) => {
-    const itemOverlay = document.getElementById("delete-modal-overlay");
-    const sectionOverlay = document.getElementById("section-delete-modal-overlay");
-    const overlay = !itemOverlay?.hidden ? itemOverlay : !sectionOverlay?.hidden ? sectionOverlay : null;
+    const overlay = document.getElementById("delete-modal-overlay");
+    if (overlay?.hidden) return;
     if (!overlay) return;
 
     if (e.key === "Escape") {
       e.preventDefault();
-      if (overlay === itemOverlay) closeDeleteModal();
-      else closeSectionDeleteModal();
+      closeDeleteModal();
       return;
     }
 
@@ -403,6 +396,7 @@ function wireEvents() {
     try {
       const dataUrl = await fileToCompressedDataUrl(file);
       const { categoryId, itemId } = pendingPhotoTarget;
+      moveOptionalSectionToDraft(categoryId);
       store.applyUpdate(categoryId, itemId, "image", dataUrl);
       patchOrRender(categoryId, itemId);
       sync.updateProduct(categoryId, itemId, "image", dataUrl);
@@ -459,7 +453,7 @@ function wireEvents() {
       if (!section) return;
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       section.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-      section.querySelector(".owner-section-title, .owner-section-name-field input")?.focus({ preventScroll: true });
+      section.querySelector(".owner-section-title, [data-field='category-eyebrow']")?.focus({ preventScroll: true });
       return;
     }
 
@@ -467,25 +461,12 @@ function wireEvents() {
     if (visibilityBtn) {
       const categoryId = visibilityBtn.dataset.category;
       const category = store.getCategory(categoryId);
-      if (!category || (category.kind !== "optional" && category.id !== "extras")) return;
+      if (!category || category.id !== "extras") return;
       const isVisible = category.isVisible === false;
       store.applyCategoryVisibility(categoryId, isVisible);
       renderCategoryById(categoryId);
       sync.setCategoryVisibility(categoryId, isVisible);
-      showToast(isVisible ? "Section is now visible." : "Section is now hidden.");
-      return;
-    }
-
-    const addSectionBtn = e.target.closest('[data-action="add-section"]');
-    if (addSectionBtn) {
-      sync.addCategory();
-      showToast("Adding a new section…");
-      return;
-    }
-
-    const removeSectionBtn = e.target.closest('[data-action="remove-section"]');
-    if (removeSectionBtn) {
-      openSectionDeleteModal(removeSectionBtn.dataset.category, removeSectionBtn);
+      if (isVisible) showToast("The optional section is now live for visitors.");
       return;
     }
 
@@ -498,13 +479,14 @@ function wireEvents() {
 
     const addBtn = e.target.closest('[data-action="add"]');
     if (addBtn) {
+      moveOptionalSectionToDraft(addBtn.dataset.category);
       sync.addProduct(addBtn.dataset.category);
-      showToast("Adding new item…");
       return;
     }
 
     const photoBtn = e.target.closest('[data-action="change-photo"]');
     if (photoBtn) {
+      moveOptionalSectionToDraft(photoBtn.dataset.category, { renderSection: false });
       pendingPhotoTarget = { categoryId: photoBtn.dataset.category, itemId: photoBtn.dataset.item };
       document.getElementById("admin-photo-input")?.click();
       return;
@@ -573,6 +555,13 @@ function wireEvents() {
   // its value visible so the owner never loses track of the live count.
   document.addEventListener("focusin", (e) => {
     const field = e.target.dataset.field;
+    const draftFields = [
+      "name", "description", "price",
+      "category-eyebrow", "category-title", "category-subtitle",
+    ];
+    if (isAdmin && e.target.dataset.category === "extras" && draftFields.includes(field)) {
+      moveOptionalSectionToDraft("extras", { renderSection: false });
+    }
     if (!isAdmin || !["name", "description", "price"].includes(field)) return;
     e.target.dataset.editOriginal = e.target.value;
     e.target.dataset.editTyped = "false";
@@ -588,18 +577,19 @@ function wireEvents() {
   // Delegated commit of price/description/stock/name fields.
   document.addEventListener("change", (e) => {
     const field = e.target.dataset.field;
-    if (field === "category-title") {
+    if (["category-eyebrow", "category-title", "category-subtitle"].includes(field)) {
       const categoryId = e.target.dataset.category;
       const category = store.getCategory(categoryId);
+      const categoryField = field.replace("category-", "");
       const value = e.target.value.trim();
-      if (!category || (category.kind !== "optional" && category.id !== "extras") || !value) {
-        if (category) e.target.value = category.title;
+      if (!category || category.id !== "extras" || !value) {
+        if (category) e.target.value = category[categoryField] || "";
         return;
       }
-      store.applyCategoryUpdate(categoryId, "title", value);
+      moveOptionalSectionToDraft(categoryId, { renderSection: false });
+      store.applyCategoryUpdate(categoryId, categoryField, value);
       renderCategoryById(categoryId);
-      sync.updateCategory(categoryId, "title", value);
-      showToast("Section heading updated.");
+      sync.updateCategory(categoryId, categoryField, value);
       return;
     }
 
@@ -625,6 +615,7 @@ function wireEvents() {
         patchOrRender(category, item); // snap back to the clean stored value
         return;
       }
+      moveOptionalSectionToDraft(category);
       store.applyUpdate(category, item, "name", newValue);
       patchOrRender(category, item);
       sync.updateProduct(category, item, "name", newValue);
@@ -632,6 +623,7 @@ function wireEvents() {
     }
 
     const value = field === "price" ? Number(e.target.value) || 0 : e.target.value;
+    moveOptionalSectionToDraft(category);
     store.applyUpdate(category, item, field, value);
     patchOrRender(category, item);
     sync.updateProduct(category, item, field, value);
@@ -691,7 +683,7 @@ function wireSync() {
   sync.on("category-visibility", (msg) => {
     store.applyCategoryVisibility(msg.categoryId, msg.isVisible);
     renderCategoryById(msg.categoryId);
-    showToast(msg.isVisible ? "Section is now visible." : "Section is now hidden.");
+    if (msg.isVisible) showToast("The optional section is now live for visitors.");
   });
 
   sync.on("category-update", (msg) => {
@@ -699,25 +691,9 @@ function wireSync() {
     renderCategoryById(msg.categoryId);
   });
 
-  sync.on("category-add", (msg) => {
-    store.applyCategoryAdd(msg.category);
-    render();
-    const section = document.getElementById(msg.category.id);
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    section?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    section?.querySelector('[data-field="category-title"]')?.focus({ preventScroll: true });
-    showToast("New section added.");
-  });
-
-  sync.on("category-remove", (msg) => {
-    store.applyCategoryRemove(msg.categoryId);
-    render();
-  });
-
   sync.on("product-add", (msg) => {
     store.applyAdd(msg.categoryId, msg.item);
     renderCategoryById(msg.categoryId);
-    showToast("New item added.");
   });
 
   sync.on("product-remove", (msg) => {
@@ -734,7 +710,6 @@ function wireSync() {
       updateLoginButton();
       render();
       window.scrollTo({ top: 0, behavior: "auto" });
-      showToast("Edit mode on — changes go live for everyone.");
     } else {
       const error = document.getElementById("login-error");
       if (error) error.textContent = "Incorrect password.";

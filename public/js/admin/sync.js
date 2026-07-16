@@ -112,14 +112,6 @@ class Sync {
     this.send({ type: "category-update", categoryId, field, value });
   }
 
-  addCategory() {
-    this.send({ type: "category-add" });
-  }
-
-  removeCategory(categoryId) {
-    this.send({ type: "category-remove", categoryId });
-  }
-
   likeProduct(categoryId, itemId, delta) {
     this.send({ type: "product-like", categoryId, itemId, delta });
   }

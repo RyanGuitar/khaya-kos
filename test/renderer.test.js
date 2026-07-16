@@ -408,11 +408,15 @@ test("optional sections stay available to owners but hide from visitors", () => 
     assert.equal(section.hidden, false);
     assert.equal(sectionHeader.hidden, true);
     assert.equal(controls.hidden, false);
-    assert.match(controls.innerHTML, /Section hidden/);
-    assert.match(controls.innerHTML, /Show section/);
+    assert.match(controls.innerHTML, /Draft — hidden from visitors/);
+    assert.match(controls.innerHTML, /Publish section/);
     assert.match(controls.innerHTML, /Add new item/);
+    assert.match(controls.innerHTML, /data-field="category-eyebrow"/);
     assert.match(controls.innerHTML, /data-field="category-title"/);
-    assert.match(controls.innerHTML, /Section heading/);
+    assert.match(controls.innerHTML, /data-field="category-subtitle"/);
+    assert.match(controls.innerHTML, /Small heading/);
+    assert.match(controls.innerHTML, /Main heading/);
+    assert.match(controls.innerHTML, /Description/);
     assert.match(container.innerHTML, /data-action="return-to-section"/);
     assert.doesNotMatch(controls.innerHTML, /[↑↓→]/);
   } finally {

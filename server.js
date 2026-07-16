@@ -112,7 +112,7 @@ function backfillMissingCategorySettings(seed) {
     const savedCategory = state.categories.find((category) => category.id === seedCategory.id);
     if (!savedCategory) continue;
 
-    for (const setting of ["isVisible", "kind"]) {
+    for (const setting of ["isVisible", "kind", "eyebrow", "title", "subtitle"]) {
       if (Object.hasOwn(seedCategory, setting) && !Object.hasOwn(savedCategory, setting)) {
         savedCategory[setting] = seedCategory[setting];
         changed = true;
@@ -152,6 +152,7 @@ async function loadState() {
         backfillMissingCategories(seed);
         backfillMissingCategorySettings(seed);
         syncFixedMenuCopy(seed);
+        consolidateOptionalSections();
         return;
       }
       console.log("ℹ️  No product state in Redis yet — seeding it from data/products.json");
@@ -161,6 +162,7 @@ async function loadState() {
   }
 
   state = seed;
+  consolidateOptionalSections();
   // If Redis is configured but was empty, seed it immediately so it's
   // the source of truth from the very first request onward.
   if (REDIS_URL && REDIS_TOKEN) {
@@ -200,6 +202,38 @@ function findItem(categoryId, itemId) {
 
 function isOptionalCategory(category) {
   return category?.kind === "optional" || category?.id === "extras";
+}
+
+// Older saved state may contain several optional sections from the previous
+// editor. Preserve every product by folding those items into the one supported
+// optional section, then keep it hidden until the owner has reviewed the
+// consolidated draft and explicitly publishes it.
+function consolidateOptionalSections() {
+  const extras = findCategory("extras");
+  if (!extras) return false;
+
+  const additionalSections = state.categories.filter(
+    (category) => category.id !== "extras" && isOptionalCategory(category)
+  );
+  if (additionalSections.length === 0) return false;
+
+  const extrasItems = Array.isArray(extras.items) ? extras.items : (extras.items = []);
+  const itemIds = new Set(extrasItems.map((item) => item.id));
+  for (const category of additionalSections) {
+    for (const item of category.items || []) {
+      if (itemIds.has(item.id)) item.id = crypto.randomUUID();
+      itemIds.add(item.id);
+      extrasItems.push(item);
+    }
+  }
+
+  state.categories = state.categories.filter(
+    (category) => category.id === "extras" || !isOptionalCategory(category)
+  );
+  extras.isVisible = false;
+  console.log("ℹ️  Consolidated legacy optional sections into the hidden extras draft");
+  persistState();
+  return true;
 }
 
 /* =====================================================
@@ -260,6 +294,13 @@ function broadcast(message, exclude = null) {
   });
 }
 
+function moveExtrasToDraft(category, exclude = null) {
+  if (category?.id !== "extras" || category.isVisible === false) return false;
+  category.isVisible = false;
+  broadcast({ type: "category-visibility", categoryId: "extras", isVisible: false }, exclude);
+  return true;
+}
+
 wss.on("connection", (ws) => {
   ws.isAdmin = false;
   ws.isAlive = true;
@@ -295,9 +336,11 @@ wss.on("connection", (ws) => {
         }
         const { categoryId, itemId, field, value } = data;
         const allowedFields = ["name", "description", "price", "image", "ribbon", "stock"];
+        const category = findCategory(categoryId);
         const item = findItem(categoryId, itemId);
         if (!item || !allowedFields.includes(field)) return;
 
+        moveExtrasToDraft(category, ws);
         item[field] = field === "price" || field === "stock" ? Number(value) || 0 : value;
         persistState();
         broadcast({ type: "product-update", categoryId, itemId, field, value: item[field] }, ws);
@@ -344,7 +387,7 @@ wss.on("connection", (ws) => {
           return;
         }
         const category = findCategory(data.categoryId);
-        if (!isOptionalCategory(category) || typeof data.isVisible !== "boolean") return;
+        if (category?.id !== "extras" || typeof data.isVisible !== "boolean") return;
 
         category.isVisible = data.isVisible;
         persistState();
@@ -362,53 +405,15 @@ wss.on("connection", (ws) => {
           return;
         }
         const category = findCategory(data.categoryId);
-        if (!isOptionalCategory(category) || data.field !== "title" || typeof data.value !== "string") return;
-        const value = data.value.trim().slice(0, 80);
+        const limits = { eyebrow: 80, title: 80, subtitle: 320 };
+        if (category?.id !== "extras" || !Object.hasOwn(limits, data.field) || typeof data.value !== "string") return;
+        const value = data.value.trim().slice(0, limits[data.field]);
         if (!value) return;
 
-        category.title = value;
+        moveExtrasToDraft(category, ws);
+        category[data.field] = value;
         persistState();
-        broadcast({ type: "category-update", categoryId: category.id, field: "title", value }, ws);
-        break;
-      }
-
-      case "category-add": {
-        if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
-          return;
-        }
-        const optionalCount = state.categories.filter(isOptionalCategory).length;
-        if (optionalCount >= 8) {
-          ws.send(JSON.stringify({ type: "error", message: "The maximum of eight optional sections has been reached." }));
-          return;
-        }
-
-        const category = {
-          id: `section-${crypto.randomUUID()}`,
-          kind: "optional",
-          isVisible: true,
-          eyebrow: "Also available",
-          title: "New Section",
-          subtitle: "A changing selection of items from Khaya Kos.",
-          items: [],
-        };
-        state.categories.push(category);
-        persistState();
-        broadcast({ type: "category-add", category });
-        break;
-      }
-
-      case "category-remove": {
-        if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
-          return;
-        }
-        const category = findCategory(data.categoryId);
-        if (!isOptionalCategory(category) || category.id === "extras") return;
-
-        state.categories = state.categories.filter((item) => item.id !== category.id);
-        persistState();
-        broadcast({ type: "category-remove", categoryId: category.id });
+        broadcast({ type: "category-update", categoryId: category.id, field: data.field, value }, ws);
         break;
       }
 
@@ -429,6 +434,7 @@ wss.on("connection", (ws) => {
           ribbon: "navy",
         };
         if (category.id === "market") newItem.stock = null; // "not set up yet" — distinct from 0 ("sold out")
+        moveExtrasToDraft(category, ws);
         category.items.push(newItem);
         persistState();
         broadcast({ type: "product-add", categoryId: data.categoryId, item: newItem });
@@ -467,6 +473,7 @@ wss.on("connection", (ws) => {
         const category = findCategory(data.categoryId);
         if (!category) return;
 
+        moveExtrasToDraft(category, ws);
         category.items = category.items.filter((i) => i.id !== data.itemId);
         persistState();
         broadcast({ type: "product-remove", categoryId: data.categoryId, itemId: data.itemId });

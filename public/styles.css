@@ -2340,12 +2340,7 @@ body.admin-mode .card-img-wrap:hover .admin-photo-overlay {
 
 /* ===== FOCUSED OWNER WORKSPACE ===== */
 .edit-mode-label[hidden],
-.owner-exit-btn[hidden],
-.owner-section-manager[hidden] {
-  display: none;
-}
-
-.dynamic-category-section[hidden] {
+.owner-exit-btn[hidden] {
   display: none;
 }
 
@@ -2409,6 +2404,13 @@ body.admin-mode .menu-section {
   text-align: left;
 }
 
+.owner-section-copy-fields {
+  display: grid;
+  gap: 18px;
+  width: min(100%, 620px);
+  margin: 0 auto;
+}
+
 .owner-section-name-field label {
   display: block;
   margin: 0 0 7px 4px;
@@ -2417,7 +2419,8 @@ body.admin-mode .menu-section {
   font-weight: 800;
 }
 
-.owner-section-name-field input {
+.owner-section-name-field input,
+.owner-section-name-field textarea {
   width: 100%;
   min-height: 58px;
   padding: 10px 16px;
@@ -2431,9 +2434,24 @@ body.admin-mode .menu-section {
   text-align: center;
 }
 
-.owner-remove-section-btn,
-.owner-return-btn,
-.owner-add-section-btn {
+.owner-section-name-field textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.owner-section-name-field [data-field="category-eyebrow"] {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.owner-return-btn {
   min-height: 52px;
   padding: 10px 20px;
   border-radius: 18px;
@@ -2441,20 +2459,6 @@ body.admin-mode .menu-section {
   font-size: 0.92rem;
   font-weight: 800;
   cursor: pointer;
-}
-
-.owner-remove-section-btn {
-  grid-column: 1 / -1;
-  width: min(100%, 350px);
-  justify-self: center;
-  border: 2px solid var(--red-deep);
-  color: var(--red-deep);
-  background: #fff;
-}
-
-.owner-remove-section-btn:hover {
-  color: #fff;
-  background: var(--red-deep);
 }
 
 .owner-section-return {
@@ -2474,34 +2478,6 @@ body.admin-mode .menu-section {
 .owner-return-btn:hover {
   color: #fff;
   background: var(--navy);
-}
-
-.owner-section-manager {
-  padding: 46px 20px 70px;
-  background: #edf4f7;
-}
-
-.owner-section-manager .container {
-  display: flex;
-  justify-content: center;
-}
-
-.owner-add-section-btn {
-  width: min(100%, 440px);
-  min-height: 64px;
-  border: 3px solid var(--gold);
-  color: #fff;
-  background: var(--teal-deep);
-  box-shadow: 0 8px 20px rgba(12, 43, 69, 0.18);
-}
-
-.owner-add-section-btn:hover {
-  background: var(--navy-deep);
-  transform: translateY(-2px);
-}
-
-.optional-section:nth-child(even) {
-  background: var(--paper);
 }
 
 @media screen and (max-width: 640px) {
@@ -2532,10 +2508,6 @@ body.admin-mode .menu-section {
     font-size: 1.35rem;
   }
 
-  .owner-remove-section-btn {
-    grid-column: auto;
-    width: 100%;
-  }
 }
 
 @media screen and (max-width: 480px) {

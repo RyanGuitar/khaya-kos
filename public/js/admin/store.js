@@ -56,12 +56,4 @@ export const store = {
     const category = this.getCategory(categoryId);
     if (category) category[field] = value;
   },
-
-  applyCategoryAdd(category) {
-    if (!this.getCategory(category.id)) this.state.categories.push(category);
-  },
-
-  applyCategoryRemove(categoryId) {
-    this.state.categories = this.state.categories.filter((category) => category.id !== categoryId);
-  },
 };
