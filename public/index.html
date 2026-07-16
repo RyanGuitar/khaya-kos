@@ -67,7 +67,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.15">
+  <link rel="stylesheet" href="styles.css?v=3.16">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -276,11 +276,44 @@
     </div>
   </div>
 
+  <div id="photo-crop-overlay" class="photo-crop-overlay" hidden>
+    <div class="photo-crop-modal" role="dialog" aria-modal="true"
+      aria-labelledby="photo-crop-title" aria-describedby="photo-crop-instructions photo-crop-status">
+      <p class="photo-crop-eyebrow">Owner photo editor</p>
+      <h3 id="photo-crop-title">Frame your product photo</h3>
+      <p id="photo-crop-instructions" class="photo-crop-instructions">
+        Keep the product inside the square. Drag to reposition, then zoom if needed.
+      </p>
+
+      <div class="photo-crop-stage">
+        <canvas id="photo-crop-canvas" width="720" height="720" tabindex="0" role="img"
+          aria-label="Square product photo crop. Use arrow keys to reposition and plus or minus to zoom."></canvas>
+      </div>
+
+      <div class="photo-crop-zoom-row">
+        <button type="button" id="photo-zoom-out" class="photo-zoom-btn" aria-label="Zoom out">−</button>
+        <div class="photo-crop-range-field">
+          <label for="photo-zoom-range">Zoom</label>
+          <input type="range" id="photo-zoom-range" min="1" max="3" value="1" step="0.01">
+        </div>
+        <button type="button" id="photo-zoom-in" class="photo-zoom-btn" aria-label="Zoom in">+</button>
+      </div>
+
+      <p id="photo-crop-status" class="photo-crop-status" aria-live="polite">
+        Preparing your photo…
+      </p>
+      <div class="photo-crop-actions">
+        <button type="button" id="photo-crop-cancel" class="photo-crop-cancel">Cancel</button>
+        <button type="button" id="photo-crop-apply" class="photo-crop-apply">Use this photo</button>
+      </div>
+    </div>
+  </div>
+
   <div id="admin-toast" class="admin-toast"></div>
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.15"></script>
+  <script type="module" src="js/main.js?v=3.16"></script>
 </body>
 
 </html>

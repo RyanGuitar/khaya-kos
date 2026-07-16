@@ -5,8 +5,11 @@ import { readFile } from "node:fs/promises";
 const indexHtml = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
 const engineSource = await readFile(new URL("../public/js/admin/engine.js", import.meta.url), "utf8");
 const rendererSource = await readFile(new URL("../public/js/admin/renderer.js", import.meta.url), "utf8");
+const cropperSource = await readFile(new URL("../public/js/admin/imageCropper.js", import.meta.url), "utf8");
+const imageUtilsSource = await readFile(new URL("../public/js/admin/imageUtils.js", import.meta.url), "utf8");
 const syncSource = await readFile(new URL("../public/js/admin/sync.js", import.meta.url), "utf8");
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
+const stylesSource = await readFile(new URL("../public/styles.css", import.meta.url), "utf8");
 const seedState = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
 
 test("delete confirmation uses an accessible custom dialog", () => {
@@ -27,6 +30,30 @@ test("product deletion no longer invokes the browser-native confirm dialog", () 
 test("owner login and upload controls have accessible names", () => {
   assert.match(indexHtml, /<label class="login-field-label" for="login-password-input">Site password<\/label>/);
   assert.match(indexHtml, /id="admin-photo-input"[^>]*aria-label="Choose a new product photo"/);
+});
+
+test("owner photos use an accessible square crop and zoom workflow", () => {
+  assert.match(indexHtml, /id="photo-crop-overlay"[^>]*hidden/);
+  assert.match(indexHtml, /aria-labelledby="photo-crop-title"/);
+  assert.match(indexHtml, /id="photo-crop-canvas"[^>]*width="720"[^>]*height="720"[^>]*tabindex="0"/);
+  assert.match(indexHtml, /id="photo-zoom-range"[^>]*type="range"|type="range"[^>]*id="photo-zoom-range"/);
+  assert.match(indexHtml, /id="photo-crop-cancel"/);
+  assert.match(indexHtml, /id="photo-crop-apply"/);
+  assert.match(stylesSource, /\.card-img-wrap\s*\{[^}]*aspect-ratio:\s*1\s*\/\s*1/s);
+  assert.match(stylesSource, /#photo-crop-canvas\s*\{[^}]*touch-action:\s*none/s);
+  assert.match(cropperSource, /pointerdown/);
+  assert.match(cropperSource, /pinchSnapshot/);
+  assert.match(cropperSource, /ArrowLeft/);
+});
+
+test("accepted crops are compressed before the existing product update is sent", () => {
+  assert.match(imageUtilsSource, /CROP_OUTPUT_SIZE = 900/);
+  assert.match(imageUtilsSource, /MAX_OUTPUT_BYTES = 350 \* 1024/);
+  assert.match(imageUtilsSource, /canvas\.toDataURL\("image\/jpeg", quality\)/);
+  assert.match(engineSource, /onConfirm\(dataUrl\)/);
+  assert.match(engineSource, /store\.applyUpdate\(categoryId, itemId, "image", dataUrl\)/);
+  assert.match(engineSource, /sync\.updateProduct\(categoryId, itemId, "image", dataUrl\)/);
+  assert.doesNotMatch(engineSource, /fileToCompressedDataUrl/);
 });
 
 test("ordering uses one accessible floating WhatsApp action instead of card-level links", () => {

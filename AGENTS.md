@@ -10,6 +10,8 @@
 - `public/js/admin/sync.js` is the WebSocket transport and reconnect layer.
 - `public/js/admin/engine.js` coordinates optimistic changes, owner controls, stock batching, sync events, and notifications.
 - `public/js/admin/renderer.js` builds category/card markup and performs targeted DOM patches.
+- `public/js/admin/imageCropper.js` provides the dependency-free pointer, pinch, keyboard, and zoom UI for square owner photo crops.
+- `public/js/admin/imageUtils.js` prepares large source photos, owns crop geometry, and exports compressed 900×900 JPEG data URLs.
 - `public/js/admin/stockLogic.js` contains dependency-free stock rules and batching.
 - `public/js/admin/marketLogic.js` contains the market visibility rule.
 - `public/styles.css` owns the rustic visual system and responsive/admin states.
@@ -33,6 +35,7 @@ The built-in `extras` category is the one supported optional product section. It
 - Preserve optimistic UI behavior and targeted DOM patching. Likes and stock should not trigger full-grid renders.
 - Escape owner-editable text before inserting it into HTML.
 - Keep uploaded images compressed before WebSocket transmission and persistence.
+- Keep product media square. Owner uploads must pass through the crop editor; cancelling must not mutate product state.
 - Preserve the distinction between `stock: null` (not configured) and `stock: 0` (sold out).
 - Keep visitor likes public but owner mutations password-gated on the server.
 - Avoid new runtime or development dependencies unless the value clearly outweighs the maintenance cost.

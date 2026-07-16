@@ -1,12 +1,14 @@
 // js/admin/engine.js
-import { store } from "./store.js?v=3.15";
-import { sync } from "./sync.js?v=3.15";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.15";
-import { fileToCompressedDataUrl } from "./imageUtils.js";
+import { store } from "./store.js?v=3.16";
+import { sync } from "./sync.js?v=3.16";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.16";
+import { createImageCropper } from "./imageCropper.js?v=3.16";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 
 let isAdmin = false;
 let pendingPhotoTarget = null; // { categoryId, itemId }
+let pendingPhotoTrigger = null;
+let photoCropper = null;
 let pendingDeleteTarget = null; // { categoryId, itemId }
 let deleteTrigger = null;
 let notificationTimer = null;
@@ -334,6 +336,36 @@ function updateLoginButton() {
 
 /* ===== EVENT WIRING (attached once, delegated) ===== */
 function wireEvents() {
+  photoCropper = createImageCropper({
+    overlay: document.getElementById("photo-crop-overlay"),
+    canvas: document.getElementById("photo-crop-canvas"),
+    zoomRange: document.getElementById("photo-zoom-range"),
+    zoomOutButton: document.getElementById("photo-zoom-out"),
+    zoomInButton: document.getElementById("photo-zoom-in"),
+    cancelButton: document.getElementById("photo-crop-cancel"),
+    applyButton: document.getElementById("photo-crop-apply"),
+    status: document.getElementById("photo-crop-status"),
+    onConfirm(dataUrl) {
+      if (!pendingPhotoTarget) return;
+      const { categoryId, itemId } = pendingPhotoTarget;
+      pendingPhotoTarget = null;
+      pendingPhotoTrigger = null;
+      moveOptionalSectionToDraft(categoryId);
+      store.applyUpdate(categoryId, itemId, "image", dataUrl);
+      patchOrRender(categoryId, itemId);
+      sync.updateProduct(categoryId, itemId, "image", dataUrl);
+      requestAnimationFrame(() => {
+        document.querySelector(
+          `.menu-card[data-item-id="${CSS.escape(itemId)}"] .admin-photo-overlay`
+        )?.focus();
+      });
+    },
+    onCancel() {
+      pendingPhotoTarget = null;
+      pendingPhotoTrigger = null;
+    },
+  });
+
   // Login button toggles modal open, or logs out if already admin.
   document.getElementById("owner-login-btn")?.addEventListener("click", () => {
     if (isAdmin) {
@@ -391,19 +423,20 @@ function wireEvents() {
   document.getElementById("admin-photo-input")?.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     e.target.value = "";
-    if (!file || !pendingPhotoTarget) return;
+    if (!file || !pendingPhotoTarget || !photoCropper) {
+      pendingPhotoTarget = null;
+      pendingPhotoTrigger = null;
+      return;
+    }
 
     try {
-      const dataUrl = await fileToCompressedDataUrl(file);
-      const { categoryId, itemId } = pendingPhotoTarget;
-      moveOptionalSectionToDraft(categoryId);
-      store.applyUpdate(categoryId, itemId, "image", dataUrl);
-      patchOrRender(categoryId, itemId);
-      sync.updateProduct(categoryId, itemId, "image", dataUrl);
+      clearNotifications();
+      await photoCropper.open(file, pendingPhotoTrigger);
     } catch (err) {
       showToast(err.message || "Could not process that photo.");
+      pendingPhotoTarget = null;
+      pendingPhotoTrigger = null;
     }
-    pendingPhotoTarget = null;
   });
 
   // Delegated clicks across the whole document: delete, add, change-photo.
@@ -486,8 +519,8 @@ function wireEvents() {
 
     const photoBtn = e.target.closest('[data-action="change-photo"]');
     if (photoBtn) {
-      moveOptionalSectionToDraft(photoBtn.dataset.category, { renderSection: false });
       pendingPhotoTarget = { categoryId: photoBtn.dataset.category, itemId: photoBtn.dataset.item };
+      pendingPhotoTrigger = photoBtn;
       document.getElementById("admin-photo-input")?.click();
       return;
     }
