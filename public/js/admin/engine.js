@@ -1,7 +1,7 @@
 // js/admin/engine.js
-import { store } from "./store.js?v=3.13";
-import { sync } from "./sync.js?v=3.13";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.13";
+import { store } from "./store.js?v=3.14";
+import { sync } from "./sync.js?v=3.14";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.14";
 import { fileToCompressedDataUrl } from "./imageUtils.js";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 

@@ -1295,32 +1295,6 @@ section {
   display: none;
 }
 
-.map-market-return {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: min(100%, 420px);
-  min-height: 52px;
-  padding: 10px 22px;
-  border: 3px solid var(--gold);
-  border-radius: 22px;
-  color: #fff;
-  background: var(--navy);
-  box-shadow: var(--shadow-sm);
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800;
-  text-align: center;
-  text-decoration: none;
-  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-
-.map-market-return:hover {
-  color: #fff;
-  background: var(--navy-deep);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
 .map-placeholder {
   font-family: 'Kalam', cursive;
   color: var(--ink-soft);
@@ -3343,4 +3317,31 @@ body.admin-mode .menu-card {
     padding: 0;
     justify-content: center;
   }
+}
+
+/* Shared round-trip control between live stock and market directions. */
+.market-route-link {
+  width: min(100%, 680px);
+  min-height: 56px;
+  margin-inline: auto;
+  border: 1px solid rgba(255, 232, 138, 0.78);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(7, 31, 45, 0.92);
+  box-shadow: 0 10px 28px rgba(5, 20, 31, 0.24);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+}
+
+.market-route-link strong {
+  color: var(--gold-light);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+}
+
+.market-route-link:hover {
+  color: #fff;
+  background: var(--navy-deep);
+  border-color: var(--gold-light);
+  box-shadow: 0 13px 32px rgba(5, 20, 31, 0.3);
 }

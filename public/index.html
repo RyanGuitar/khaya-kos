@@ -67,7 +67,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.13">
+  <link rel="stylesheet" href="styles.css?v=3.14">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -220,8 +220,12 @@
           </iframe>
         </div>
         <div class="map-market-return-row">
-          <a href="#market" class="map-market-return" id="map-market-return" hidden>
-            Back to the Live Market
+          <a href="#market" class="market-live-banner market-route-link map-market-return"
+            id="map-market-return" hidden>
+            <span class="live-dot" aria-hidden="true"></span>
+            <strong>Back to the Live Market</strong>
+            <span class="market-live-divider" aria-hidden="true"></span>
+            <span>See today’s stock</span>
           </a>
         </div>
       </div>
@@ -303,7 +307,7 @@
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.13"></script>
+  <script type="module" src="js/main.js?v=3.14"></script>
 </body>
 
 </html>

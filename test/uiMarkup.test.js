@@ -92,9 +92,11 @@ test("the map does not repeat location details already stated in its heading", (
 
 test("the live market links to the map and provides a state-controlled return path", () => {
   assert.match(indexHtml, /id="map-market-return"[^>]*hidden/);
-  assert.match(indexHtml, /href="#market"[^>]*class="map-market-return"/);
-  assert.match(rendererSource, /href="#find-us" class="market-live-banner"/);
+  assert.match(indexHtml, /href="#market"[^>]*class="[^"]*map-market-return[^"]*"/);
+  assert.match(rendererSource, /href="#find-us" class="market-live-banner market-route-link"/);
   assert.match(rendererSource, /mapReturn\.hidden = !isOpen/);
+  assert.match(indexHtml, /class="market-live-banner market-route-link map-market-return"/);
+  assert.match(indexHtml, /<span class="live-dot" aria-hidden="true"><\/span>\s*<strong>Back to the Live Market<\/strong>/);
 });
 
 test("optional section visibility remains an authenticated server mutation", () => {

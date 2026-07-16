@@ -417,7 +417,7 @@ function buildOwnerMarketToolbar(category) {
 function buildMarketBanner(isOpen) {
   if (!isOpen) return "";
   return `
-    <a href="#find-us" class="market-live-banner"
+    <a href="#find-us" class="market-live-banner market-route-link"
       aria-label="Market open at Gazebo Valley. View map and directions">
       <span class="live-dot" aria-hidden="true"></span>
       <strong>Open now</strong>
