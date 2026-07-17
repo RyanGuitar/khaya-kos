@@ -557,16 +557,6 @@ function wireEvents() {
       menuDisclosureBtn.textContent = nextExpanded
         ? "Show fewer"
         : `See all ${totalItems} menu items`;
-
-      if (!nextExpanded) {
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        requestAnimationFrame(() => {
-          document.getElementById("menu")?.scrollIntoView({
-            behavior: reduceMotion ? "auto" : "smooth",
-            block: "start",
-          });
-        });
-      }
       return;
     }
 
