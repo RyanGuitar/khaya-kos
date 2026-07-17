@@ -210,7 +210,7 @@ test("closed market hides the repeated visitor section and keeps hero status cue
     assert.equal(fixture.heroStatus.hidden, false);
     assert.equal(fixture.mapReturn.hidden, true);
     assert.equal(fixture.kicker.textContent, "Gazebo Valley · Closed");
-    assert.equal(fixture.label.textContent, "Saturday market availability goes live here");
+    assert.equal(fixture.label.textContent, "Live stock updates appear here every Saturday");
     assert.equal(
       fixture.detail.textContent,
       "When the stall opens, you’ll see today’s selection and remaining stock update in real time."

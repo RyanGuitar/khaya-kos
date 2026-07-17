@@ -13,7 +13,7 @@ function escapeHtml(str = "") {
 }
 
 function formatPrice(price) {
-  return price > 0 ? `R${price}` : "Ask in-store";
+  return price > 0 ? `R${price}` : "Ask on WhatsApp";
 }
 
 function fieldId(field, itemId) {
@@ -460,7 +460,7 @@ function updateMarketStatus(category) {
     if (label) {
       label.textContent = isOpen
         ? "Gazebo Valley stall is open"
-        : "Saturday market availability goes live here";
+        : "Live stock updates appear here every Saturday";
     }
     if (detail) {
       detail.textContent = isOpen

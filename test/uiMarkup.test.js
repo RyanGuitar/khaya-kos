@@ -209,7 +209,7 @@ test("landing banner focuses exclusively on all-week made-to-order food", () => 
   assert.match(indexHtml, /<div id="hero-market-status" class="hero-market-status">/);
   assert.doesNotMatch(indexHtml, /<a href="#market" id="hero-market-status"/);
   assert.match(indexHtml, /<span class="status-kicker">Gazebo Valley · Closed<\/span>/);
-  assert.match(indexHtml, /Saturday market availability goes live here/);
+  assert.match(indexHtml, /Live stock updates appear here every Saturday/);
   assert.match(indexHtml, /remaining stock update in real time/);
   assert.match(indexHtml, /<p class="section-eyebrow">Available to order all week<\/p>/);
   assert.match(indexHtml, /<h2 class="section-title">The Full Menu<\/h2>/);
@@ -310,4 +310,12 @@ test("owner section controls use plain labels without arrow decoration", () => {
   assert.match(indexHtml, /id="menu-owner-controls"/);
   assert.match(indexHtml, /id="extras-owner-controls"/);
   assert.doesNotMatch(engineSource, /Show fewer ↑|menu items ↓/);
+});
+
+test("collapsing the weekly menu with Show fewer does not scroll the page", () => {
+  const toggleHandler = engineSource.slice(
+    engineSource.indexOf('const menuDisclosureBtn = e.target.closest(\'[data-action="toggle-weekly-menu"]\')'),
+    engineSource.indexOf('const menuDisclosureBtn = e.target.closest(\'[data-action="toggle-weekly-menu"]\')') + 900
+  );
+  assert.doesNotMatch(toggleHandler, /scrollIntoView/);
 });
