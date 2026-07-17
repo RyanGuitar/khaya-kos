@@ -91,13 +91,18 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
   assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
 });
 
-test("section routes use one fixed-nav offset and fill the visible viewport", () => {
+test("section routes use one fixed-nav offset, a stable viewport unit, and fill the visible viewport", () => {
   assert.match(responsiveContract, /html\s*\{[^}]*scroll-padding-top:\s*var\(--nav-safe-height\)/s);
   assert.doesNotMatch(stylesSource, /scroll-margin-top/);
-  assert.match(responsiveContract, /\.hero\s*\{[^}]*min-height:\s*100dvh/s);
+  // svh (not dvh) on purpose: dvh recalculates live as the mobile browser
+  // chrome shows/hides on scroll, so section heights - and the gaps below
+  // them - visibly grow and shrink while scrolling. svh is fixed at the
+  // small/chrome-visible viewport, so it never re-triggers layout on scroll.
+  assert.doesNotMatch(stylesSource, /\bdvh\b/);
+  assert.match(responsiveContract, /\.hero\s*\{[^}]*min-height:\s*100svh/s);
   assert.match(
     responsiveContract,
-    /\.menu-section,\s*\.market-section,\s*\.map-section\s*\{[^}]*min-height:\s*calc\(100dvh - var\(--nav-safe-height\)\)/s
+    /\.menu-section,\s*\.market-section,\s*\.map-section\s*\{[^}]*min-height:\s*calc\(100svh - var\(--nav-safe-height\)\)/s
   );
 });
 
