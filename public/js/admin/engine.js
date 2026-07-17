@@ -122,6 +122,27 @@ function celebrateMarketOpen() {
   document.body.appendChild(fragment);
 }
 
+function isAnyModalOpen() {
+  return ["login-modal-overlay", "delete-modal-overlay", "photo-crop-overlay"].some((id) => {
+    const overlay = document.getElementById(id);
+    return overlay && !overlay.hidden;
+  });
+}
+
+function scrollToLiveMarket() {
+  // Don't yank the page out from under someone mid-dialog (e.g. an owner
+  // logged in on another tab, or someone with the photo cropper open).
+  if (isAnyModalOpen()) return;
+
+  const target = document.getElementById("market");
+  if (!target || target.hidden) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  requestAnimationFrame(() => {
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  });
+}
+
 // ===== LIKES =====
 const LIKED_ITEMS_KEY = "khayaKosLikedItems";
 
@@ -828,7 +849,10 @@ function wireSync() {
     }
     if (msg.categoryId === "market") {
       showToast(msg.isOpen ? "📣 The market just opened!" : "The market has closed.");
-      if (msg.isOpen) celebrateMarketOpen();
+      if (msg.isOpen) {
+        celebrateMarketOpen();
+        scrollToLiveMarket();
+      }
     }
   });
 

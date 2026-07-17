@@ -319,3 +319,18 @@ test("collapsing the weekly menu with Show fewer does not scroll the page", () =
   );
   assert.doesNotMatch(toggleHandler, /scrollIntoView/);
 });
+
+test("the market opening scrolls connected visitors to it, unless a modal is open or motion is reduced", () => {
+  assert.match(engineSource, /function scrollToLiveMarket\(\)/);
+  assert.match(engineSource, /function isAnyModalOpen\(\)/);
+  assert.match(
+    engineSource,
+    /"login-modal-overlay", "delete-modal-overlay", "photo-crop-overlay"/
+  );
+  assert.match(engineSource, /if \(isAnyModalOpen\(\)\) return;/);
+  assert.match(engineSource, /prefers-reduced-motion: reduce/);
+  assert.match(
+    engineSource,
+    /if \(msg\.isOpen\) \{\s*celebrateMarketOpen\(\);\s*scrollToLiveMarket\(\);\s*\}/
+  );
+});
