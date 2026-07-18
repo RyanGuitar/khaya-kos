@@ -1,12 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c49a63"/>
-      <stop offset="100%" stop-color="#dcbb8a"/>
-    </linearGradient>
-  </defs>
-  <rect width="400" height="300" fill="url(#g)"/>
-  <circle cx="200" cy="128" r="72" fill="#ffffff" fill-opacity="0.12"/>
-  <text x="200" y="150" font-size="70" text-anchor="middle" dominant-baseline="middle">📷</text>
-  <text x="200" y="205" font-size="20" text-anchor="middle" fill="#3b2c1f" font-family="sans-serif" font-weight="700">Add a photo</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><defs><linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#c49a63"/><stop offset="100%" stop-color="#dcbb8a"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/><circle cx="200" cy="128" r="72" fill="#fff" fill-opacity=".12"/><text x="200" y="150" dominant-baseline="middle" font-size="70" text-anchor="middle">📷</text><text x="200" y="205" fill="#3b2c1f" font-family="sans-serif" font-size="20" font-weight="700" text-anchor="middle">Add a photo</text></svg>
