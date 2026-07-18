@@ -328,36 +328,49 @@ section {
   box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4) !important;
 }
 
-.nav-actions {
+.card-actions {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  justify-content: flex-end;
+  margin-bottom: 16px;
 }
 
-.nav-share-btn {
-  display: flex;
+.share-chip {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
+  gap: 7px;
   min-height: 44px;
-  padding: 0;
-  margin-left: 4px;
-  border-radius: 12px;
-  background: none;
-  border: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2px solid var(--kraft-deep);
+  background: var(--paper);
+  color: var(--navy);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.84rem;
   cursor: pointer;
-  transition: background var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 
-.nav-share-btn:hover {
+.share-chip:hover {
   background: var(--kraft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
-.nav-share-btn img {
-  width: 22px;
-  height: 22px;
+.share-chip img {
+  width: 16px;
+  height: 16px;
+}
+
+.hero-market-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.market-share-chip {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .menu-toggle {
@@ -2633,7 +2646,6 @@ body.admin-mode .hero,
 body.admin-mode .map-section,
 body.admin-mode footer,
 body.admin-mode .whatsapp-float,
-body.admin-mode .nav-share-btn,
 body.admin-mode .menu-toggle,
 body.admin-mode .nav-links,
 body.admin-mode .nav-backdrop,

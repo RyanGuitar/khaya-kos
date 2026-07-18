@@ -196,9 +196,19 @@ test("the logo uses its complete visible text as its accessible name", () => {
 });
 
 test("landing banner focuses exclusively on all-week made-to-order food", () => {
-  const banner = indexHtml.match(
-    /<div class="hero-sign">([\s\S]*?)<\/div>\s*<div id="hero-market-status"/
-  )?.[1] || "";
+  const heroSignStart = indexHtml.indexOf('<div class="hero-sign">');
+  const heroMarketBlockStart = indexHtml.indexOf('<div class="hero-market-block">');
+  const heroSignRaw = indexHtml.slice(heroSignStart, heroMarketBlockStart);
+  // Strip the site-share button's card-actions block before checking for
+  // forbidden wording: its data-share-text legitimately mentions "market"
+  // as invisible OS-share-sheet metadata, never as visible page copy, so
+  // it isn't a violation of the "hero-sign stays market-free" rule below.
+  const cardActionsStart = heroSignRaw.indexOf('<div class="card-actions">');
+  const cardActionsEnd = heroSignRaw.indexOf("</div>", cardActionsStart) + "</div>".length;
+  const banner = (heroSignRaw.slice(0, cardActionsStart) + heroSignRaw.slice(cardActionsEnd)).replace(
+    /<!--[\s\S]*?-->/g,
+    ""
+  );
 
   assert.match(indexHtml, /<span class="logo-sub">Gazebo Valley<\/span>/);
   assert.match(banner, /Available to order all week/);
@@ -336,12 +346,34 @@ test("the market opening scrolls connected visitors to it, unless a modal is ope
   );
 });
 
-test("the header carries a share button with real share-sheet data, hidden in owner edit mode", () => {
-  assert.match(indexHtml, /id="nav-share-btn"/);
+test("the hero card carries a site share button, hidden in owner edit mode via the whole .hero", () => {
+  assert.doesNotMatch(indexHtml, /id="nav-share-btn"/);
+  assert.doesNotMatch(stylesSource, /\.nav-share-btn|\.nav-actions/);
+  assert.match(indexHtml, /class="share-chip" aria-label="Share Khaya Kos"/);
   assert.match(indexHtml, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/"/);
   assert.match(indexHtml, /data-share-title="Khaya Kos \| Fresh Food Made to Order — Pearly Beach"/);
   assert.match(indexHtml, /data-share-text="[^"]*real time[^"]*"/);
-  assert.match(stylesSource, /body\.admin-mode \.nav-share-btn/);
+  assert.match(stylesSource, /body\.admin-mode \.hero,/);
+});
+
+test("the market share button lives outside #hero-market-status so it survives the market opening", () => {
+  const heroSection = indexHtml.slice(indexHtml.indexOf('<header class="hero"'), indexHtml.indexOf("</header>"));
+  const marketBlock = heroSection.slice(heroSection.indexOf('class="hero-market-block"'));
+  assert.match(marketBlock, /id="hero-market-status"/);
+  assert.match(marketBlock, /class="share-chip market-share-chip"/);
+  assert.match(marketBlock, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/#market"/);
+  // The share chip must sit AFTER #hero-market-status's closing tag, i.e. as
+  // a sibling, not nested inside the element that gets hidden on open.
+  const statusCloseIndex = marketBlock.indexOf("</div>");
+  const chipIndex = marketBlock.indexOf("market-share-chip");
+  assert.ok(
+    statusCloseIndex !== -1 && chipIndex > statusCloseIndex,
+    "expected the market share chip to appear after #hero-market-status closes"
+  );
+  // Confirms the assumption this test is built on: renderer.js really does
+  // hide #hero-market-status itself (not some wrapper) when the market
+  // opens, which is exactly why the chip has to live outside it.
+  assert.match(rendererSource, /heroStatus\.hidden = isOpen/);
 });
 
 test("the share module tries navigator.share first and falls back to copying the link", () => {

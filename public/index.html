@@ -103,32 +103,23 @@
 
     <button type="button" class="owner-exit-btn" id="owner-exit-btn" hidden>Exit edit mode</button>
 
-    <div class="nav-actions">
-      <button type="button" class="nav-share-btn" id="nav-share-btn" aria-label="Share Khaya Kos"
-        data-share-url="https://khaya-kos.onrender.com/"
-        data-share-title="Khaya Kos | Fresh Food Made to Order — Pearly Beach"
-        data-share-text="Khaya Kos — fresh muffins, pies, samosas and more, made to order. The menu and live market stock update in real time, so you always see what's actually available.">
-        <img src="images/share.svg" alt="" width="22" height="22">
-      </button>
+    <button type="button" class="menu-toggle" id="mobile-menu" aria-label="Open navigation"
+      aria-expanded="false" aria-controls="nav-list">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
 
-      <button type="button" class="menu-toggle" id="mobile-menu" aria-label="Open navigation"
-        aria-expanded="false" aria-controls="nav-list">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </button>
-
-      <div class="nav-links" id="nav-list">
-        <a href="#market" id="market-nav-link" hidden>
-          <span class="nav-live-dot" aria-hidden="true"></span>
-          <span>Live at the Market</span>
-        </a>
-        <a href="#menu">Menu</a>
-        <a href="#extras" id="extras-nav-link" hidden>Also at the Stall</a>
-        <a href="#find-us">Find Us</a>
-        <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
-          class="btn-book-nav" target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
-      </div>
+    <div class="nav-links" id="nav-list">
+      <a href="#market" id="market-nav-link" hidden>
+        <span class="nav-live-dot" aria-hidden="true"></span>
+        <span>Live at the Market</span>
+      </a>
+      <a href="#menu">Menu</a>
+      <a href="#extras" id="extras-nav-link" hidden>Also at the Stall</a>
+      <a href="#find-us">Find Us</a>
+      <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
+        class="btn-book-nav" target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
     </div>
   </nav>
 
@@ -150,6 +141,16 @@
 
       <div class="hero-inner">
         <div class="hero-sign">
+          <div class="card-actions">
+            <button type="button" class="share-chip" aria-label="Share Khaya Kos"
+              data-share-url="https://khaya-kos.onrender.com/"
+              data-share-title="Khaya Kos | Fresh Food Made to Order — Pearly Beach"
+              data-share-text="Khaya Kos — fresh muffins, pies, samosas and more, made to order. The menu and live market stock update in real time, so you always see what's actually available.">
+              <img src="images/share.svg" alt="" width="16" height="16">
+              <span>Share</span>
+            </button>
+          </div>
+
           <span class="hero-badge" lang="af">Alles met liefde gemaak!</span>
           <p class="hero-eyebrow">Available to order all week</p>
           <h1 class="hero-title">Freshly made,<br>just for you</h1>
@@ -163,12 +164,28 @@
           </div>
         </div>
 
-        <div id="hero-market-status" class="hero-market-status">
-          <span class="status-kicker">Gazebo Valley · Closed</span>
-          <span class="status-label">Live stock updates appear here every Saturday</span>
-          <span class="status-detail">
-            When the stall opens, you’ll see today’s selection and remaining stock update in real time.
-          </span>
+        <!-- .hero-market-block never hides, unlike #hero-market-status
+             below (JS sets that element's own `hidden` to true once the
+             market opens - the live #market section further down takes
+             over as the real view). Keeping the share button one level
+             up, as a sibling instead of a child, means it keeps working
+             to share the market link even after the market opens. -->
+        <div class="hero-market-block">
+          <div id="hero-market-status" class="hero-market-status">
+            <span class="status-kicker">Gazebo Valley · Closed</span>
+            <span class="status-label">Live stock updates appear here every Saturday</span>
+            <span class="status-detail">
+              When the stall opens, you’ll see today’s selection and remaining stock update in real time.
+            </span>
+          </div>
+
+          <button type="button" class="share-chip market-share-chip" aria-label="Share the Saturday market"
+            data-share-url="https://khaya-kos.onrender.com/#market"
+            data-share-title="Khaya Kos — Saturday Market at Gazebo Valley"
+            data-share-text="Live stock updates from our Saturday market stall at Gazebo Valley, Pearly Beach — check what's available in real time.">
+            <img src="images/share.svg" alt="" width="16" height="16">
+            <span>Share</span>
+          </button>
         </div>
       </div>
     </header>
