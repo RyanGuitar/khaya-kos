@@ -87,9 +87,16 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
   assert.match(responsiveContract, /body\.admin-mode \.admin-photo-overlay\s*\{[^}]*align-items:\s*center[^}]*justify-content:\s*flex-end/s);
   assert.match(notFoundHtml, /viewport-fit=cover/);
   assert.doesNotMatch(notFoundHtml, /user-scalable=no|maximum-scale/);
-  assert.match(notFoundHtml, /styles\.css\?v=3\.19/);
-  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.19"/);
+  assert.match(notFoundHtml, /styles\.css\?v=3\.20/);
+  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.20"/);
   assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
+});
+
+test("browser code and styles use the current cache-busted release and revalidate", () => {
+  assert.match(indexHtml, /href="styles\.css\?v=3\.20"/);
+  assert.match(indexHtml, /src="js\/main\.js\?v=3\.20"/);
+  assert.match(serverSource, /\["\.css", "\.js"\]\.includes\(path\.extname\(filePath\)\)/);
+  assert.match(serverSource, /Cache-Control", "public, max-age=0, must-revalidate"/);
 });
 
 test("section routes use one fixed-nav offset, a stable viewport unit, and fill the visible viewport", () => {

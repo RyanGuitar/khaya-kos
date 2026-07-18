@@ -273,8 +273,18 @@ app.get(["/", "/index.html"], renderIndex);
 // for an image that hasn't changed at all, which costs real data on a
 // mobile connection. Photos the owner uploads are embedded directly as
 // base64 in the product data, not served as files, so they're unaffected
-// by this either way.
-app.use(express.static(PUBLIC_DIR, { index: false, maxAge: "7d" }));
+// by this either way. CSS and JavaScript must revalidate: the HTML and its
+// behaviour/styles are deployed together, and serving a week-old script or
+// stylesheet with fresh markup can leave controls unstyled or inert.
+app.use(express.static(PUBLIC_DIR, {
+  index: false,
+  maxAge: "7d",
+  setHeaders(res, filePath) {
+    if ([".css", ".js"].includes(path.extname(filePath))) {
+      res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    }
+  }
+}));
 
 // Catch-all: anything that didn't match a route or a static file gets the
 // branded 404 page instead of Express's raw default error text.

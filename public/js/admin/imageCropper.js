@@ -5,7 +5,7 @@ import {
   exportSquareCrop,
   prepareImageForCrop,
   zoomCropAtPoint,
-} from "./imageUtils.js?v=3.19";
+} from "./imageUtils.js?v=3.20";
 
 const MAX_ZOOM_RATIO = 3;
 const ZOOM_STEP = 0.1;
