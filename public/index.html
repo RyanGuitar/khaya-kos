@@ -69,7 +69,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.20">
+  <link rel="stylesheet" href="styles.css?v=3.21">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -164,28 +164,22 @@
           </div>
         </div>
 
-        <!-- .hero-market-block never hides, unlike #hero-market-status
-             below (JS sets that element's own `hidden` to true once the
-             market opens - the live #market section further down takes
-             over as the real view). Keeping the share button one level
-             up, as a sibling instead of a child, means it keeps working
-             to share the market link even after the market opens. -->
         <div class="hero-market-block">
           <div id="hero-market-status" class="hero-market-status">
+            <button type="button" class="share-chip market-share-chip" aria-label="Share the Saturday market"
+              data-share-url="https://khaya-kos.onrender.com/#market"
+              data-share-title="Khaya Kos — Saturday Market at Gazebo Valley"
+              data-share-text="Live stock updates from our Saturday market stall at Gazebo Valley, Pearly Beach — check what's available in real time.">
+              <img src="images/share.svg" alt="" width="16" height="16">
+              <span>Share</span>
+            </button>
+
             <span class="status-kicker">Gazebo Valley · Closed</span>
             <span class="status-label">Live stock updates appear here every Saturday</span>
             <span class="status-detail">
               When the stall opens, you’ll see today’s selection and remaining stock update in real time.
             </span>
           </div>
-
-          <button type="button" class="share-chip market-share-chip" aria-label="Share the Saturday market"
-            data-share-url="https://khaya-kos.onrender.com/#market"
-            data-share-title="Khaya Kos — Saturday Market at Gazebo Valley"
-            data-share-text="Live stock updates from our Saturday market stall at Gazebo Valley, Pearly Beach — check what's available in real time.">
-            <img src="images/share.svg" alt="" width="16" height="16">
-            <span>Share</span>
-          </button>
         </div>
       </div>
     </header>
@@ -353,7 +347,7 @@
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.20"></script>
+  <script type="module" src="js/main.js?v=3.21"></script>
 </body>
 
 </html>

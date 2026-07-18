@@ -87,14 +87,14 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
   assert.match(responsiveContract, /body\.admin-mode \.admin-photo-overlay\s*\{[^}]*align-items:\s*center[^}]*justify-content:\s*flex-end/s);
   assert.match(notFoundHtml, /viewport-fit=cover/);
   assert.doesNotMatch(notFoundHtml, /user-scalable=no|maximum-scale/);
-  assert.match(notFoundHtml, /styles\.css\?v=3\.20/);
-  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.20"/);
+  assert.match(notFoundHtml, /styles\.css\?v=3\.21/);
+  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.21"/);
   assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
 });
 
 test("browser code and styles use the current cache-busted release and revalidate", () => {
-  assert.match(indexHtml, /href="styles\.css\?v=3\.20"/);
-  assert.match(indexHtml, /src="js\/main\.js\?v=3\.20"/);
+  assert.match(indexHtml, /href="styles\.css\?v=3\.21"/);
+  assert.match(indexHtml, /src="js\/main\.js\?v=3\.21"/);
   assert.match(serverSource, /\["\.css", "\.js"\]\.includes\(path\.extname\(filePath\)\)/);
   assert.match(serverSource, /Cache-Control", "public, max-age=0, must-revalidate"/);
 });
@@ -360,27 +360,19 @@ test("the hero card carries a site share button, hidden in owner edit mode via t
   assert.match(indexHtml, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/"/);
   assert.match(indexHtml, /data-share-title="Khaya Kos \| Fresh Food Made to Order — Pearly Beach"/);
   assert.match(indexHtml, /data-share-text="[^"]*real time[^"]*"/);
+  assert.match(stylesSource, /\.card-actions\s*\{[^}]*justify-content:\s*flex-start/s);
   assert.match(stylesSource, /body\.admin-mode \.hero,/);
 });
 
-test("the market share button lives outside #hero-market-status so it survives the market opening", () => {
+test("the market share button sits inside the market status card and aligns left", () => {
   const heroSection = indexHtml.slice(indexHtml.indexOf('<header class="hero"'), indexHtml.indexOf("</header>"));
-  const marketBlock = heroSection.slice(heroSection.indexOf('class="hero-market-block"'));
-  assert.match(marketBlock, /id="hero-market-status"/);
-  assert.match(marketBlock, /class="share-chip market-share-chip"/);
-  assert.match(marketBlock, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/#market"/);
-  // The share chip must sit AFTER #hero-market-status's closing tag, i.e. as
-  // a sibling, not nested inside the element that gets hidden on open.
-  const statusCloseIndex = marketBlock.indexOf("</div>");
-  const chipIndex = marketBlock.indexOf("market-share-chip");
-  assert.ok(
-    statusCloseIndex !== -1 && chipIndex > statusCloseIndex,
-    "expected the market share chip to appear after #hero-market-status closes"
-  );
-  // Confirms the assumption this test is built on: renderer.js really does
-  // hide #hero-market-status itself (not some wrapper) when the market
-  // opens, which is exactly why the chip has to live outside it.
-  assert.match(rendererSource, /heroStatus\.hidden = isOpen/);
+  const statusStart = heroSection.indexOf('id="hero-market-status"');
+  const statusEnd = heroSection.indexOf("</div>", statusStart);
+  const statusCard = heroSection.slice(statusStart, statusEnd);
+  assert.match(statusCard, /class="share-chip market-share-chip"/);
+  assert.match(statusCard, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/#market"/);
+  assert.ok(statusCard.indexOf("market-share-chip") < statusCard.indexOf("status-kicker"));
+  assert.match(stylesSource, /\.market-share-chip\s*\{[^}]*justify-self:\s*start/s);
 });
 
 test("the share module tries navigator.share first and falls back to copying the link", () => {

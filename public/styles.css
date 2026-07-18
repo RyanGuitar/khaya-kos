@@ -330,7 +330,7 @@ section {
 
 .card-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-bottom: 16px;
 }
 
@@ -370,6 +370,8 @@ section {
 }
 
 .market-share-chip {
+  justify-self: start;
+  margin-bottom: 4px;
   background: rgba(255, 255, 255, 0.92);
 }
 
