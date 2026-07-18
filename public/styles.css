@@ -337,9 +337,13 @@ section {
 .share-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
+  width: 132px;
+  height: 44px;
   min-height: 44px;
-  padding: 10px 18px;
+  padding: 8px 14px;
+  box-sizing: border-box;
   border-radius: 999px;
   border: 2px solid var(--kraft-deep);
   background: var(--paper);
@@ -360,6 +364,28 @@ section {
 .share-chip img {
   width: 16px;
   height: 16px;
+  flex: 0 0 16px;
+}
+
+.share-chip:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
+.share-count {
+  display: inline-flex;
+  min-width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--navy);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .hero-market-block {
@@ -371,7 +397,6 @@ section {
 
 .market-share-chip {
   justify-self: start;
-  margin-bottom: 4px;
   background: rgba(255, 255, 255, 0.92);
 }
 
@@ -4871,4 +4896,45 @@ body.admin-mode .admin-photo-overlay {
   .market-live-banner {
     forced-color-adjust: auto;
   }
+}
+
+/* Share controls use one geometry contract in both landing cards. Keeping
+   their inset and dimensions shared prevents breakpoint-specific drift. */
+.hero-inner {
+  --share-card-inset: clamp(20px, 3vw, 30px);
+}
+
+.hero-sign,
+.hero-market-block,
+.hero-market-status {
+  width: 100%;
+}
+
+.hero-market-status {
+  max-width: none;
+}
+
+.hero-sign,
+.hero-market-status {
+  position: relative;
+}
+
+.hero-sign {
+  padding-top: calc(var(--share-card-inset) + 72px);
+}
+
+.hero-market-status {
+  padding-top: calc(var(--share-card-inset) + 68px);
+}
+
+.card-actions,
+.market-share-chip {
+  position: absolute;
+  top: var(--share-card-inset);
+  left: var(--share-card-inset);
+  margin: 0;
+}
+
+.card-actions {
+  z-index: 1;
 }

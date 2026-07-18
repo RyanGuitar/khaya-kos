@@ -87,14 +87,14 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
   assert.match(responsiveContract, /body\.admin-mode \.admin-photo-overlay\s*\{[^}]*align-items:\s*center[^}]*justify-content:\s*flex-end/s);
   assert.match(notFoundHtml, /viewport-fit=cover/);
   assert.doesNotMatch(notFoundHtml, /user-scalable=no|maximum-scale/);
-  assert.match(notFoundHtml, /styles\.css\?v=3\.21/);
-  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.21"/);
+  assert.match(notFoundHtml, /styles\.css\?v=3\.22/);
+  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.22"/);
   assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
 });
 
 test("browser code and styles use the current cache-busted release and revalidate", () => {
-  assert.match(indexHtml, /href="styles\.css\?v=3\.21"/);
-  assert.match(indexHtml, /src="js\/main\.js\?v=3\.21"/);
+  assert.match(indexHtml, /href="styles\.css\?v=3\.22"/);
+  assert.match(indexHtml, /src="js\/main\.js\?v=3\.22"/);
   assert.match(serverSource, /\["\.css", "\.js"\]\.includes\(path\.extname\(filePath\)\)/);
   assert.match(serverSource, /Cache-Control", "public, max-age=0, must-revalidate"/);
 });
@@ -360,6 +360,8 @@ test("the hero card carries a site share button, hidden in owner edit mode via t
   assert.match(indexHtml, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/"/);
   assert.match(indexHtml, /data-share-title="Khaya Kos \| Fresh Food Made to Order — Pearly Beach"/);
   assert.match(indexHtml, /data-share-text="[^"]*real time[^"]*"/);
+  assert.match(indexHtml, /data-share-target="site"[^>]*data-share-label="Share Khaya Kos"/);
+  assert.match(indexHtml, /class="share-count" aria-hidden="true">0<\/span>/);
   assert.match(stylesSource, /\.card-actions\s*\{[^}]*justify-content:\s*flex-start/s);
   assert.match(stylesSource, /body\.admin-mode \.hero,/);
 });
@@ -370,15 +372,35 @@ test("the market share button sits inside the market status card and aligns left
   const statusEnd = heroSection.indexOf("</div>", statusStart);
   const statusCard = heroSection.slice(statusStart, statusEnd);
   assert.match(statusCard, /class="share-chip market-share-chip"/);
+  assert.match(statusCard, /data-share-target="market"/);
   assert.match(statusCard, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/#market"/);
   assert.ok(statusCard.indexOf("market-share-chip") < statusCard.indexOf("status-kicker"));
   assert.match(stylesSource, /\.market-share-chip\s*\{[^}]*justify-self:\s*start/s);
 });
 
-test("the share module tries navigator.share first and falls back to copying the link", () => {
-  assert.match(shareSource, /if \(navigator\.share\)/);
-  assert.match(shareSource, /navigator\.share\(\{ url: shareUrl, title: shareTitle, text: shareText \}\)/);
-  assert.match(shareSource, /err\?\.name !== "AbortError"/);
+test("both share controls use identical geometry, card insets, and card widths", () => {
+  assert.match(stylesSource, /\.share-chip\s*\{[^}]*width:\s*132px[^}]*height:\s*44px[^}]*padding:\s*8px 14px/s);
+  assert.match(stylesSource, /--share-card-inset:\s*clamp\(20px, 3vw, 30px\)/);
+  assert.match(stylesSource, /\.card-actions,\s*\.market-share-chip\s*\{[^}]*top:\s*var\(--share-card-inset\)[^}]*left:\s*var\(--share-card-inset\)/s);
+  assert.match(stylesSource, /\.hero-sign,\s*\.hero-market-block,\s*\.hero-market-status\s*\{[^}]*width:\s*100%/s);
+  assert.match(stylesSource, /\.hero-market-status\s*\{[^}]*max-width:\s*none/s);
+});
+
+test("successful shares persist and broadcast an authoritative live count", () => {
+  assert.deepEqual(seedState.shareCounts, { site: 0, market: 0 });
+  assert.match(serverSource, /case "share-record"/);
+  assert.match(serverSource, /SHARE_TARGETS\.has\(data\.target\)/);
+  assert.match(serverSource, /state\.shareCounts\[data\.target\] \+= 1/);
+  assert.match(serverSource, /broadcast\(\{ type: "share-count", target: data\.target, count: state\.shareCounts\[data\.target\] \}\)/);
+  assert.match(syncSource, /recordShare\(target\)/);
+  assert.match(shareSource, /sync\.on\("share-count"/);
+  assert.match(shareSource, /Thank you for sharing the love!/);
+});
+
+test("the share module uses the native sheet first and falls back to copying the link", () => {
+  assert.match(shareSource, /typeof navigator\.share === "function"/);
+  assert.match(shareSource, /error\?\.name === "AbortError"/);
   assert.match(shareSource, /navigator\.clipboard\.writeText\(url\)/);
+  assert.match(shareSource, /sync\.recordShare\(shareTarget\)/);
   assert.match(shareSource, /export function initShareButtons\(\)/);
 });

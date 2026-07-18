@@ -5,12 +5,12 @@
    Loaded via <script type="module" src="js/main.js">.
    ===================================================== */
 
-import { initNavScroll } from './modules/nav.js?v=3.21';
-import { initMobileMenu } from './modules/mobileMenu.js?v=3.21';
+import { initNavScroll } from './modules/nav.js?v=3.22';
+import { initMobileMenu } from './modules/mobileMenu.js?v=3.22';
 import { initScrollReveal } from './modules/scrollReveal.js';
 import { initLazyMap } from './modules/lazyMap.js';
-import { initShareButtons } from './modules/share.js?v=3.21';
-import { engine } from './admin/engine.js?v=3.21';
+import { initShareButtons } from './modules/share.js?v=3.22';
+import { engine } from './admin/engine.js?v=3.22';
 
 function init() {
   initNavScroll();

@@ -40,6 +40,9 @@ const REDIS_KEY = "khaya-kos:products";
 // visitor would ever notice it, tight enough to stop a scripted spam loop.
 const LIKE_RATE_LIMIT = 10;
 const LIKE_RATE_WINDOW_MS = 5000;
+const SHARE_TARGETS = new Set(["site", "market"]);
+const SHARE_RATE_LIMIT = 6;
+const SHARE_RATE_WINDOW_MS = 60000;
 
 if (!REDIS_URL || !REDIS_TOKEN) {
   console.warn(
@@ -122,6 +125,25 @@ function backfillMissingCategorySettings(seed) {
   if (changed) persistState();
 }
 
+// Share counts were added after the original persisted product schema. Keep
+// existing Redis data compatible and sanitize any malformed legacy values.
+function ensureShareCounts() {
+  let changed = false;
+  if (!state.shareCounts || typeof state.shareCounts !== "object" || Array.isArray(state.shareCounts)) {
+    state.shareCounts = {};
+    changed = true;
+  }
+  for (const target of SHARE_TARGETS) {
+    const value = Number(state.shareCounts[target]);
+    const normalized = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+    if (state.shareCounts[target] !== normalized) {
+      state.shareCounts[target] = normalized;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
 // Menu headings are fixed visitor copy rather than owner-editable content.
 // Refresh only this fixed category from the seed so legacy wording stored in
 // Redis cannot reappear; optional section names remain entirely owner-managed.
@@ -149,6 +171,7 @@ async function loadState() {
       if (stored) {
         state = JSON.parse(stored);
         console.log("✅ Loaded product state from Upstash Redis");
+        if (ensureShareCounts()) persistState();
         backfillMissingCategories(seed);
         backfillMissingCategorySettings(seed);
         syncFixedMenuCopy(seed);
@@ -162,6 +185,7 @@ async function loadState() {
   }
 
   state = seed;
+  ensureShareCounts();
   consolidateOptionalSections();
   // If Redis is configured but was empty, seed it immediately so it's
   // the source of truth from the very first request onward.
@@ -472,6 +496,26 @@ wss.on("connection", (ws) => {
         item.likes = Math.max(0, (item.likes || 0) + (delta === -1 ? -1 : 1));
         persistState();
         broadcast({ type: "product-update", categoryId, itemId, field: "likes", value: item.likes }, ws);
+        break;
+      }
+
+      // Successful shares are public interactions, like likes. The client
+      // sends this only after the native share promise resolves or the link
+      // is copied. The server performs the authoritative increment and sends
+      // the new value to every connected visitor, including the sharer.
+      case "share-record": {
+        if (!SHARE_TARGETS.has(data.target)) return;
+
+        const now = Date.now();
+        if (!ws.shareTimestamps) ws.shareTimestamps = [];
+        ws.shareTimestamps = ws.shareTimestamps.filter((timestamp) => now - timestamp < SHARE_RATE_WINDOW_MS);
+        if (ws.shareTimestamps.length >= SHARE_RATE_LIMIT) return;
+        ws.shareTimestamps.push(now);
+
+        ensureShareCounts();
+        state.shareCounts[data.target] += 1;
+        persistState();
+        broadcast({ type: "share-count", target: data.target, count: state.shareCounts[data.target] });
         break;
       }
 

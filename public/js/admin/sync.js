@@ -14,10 +14,12 @@ class Sync {
     this.isAdmin = false;
     this.reconnectDelay = BASE_RECONNECT_DELAY;
     this.reconnectTimer = null;
+    this.pendingShares = [];
   }
 
   on(type, handler) {
-    this.handlers[type] = handler;
+    if (!this.handlers[type]) this.handlers[type] = new Set();
+    this.handlers[type].add(handler);
   }
 
   connect() {
@@ -47,6 +49,7 @@ class Sync {
       if (storedPassword) {
         this.sendAuth(storedPassword);
       }
+      this.pendingShares.splice(0).forEach((payload) => this.send(payload));
     };
 
     this.socket.onmessage = (event) => {
@@ -56,8 +59,8 @@ class Sync {
       } catch {
         return;
       }
-      const handler = this.handlers[data.type];
-      if (handler) handler(data);
+      const handlers = this.handlers[data.type];
+      if (handlers) handlers.forEach((handler) => handler(data));
     };
 
     this.socket.onclose = () => {
@@ -116,6 +119,16 @@ class Sync {
 
   likeProduct(categoryId, itemId, delta) {
     this.send({ type: "product-like", categoryId, itemId, delta });
+  }
+
+  recordShare(target) {
+    const payload = { type: "share-record", target };
+    if (this.send(payload)) return true;
+    // A successful operating-system share can finish while a mobile network
+    // is reconnecting. Keep a small bounded queue so that real share is not
+    // lost merely because the socket was briefly unavailable.
+    if (this.pendingShares.length < 20) this.pendingShares.push(payload);
+    return false;
   }
 }
 

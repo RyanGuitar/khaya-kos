@@ -1,8 +1,8 @@
 // js/admin/engine.js
-import { store } from "./store.js?v=3.21";
-import { sync } from "./sync.js?v=3.21";
-import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.21";
-import { createImageCropper } from "./imageCropper.js?v=3.21";
+import { store } from "./store.js?v=3.22";
+import { sync } from "./sync.js?v=3.22";
+import { renderAll, renderCategory, patchCard, patchLikeCount, patchStock, renderMarketSection } from "./renderer.js?v=3.22";
+import { createImageCropper } from "./imageCropper.js?v=3.22";
 import { createStockBatcher, normalizeStock } from "./stockLogic.js";
 import { initMarketHashGuard } from "./marketRoute.js";
 
