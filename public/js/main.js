@@ -9,7 +9,7 @@ import { initNavScroll } from './modules/nav.js?v=3.23';
 import { initMobileMenu } from './modules/mobileMenu.js?v=3.23';
 import { initScrollReveal } from './modules/scrollReveal.js';
 import { initLazyMap } from './modules/lazyMap.js';
-import { initShareButtons } from './modules/share.js?v=3.23';
+import { initShareButtons } from './modules/share.js?v=3.24';
 import { engine } from './admin/engine.js?v=3.23';
 
 function init() {

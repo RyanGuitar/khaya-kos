@@ -97,7 +97,7 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
 
 test("browser code and styles use the current cache-busted release and revalidate", () => {
   assert.match(indexHtml, /href="styles\.css\?v=3\.23"/);
-  assert.match(indexHtml, /src="js\/main\.js\?v=3\.23"/);
+  assert.match(indexHtml, /src="js\/main\.js\?v=3\.24"/);
   assert.match(serverSource, /\["\.css", "\.js"\]\.includes\(path\.extname\(filePath\)\)/);
   assert.match(serverSource, /Cache-Control", "public, max-age=0, must-revalidate"/);
 });
@@ -361,8 +361,7 @@ test("the hero card carries a site share button, hidden in owner edit mode via t
   assert.doesNotMatch(stylesSource, /\.nav-share-btn|\.nav-actions/);
   assert.match(indexHtml, /class="share-chip" aria-label="Share Khaya Kos"/);
   assert.match(indexHtml, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/"/);
-  assert.match(indexHtml, /data-share-title="Khaya Kos — Cakes &amp; Homemade Food Made to Order"/);
-  assert.match(indexHtml, /data-share-text="[^"]*homemade cakes[^"]*cooked meals[^"]*"/);
+  assert.doesNotMatch(indexHtml, /data-share-title|data-share-text/);
   assert.match(indexHtml, /data-share-target="site"[^>]*data-share-label="Share Khaya Kos"/);
   assert.match(indexHtml, /class="share-count" aria-hidden="true">SITE_SHARE_COUNT_PLACEHOLDER<\/span>/);
   assert.match(stylesSource, /\.card-actions\s*\{[^}]*justify-content:\s*flex-start/s);
@@ -377,8 +376,6 @@ test("the market share button sits inside the market status card and aligns left
   assert.match(statusCard, /class="share-chip market-share-chip"/);
   assert.match(statusCard, /data-share-target="market"/);
   assert.match(statusCard, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/market"/);
-  assert.match(statusCard, /data-share-title="Khaya Kos Saturday Market — Live Stock at Gazebo Valley"/);
-  assert.match(statusCard, /data-share-text="[^"]*Gazebo Valley this Saturday[^"]*market stock live[^"]*"/);
   assert.ok(statusCard.indexOf("market-share-chip") < statusCard.indexOf("status-kicker"));
   assert.match(stylesSource, /\.market-share-chip\s*\{[^}]*justify-self:\s*start/s);
 });
@@ -432,6 +429,8 @@ test("the share module uses the native sheet first and falls back to copying the
   assert.match(shareSource, /typeof navigator\.share === "function"/);
   assert.match(shareSource, /error\?\.name === "AbortError"/);
   assert.match(shareSource, /navigator\.clipboard\.writeText\(url\)/);
+  assert.match(shareSource, /performShare\(\s*\{ url: shareUrl \}/s);
+  assert.doesNotMatch(shareSource, /shareTitle|shareText/);
   assert.match(shareSource, /sync\.recordShare\(shareTarget\)/);
   assert.match(shareSource, /export function initShareButtons\(\)/);
 });

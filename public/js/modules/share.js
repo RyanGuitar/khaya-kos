@@ -70,12 +70,12 @@ export async function performShare(payload, { share, copy }) {
 }
 
 async function handleShareClick(button) {
-  const { shareUrl, shareTitle, shareText, shareTarget } = button.dataset;
+  const { shareUrl, shareTarget } = button.dataset;
   if (!shareUrl || !SHARE_TARGETS.has(shareTarget) || button.disabled) return;
 
   button.disabled = true;
   const result = await performShare(
-    { url: shareUrl, title: shareTitle, text: shareText },
+    { url: shareUrl },
     {
       share: typeof navigator.share === "function" ? navigator.share.bind(navigator) : null,
       copy: (url) => navigator.clipboard.writeText(url),
