@@ -7,7 +7,7 @@
 
   <title>Khaya Kos | Fresh Food Made to Order — Pearly Beach</title>
   <meta name="description"
-    content="Freshly made muffins, pies, samosas, scones, vetkoek and more, available to order all week in Pearly Beach. Visit the Khaya Kos stall at Gazebo Valley on Saturdays.">
+    content="Freshly made muffins, pies, samosas, scones, vetkoek and more, available to order all week in Pearly Beach. The menu and live Saturday market stock update in real time, so you always see what's actually available.">
   <meta name="keywords"
     content="Khaya Kos, homemade food Pearly Beach, Saturday market Gazebo Valley, muffins Gansbaai, vetkoek Pearly Beach, samosas Western Cape, local market stall">
   <meta name="robots" content="index, follow">
@@ -17,11 +17,13 @@
   <meta property="og:site_name" content="Khaya Kos">
   <meta property="og:title" content="Khaya Kos | Fresh Food Made to Order — Pearly Beach">
   <meta property="og:description"
-    content="Freshly made favourites available to order all week, plus the Khaya Kos Saturday stall at Gazebo Valley.">
+    content="Freshly made favourites available to order all week in Pearly Beach — the menu and live market stock update in real time, so you always know what's available.">
   <meta property="og:locale" content="en_ZA">
-  <!-- TODO Ryan: if you move to a custom domain, update this absolute URL —
-       most link-preview crawlers (WhatsApp, Facebook, iMessage) require an
-       absolute image URL and won't reliably resolve a relative one. -->
+  <!-- TODO Ryan: if you move to a custom domain, update this and every other
+       absolute khaya-kos.onrender.com URL below (og:image, og:url, the
+       share-button data-share-url attributes) — link-preview crawlers
+       (WhatsApp, Facebook, iMessage) require absolute URLs. -->
+  <meta property="og:url" content="https://khaya-kos.onrender.com/">
   <meta property="og:image" content="https://khaya-kos.onrender.com/images/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -29,7 +31,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Khaya Kos | Fresh Food Made to Order">
   <meta name="twitter:description"
-    content="Freshly made favourites available to order all week in Pearly Beach, with a Saturday stall at Gazebo Valley.">
+    content="Freshly made favourites, available to order all week — the menu and live market stock update in real time.">
   <meta name="twitter:image" content="https://khaya-kos.onrender.com/images/og-image.jpg">
 
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
@@ -101,23 +103,32 @@
 
     <button type="button" class="owner-exit-btn" id="owner-exit-btn" hidden>Exit edit mode</button>
 
-    <button type="button" class="menu-toggle" id="mobile-menu" aria-label="Open navigation"
-      aria-expanded="false" aria-controls="nav-list">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
+    <div class="nav-actions">
+      <button type="button" class="nav-share-btn" id="nav-share-btn" aria-label="Share Khaya Kos"
+        data-share-url="https://khaya-kos.onrender.com/"
+        data-share-title="Khaya Kos | Fresh Food Made to Order — Pearly Beach"
+        data-share-text="Khaya Kos — fresh muffins, pies, samosas and more, made to order. The menu and live market stock update in real time, so you always see what's actually available.">
+        <img src="images/share.svg" alt="" width="22" height="22">
+      </button>
 
-    <div class="nav-links" id="nav-list">
-      <a href="#market" id="market-nav-link" hidden>
-        <span class="nav-live-dot" aria-hidden="true"></span>
-        <span>Live at the Market</span>
-      </a>
-      <a href="#menu">Menu</a>
-      <a href="#extras" id="extras-nav-link" hidden>Also at the Stall</a>
-      <a href="#find-us">Find Us</a>
-      <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
-        class="btn-book-nav" target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
+      <button type="button" class="menu-toggle" id="mobile-menu" aria-label="Open navigation"
+        aria-expanded="false" aria-controls="nav-list">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+
+      <div class="nav-links" id="nav-list">
+        <a href="#market" id="market-nav-link" hidden>
+          <span class="nav-live-dot" aria-hidden="true"></span>
+          <span>Live at the Market</span>
+        </a>
+        <a href="#menu">Menu</a>
+        <a href="#extras" id="extras-nav-link" hidden>Also at the Stall</a>
+        <a href="#find-us">Find Us</a>
+        <a href="https://wa.me/27726785972?text=Hi%20Khaya%20Kos!%20I'd%20like%20to%20place%20an%20order."
+          class="btn-book-nav" target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
+      </div>
     </div>
   </nav>
 

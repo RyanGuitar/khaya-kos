@@ -328,6 +328,38 @@ section {
   box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4) !important;
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  margin-left: 4px;
+  border-radius: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+
+.nav-share-btn:hover {
+  background: var(--kraft);
+}
+
+.nav-share-btn img {
+  width: 22px;
+  height: 22px;
+}
+
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -2601,6 +2633,7 @@ body.admin-mode .hero,
 body.admin-mode .map-section,
 body.admin-mode footer,
 body.admin-mode .whatsapp-float,
+body.admin-mode .nav-share-btn,
 body.admin-mode .menu-toggle,
 body.admin-mode .nav-links,
 body.admin-mode .nav-backdrop,

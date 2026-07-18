@@ -12,6 +12,7 @@ const syncSource = await readFile(new URL("../public/js/admin/sync.js", import.m
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 const stylesSource = await readFile(new URL("../public/styles.css", import.meta.url), "utf8");
 const mobileMenuSource = await readFile(new URL("../public/js/modules/mobileMenu.js", import.meta.url), "utf8");
+const shareSource = await readFile(new URL("../public/js/modules/share.js", import.meta.url), "utf8");
 const responsiveContract = stylesSource.slice(stylesSource.indexOf("RESPONSIVE CONTRACT"));
 const seedState = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
 
@@ -333,4 +334,20 @@ test("the market opening scrolls connected visitors to it, unless a modal is ope
     engineSource,
     /if \(msg\.isOpen\) \{\s*celebrateMarketOpen\(\);\s*scrollToLiveMarket\(\);\s*\}/
   );
+});
+
+test("the header carries a share button with real share-sheet data, hidden in owner edit mode", () => {
+  assert.match(indexHtml, /id="nav-share-btn"/);
+  assert.match(indexHtml, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/"/);
+  assert.match(indexHtml, /data-share-title="Khaya Kos \| Fresh Food Made to Order — Pearly Beach"/);
+  assert.match(indexHtml, /data-share-text="[^"]*real time[^"]*"/);
+  assert.match(stylesSource, /body\.admin-mode \.nav-share-btn/);
+});
+
+test("the share module tries navigator.share first and falls back to copying the link", () => {
+  assert.match(shareSource, /if \(navigator\.share\)/);
+  assert.match(shareSource, /navigator\.share\(\{ url: shareUrl, title: shareTitle, text: shareText \}\)/);
+  assert.match(shareSource, /err\?\.name !== "AbortError"/);
+  assert.match(shareSource, /navigator\.clipboard\.writeText\(url\)/);
+  assert.match(shareSource, /export function initShareButtons\(\)/);
 });
