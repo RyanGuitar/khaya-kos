@@ -361,7 +361,7 @@ test("the hero card carries a site share button, hidden in owner edit mode via t
   assert.match(indexHtml, /data-share-title="Khaya Kos \| Fresh Food Made to Order — Pearly Beach"/);
   assert.match(indexHtml, /data-share-text="[^"]*real time[^"]*"/);
   assert.match(indexHtml, /data-share-target="site"[^>]*data-share-label="Share Khaya Kos"/);
-  assert.match(indexHtml, /class="share-count" aria-hidden="true">0<\/span>/);
+  assert.match(indexHtml, /class="share-count" aria-hidden="true">SITE_SHARE_COUNT_PLACEHOLDER<\/span>/);
   assert.match(stylesSource, /\.card-actions\s*\{[^}]*justify-content:\s*flex-start/s);
   assert.match(stylesSource, /body\.admin-mode \.hero,/);
 });
@@ -395,6 +395,14 @@ test("successful shares persist and broadcast an authoritative live count", () =
   assert.match(syncSource, /recordShare\(target\)/);
   assert.match(shareSource, /sync\.on\("share-count"/);
   assert.match(shareSource, /Thank you for sharing the love!/);
+});
+
+test("the first paint contains authoritative share counts without a counter flash", () => {
+  assert.match(indexHtml, />SITE_SHARE_COUNT_PLACEHOLDER<\/span>/);
+  assert.match(indexHtml, />MARKET_SHARE_COUNT_PLACEHOLDER<\/span>/);
+  assert.match(serverSource, /replace\("SITE_SHARE_COUNT_PLACEHOLDER", String\(state\.shareCounts\.site\)\)/);
+  assert.match(serverSource, /replace\("MARKET_SHARE_COUNT_PLACEHOLDER", String\(state\.shareCounts\.market\)\)/);
+  assert.match(serverSource, /res\.set\("Cache-Control", "no-store"\)/);
 });
 
 test("the share module uses the native sheet first and falls back to copying the link", () => {

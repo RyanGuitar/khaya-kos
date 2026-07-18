@@ -272,11 +272,19 @@ const wss = new WebSocketServer({ server });
 async function renderIndex(req, res) {
   try {
     const template = await fs.readFile(INDEX_TEMPLATE, "utf-8");
-    const html = template.replace(
-      "INITIAL_STATE_PLACEHOLDER",
-      JSON.stringify(state).replace(/</g, "\\u003c")
-    );
+    ensureShareCounts();
+    const html = template
+      .replace("SITE_SHARE_COUNT_PLACEHOLDER", String(state.shareCounts.site))
+      .replace("MARKET_SHARE_COUNT_PLACEHOLDER", String(state.shareCounts.market))
+      .replace(
+        "INITIAL_STATE_PLACEHOLDER",
+        JSON.stringify(state).replace(/</g, "\\u003c")
+      );
     res.set("Content-Type", "text/html");
+    // The page contains live state and server-rendered share counts. Never
+    // reuse an old HTML response; long-lived caching remains limited to the
+    // versioned static assets below.
+    res.set("Cache-Control", "no-store");
     res.send(html);
   } catch (err) {
     console.error("Failed to render index.html:", err.message);
