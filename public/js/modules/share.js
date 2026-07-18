@@ -5,7 +5,7 @@
    synchronized through the existing WebSocket transport.
    ===================================================== */
 
-import { sync } from "../admin/sync.js?v=3.22";
+import { sync } from "../admin/sync.js?v=3.23";
 
 const SHARE_TARGETS = new Set(["site", "market"]);
 const THANK_YOU_MESSAGE = "Thank you for sharing the love!";

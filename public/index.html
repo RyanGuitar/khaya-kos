@@ -5,9 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <title>Khaya Kos | Fresh Food Made to Order — Pearly Beach</title>
-  <meta name="description"
-    content="Freshly made muffins, pies, samosas, scones, vetkoek and more, available to order all week in Pearly Beach. The menu and live Saturday market stock update in real time, so you always see what's actually available.">
+  <title>PAGE_TITLE_PLACEHOLDER</title>
+  <meta name="description" content="PAGE_DESCRIPTION_PLACEHOLDER">
   <meta name="keywords"
     content="Khaya Kos, homemade food Pearly Beach, Saturday market Gazebo Valley, muffins Gansbaai, vetkoek Pearly Beach, samosas Western Cape, local market stall">
   <meta name="robots" content="index, follow">
@@ -15,24 +14,23 @@
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Khaya Kos">
-  <meta property="og:title" content="Khaya Kos | Fresh Food Made to Order — Pearly Beach">
-  <meta property="og:description"
-    content="Freshly made favourites available to order all week in Pearly Beach — the menu and live market stock update in real time, so you always know what's available.">
+  <meta property="og:title" content="PAGE_TITLE_PLACEHOLDER">
+  <meta property="og:description" content="PAGE_DESCRIPTION_PLACEHOLDER">
   <meta property="og:locale" content="en_ZA">
-  <!-- TODO Ryan: if you move to a custom domain, update this and every other
-       absolute khaya-kos.onrender.com URL below (og:image, og:url, the
-       share-button data-share-url attributes) — link-preview crawlers
-       (WhatsApp, Facebook, iMessage) require absolute URLs. -->
-  <meta property="og:url" content="https://khaya-kos.onrender.com/">
-  <meta property="og:image" content="https://khaya-kos.onrender.com/images/og-image.jpg">
+  <!-- Link-preview crawlers require absolute URLs and ignore #fragments, so
+       the server gives / and /market their own metadata and preview image. -->
+  <meta property="og:url" content="PAGE_URL_PLACEHOLDER">
+  <meta property="og:image" content="PAGE_IMAGE_PLACEHOLDER">
+  <meta property="og:image:alt" content="PAGE_IMAGE_ALT_PLACEHOLDER">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Khaya Kos | Fresh Food Made to Order">
-  <meta name="twitter:description"
-    content="Freshly made favourites, available to order all week — the menu and live market stock update in real time.">
-  <meta name="twitter:image" content="https://khaya-kos.onrender.com/images/og-image.jpg">
+  <meta name="twitter:title" content="PAGE_TITLE_PLACEHOLDER">
+  <meta name="twitter:description" content="PAGE_DESCRIPTION_PLACEHOLDER">
+  <meta name="twitter:image" content="PAGE_IMAGE_PLACEHOLDER">
+  <meta name="twitter:image:alt" content="PAGE_IMAGE_ALT_PLACEHOLDER">
+  <link rel="canonical" href="PAGE_URL_PLACEHOLDER">
 
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
@@ -69,7 +67,7 @@
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
   </noscript>
 
-  <link rel="stylesheet" href="styles.css?v=3.22">
+  <link rel="stylesheet" href="styles.css?v=3.23">
 
   <!--
     The server replaces this with the live product data before sending the
@@ -145,8 +143,8 @@
             <button type="button" class="share-chip" aria-label="Share Khaya Kos"
               data-share-target="site" data-share-label="Share Khaya Kos"
               data-share-url="https://khaya-kos.onrender.com/"
-              data-share-title="Khaya Kos | Fresh Food Made to Order — Pearly Beach"
-              data-share-text="Khaya Kos — fresh muffins, pies, samosas and more, made to order. The menu and live market stock update in real time, so you always see what's actually available.">
+              data-share-title="Khaya Kos — Cakes &amp; Homemade Food Made to Order"
+              data-share-text="Order homemade cakes, comforting cooked meals and freshly baked favourites from Khaya Kos in Pearly Beach.">
               <img src="images/share.svg" alt="" width="16" height="16">
               <span>Share</span>
               <span class="share-count" aria-hidden="true">SITE_SHARE_COUNT_PLACEHOLDER</span>
@@ -170,9 +168,9 @@
           <div id="hero-market-status" class="hero-market-status">
             <button type="button" class="share-chip market-share-chip" aria-label="Share the Saturday market"
               data-share-target="market" data-share-label="Share the Saturday market"
-              data-share-url="https://khaya-kos.onrender.com/#market"
-              data-share-title="Khaya Kos — Saturday Market at Gazebo Valley"
-              data-share-text="Live stock updates from our Saturday market stall at Gazebo Valley, Pearly Beach — check what's available in real time.">
+              data-share-url="https://khaya-kos.onrender.com/market"
+              data-share-title="Khaya Kos Saturday Market — Live Stock at Gazebo Valley"
+              data-share-text="See what Khaya Kos brought to Gazebo Valley this Saturday and follow the remaining market stock live.">
               <img src="images/share.svg" alt="" width="16" height="16">
               <span>Share</span>
               <span class="share-count" aria-hidden="true">MARKET_SHARE_COUNT_PLACEHOLDER</span>
@@ -351,7 +349,7 @@
   <div id="sold-toast-container" class="sold-toast-container" aria-live="polite"></div>
   <input type="file" id="admin-photo-input" accept="image/*" aria-label="Choose a new product photo" hidden>
 
-  <script type="module" src="js/main.js?v=3.22"></script>
+  <script type="module" src="js/main.js?v=3.23"></script>
 </body>
 
 </html>

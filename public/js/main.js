@@ -5,12 +5,12 @@
    Loaded via <script type="module" src="js/main.js">.
    ===================================================== */
 
-import { initNavScroll } from './modules/nav.js?v=3.22';
-import { initMobileMenu } from './modules/mobileMenu.js?v=3.22';
+import { initNavScroll } from './modules/nav.js?v=3.23';
+import { initMobileMenu } from './modules/mobileMenu.js?v=3.23';
 import { initScrollReveal } from './modules/scrollReveal.js';
 import { initLazyMap } from './modules/lazyMap.js';
-import { initShareButtons } from './modules/share.js?v=3.22';
-import { engine } from './admin/engine.js?v=3.22';
+import { initShareButtons } from './modules/share.js?v=3.23';
+import { engine } from './admin/engine.js?v=3.23';
 
 function init() {
   initNavScroll();
@@ -19,6 +19,12 @@ function init() {
   initShareButtons();
   engine.start();     // renders product cards into the DOM first...
   initScrollReveal(); // ...so the reveal observer has cards to watch
+
+  if (window.location.pathname === '/market') {
+    const market = window.__INITIAL_STATE__?.categories?.find((category) => category.id === 'market');
+    const target = document.getElementById(market?.isOpen ? 'market' : 'hero-market-status');
+    requestAnimationFrame(() => target?.scrollIntoView({ behavior: 'auto', block: 'start' }));
+  }
 }
 
 if (document.readyState === 'loading') {

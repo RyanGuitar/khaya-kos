@@ -12,6 +12,31 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
 const SEED_FILE = path.join(__dirname, "data", "products.json");
 const INDEX_TEMPLATE = path.join(PUBLIC_DIR, "index.html");
+const SITE_ORIGIN = "https://khaya-kos.onrender.com";
+const PAGE_METADATA = {
+  home: {
+    title: "Khaya Kos | Cakes & Homemade Food to Order",
+    description: "Order homemade cakes, comforting cooked meals and freshly baked favourites from Khaya Kos in Pearly Beach.",
+    url: `${SITE_ORIGIN}/`,
+    image: `${SITE_ORIGIN}/images/og-home.jpg?v=2`,
+    imageAlt: "Homemade chocolate and carrot cakes with comforting cooked dishes from Khaya Kos",
+  },
+  market: {
+    title: "Khaya Kos Saturday Market | Live Stock — Gazebo Valley",
+    description: "See what Khaya Kos brought to Gazebo Valley this Saturday and follow the remaining market stock live.",
+    url: `${SITE_ORIGIN}/market`,
+    image: `${SITE_ORIGIN}/images/og-market.jpg?v=2`,
+    imageAlt: "Fresh Khaya Kos muffins, pies, samosas, scones and vetkoek for the Saturday market",
+  },
+};
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
 
 // Set this in Render's environment variables (Settings -> Environment).
 // This fallback ONLY applies to local development — never rely on it in production.
@@ -273,7 +298,13 @@ async function renderIndex(req, res) {
   try {
     const template = await fs.readFile(INDEX_TEMPLATE, "utf-8");
     ensureShareCounts();
+    const metadata = req.path === "/market" ? PAGE_METADATA.market : PAGE_METADATA.home;
     const html = template
+      .replaceAll("PAGE_TITLE_PLACEHOLDER", escapeHtml(metadata.title))
+      .replaceAll("PAGE_DESCRIPTION_PLACEHOLDER", escapeHtml(metadata.description))
+      .replaceAll("PAGE_URL_PLACEHOLDER", escapeHtml(metadata.url))
+      .replaceAll("PAGE_IMAGE_PLACEHOLDER", escapeHtml(metadata.image))
+      .replaceAll("PAGE_IMAGE_ALT_PLACEHOLDER", escapeHtml(metadata.imageAlt))
       .replace("SITE_SHARE_COUNT_PLACEHOLDER", String(state.shareCounts.site))
       .replace("MARKET_SHARE_COUNT_PLACEHOLDER", String(state.shareCounts.market))
       .replace(
@@ -295,7 +326,7 @@ async function renderIndex(req, res) {
 // Both paths need the dynamic handler — express.static would otherwise
 // serve the raw, unprocessed template for anyone who lands on /index.html
 // directly (a bookmark, a shared link, or just typing the full URL).
-app.get(["/", "/index.html"], renderIndex);
+app.get(["/", "/index.html", "/market"], renderIndex);
 
 // index:false stops this from auto-serving public/index.html for "/" —
 // that route is handled above so the live state can be injected first.

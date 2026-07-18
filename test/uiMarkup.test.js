@@ -13,6 +13,9 @@ const serverSource = await readFile(new URL("../server.js", import.meta.url), "u
 const stylesSource = await readFile(new URL("../public/styles.css", import.meta.url), "utf8");
 const mobileMenuSource = await readFile(new URL("../public/js/modules/mobileMenu.js", import.meta.url), "utf8");
 const shareSource = await readFile(new URL("../public/js/modules/share.js", import.meta.url), "utf8");
+const mainSource = await readFile(new URL("../public/js/main.js", import.meta.url), "utf8");
+const homeOgImage = await readFile(new URL("../public/images/og-home.jpg", import.meta.url));
+const marketOgImage = await readFile(new URL("../public/images/og-market.jpg", import.meta.url));
 const responsiveContract = stylesSource.slice(stylesSource.indexOf("RESPONSIVE CONTRACT"));
 const seedState = JSON.parse(await readFile(new URL("../data/products.json", import.meta.url), "utf8"));
 
@@ -87,14 +90,14 @@ test("responsive edge cases cover display cutouts, short landscape, and the 404 
   assert.match(responsiveContract, /body\.admin-mode \.admin-photo-overlay\s*\{[^}]*align-items:\s*center[^}]*justify-content:\s*flex-end/s);
   assert.match(notFoundHtml, /viewport-fit=cover/);
   assert.doesNotMatch(notFoundHtml, /user-scalable=no|maximum-scale/);
-  assert.match(notFoundHtml, /styles\.css\?v=3\.22/);
-  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.22"/);
+  assert.match(notFoundHtml, /styles\.css\?v=3\.23/);
+  assert.match(notFoundHtml, /href="\/styles\.css\?v=3\.23"/);
   assert.match(notFoundHtml, /src="\/images\/favicon\.svg"/);
 });
 
 test("browser code and styles use the current cache-busted release and revalidate", () => {
-  assert.match(indexHtml, /href="styles\.css\?v=3\.22"/);
-  assert.match(indexHtml, /src="js\/main\.js\?v=3\.22"/);
+  assert.match(indexHtml, /href="styles\.css\?v=3\.23"/);
+  assert.match(indexHtml, /src="js\/main\.js\?v=3\.23"/);
   assert.match(serverSource, /\["\.css", "\.js"\]\.includes\(path\.extname\(filePath\)\)/);
   assert.match(serverSource, /Cache-Control", "public, max-age=0, must-revalidate"/);
 });
@@ -358,8 +361,8 @@ test("the hero card carries a site share button, hidden in owner edit mode via t
   assert.doesNotMatch(stylesSource, /\.nav-share-btn|\.nav-actions/);
   assert.match(indexHtml, /class="share-chip" aria-label="Share Khaya Kos"/);
   assert.match(indexHtml, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/"/);
-  assert.match(indexHtml, /data-share-title="Khaya Kos \| Fresh Food Made to Order — Pearly Beach"/);
-  assert.match(indexHtml, /data-share-text="[^"]*real time[^"]*"/);
+  assert.match(indexHtml, /data-share-title="Khaya Kos — Cakes &amp; Homemade Food Made to Order"/);
+  assert.match(indexHtml, /data-share-text="[^"]*homemade cakes[^"]*cooked meals[^"]*"/);
   assert.match(indexHtml, /data-share-target="site"[^>]*data-share-label="Share Khaya Kos"/);
   assert.match(indexHtml, /class="share-count" aria-hidden="true">SITE_SHARE_COUNT_PLACEHOLDER<\/span>/);
   assert.match(stylesSource, /\.card-actions\s*\{[^}]*justify-content:\s*flex-start/s);
@@ -373,7 +376,9 @@ test("the market share button sits inside the market status card and aligns left
   const statusCard = heroSection.slice(statusStart, statusEnd);
   assert.match(statusCard, /class="share-chip market-share-chip"/);
   assert.match(statusCard, /data-share-target="market"/);
-  assert.match(statusCard, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/#market"/);
+  assert.match(statusCard, /data-share-url="https:\/\/khaya-kos\.onrender\.com\/market"/);
+  assert.match(statusCard, /data-share-title="Khaya Kos Saturday Market — Live Stock at Gazebo Valley"/);
+  assert.match(statusCard, /data-share-text="[^"]*Gazebo Valley this Saturday[^"]*market stock live[^"]*"/);
   assert.ok(statusCard.indexOf("market-share-chip") < statusCard.indexOf("status-kicker"));
   assert.match(stylesSource, /\.market-share-chip\s*\{[^}]*justify-self:\s*start/s);
 });
@@ -403,6 +408,24 @@ test("the first paint contains authoritative share counts without a counter flas
   assert.match(serverSource, /replace\("SITE_SHARE_COUNT_PLACEHOLDER", String\(state\.shareCounts\.site\)\)/);
   assert.match(serverSource, /replace\("MARKET_SHARE_COUNT_PLACEHOLDER", String\(state\.shareCounts\.market\)\)/);
   assert.match(serverSource, /res\.set\("Cache-Control", "no-store"\)/);
+});
+
+test("homepage and market shares expose distinct crawlable metadata and images", () => {
+  assert.match(indexHtml, /property="og:title" content="PAGE_TITLE_PLACEHOLDER"/);
+  assert.match(indexHtml, /property="og:image" content="PAGE_IMAGE_PLACEHOLDER"/);
+  assert.match(indexHtml, /rel="canonical" href="PAGE_URL_PLACEHOLDER"/);
+  assert.match(serverSource, /home:\s*\{[\s\S]*url: `\$\{SITE_ORIGIN\}\/`[\s\S]*og-home\.jpg/);
+  assert.match(serverSource, /market:\s*\{[\s\S]*url: `\$\{SITE_ORIGIN\}\/market`[\s\S]*og-market\.jpg/);
+  assert.match(serverSource, /title: "Khaya Kos \| Cakes & Homemade Food to Order"/);
+  assert.match(serverSource, /title: "Khaya Kos Saturday Market \| Live Stock — Gazebo Valley"/);
+  assert.match(serverSource, /og-home\.jpg\?v=2/);
+  assert.match(serverSource, /og-market\.jpg\?v=2/);
+  assert.match(serverSource, /req\.path === "\/market" \? PAGE_METADATA\.market : PAGE_METADATA\.home/);
+  assert.match(serverSource, /app\.get\(\["\/", "\/index\.html", "\/market"\], renderIndex\)/);
+  assert.match(mainSource, /window\.location\.pathname === '\/market'/);
+  assert.ok(homeOgImage.length > 50_000);
+  assert.ok(marketOgImage.length > 50_000);
+  assert.notEqual(homeOgImage.length, marketOgImage.length);
 });
 
 test("the share module uses the native sheet first and falls back to copying the link", () => {
