@@ -6,6 +6,13 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { WebSocketServer } from "ws";
 import { applyStockDelta } from "./public/js/admin/stockLogic.js";
+import {
+  parseDataUrl,
+  hashImageContent,
+  buildImageUrl,
+  isValidImageHash,
+  imageRedisKey,
+} from "./lib/imageStore.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -239,6 +246,77 @@ function persistState() {
   });
 }
 
+/* =====================================================
+   IMAGE STORE — owner photos are stored once under a
+   content hash (Redis key khaya-kos:image:<hash>) instead
+   of inline in product state. State and broadcasts only
+   ever carry the small /uploads/<hash>.jpg URL. A small
+   in-memory cache avoids a Redis round trip for photos
+   this instance has already seen.
+   ===================================================== */
+const imageMemoryCache = new Map(); // hash -> base64
+const knownImageHashes = new Set(); // hashes confirmed persisted in Redis
+
+async function ensureImageStored(hash, base64) {
+  imageMemoryCache.set(hash, base64);
+  if (knownImageHashes.has(hash)) return;
+  if (REDIS_URL && REDIS_TOKEN) {
+    try {
+      await redisSet(imageRedisKey(hash), base64);
+    } catch (err) {
+      console.error(`❌ Failed to persist image ${hash} to Redis:`, err.message);
+      return; // leave it out of knownImageHashes so a later save can retry
+    }
+  }
+  knownImageHashes.add(hash);
+}
+
+// Converts a data URL to its stored /uploads/<hash>.jpg URL. Anything that
+// isn't a data URL (already a URL, a placeholder path, etc.) passes through
+// unchanged, so this is safe to call speculatively.
+async function convertImageToUrl(value) {
+  const parsed = parseDataUrl(value);
+  if (!parsed) return value;
+  const hash = hashImageContent(parsed.base64);
+  await ensureImageStored(hash, parsed.base64);
+  return buildImageUrl(hash);
+}
+
+async function loadImageBase64(hash) {
+  if (imageMemoryCache.has(hash)) return imageMemoryCache.get(hash);
+  if (!REDIS_URL || !REDIS_TOKEN) return null;
+  try {
+    const stored = await redisGet(imageRedisKey(hash));
+    if (stored) {
+      imageMemoryCache.set(hash, stored);
+      knownImageHashes.add(hash);
+    }
+    return stored;
+  } catch (err) {
+    console.error(`❌ Failed to load image ${hash} from Redis:`, err.message);
+    return null;
+  }
+}
+
+// Photos uploaded before this change are still raw base64 data URLs sitting
+// inline in saved state. Convert any that remain so every page load and
+// full-state broadcast stops re-sending their bytes.
+async function migrateInlineImages() {
+  let changed = false;
+  for (const category of state.categories) {
+    for (const item of category.items || []) {
+      if (typeof item.image === "string" && item.image.startsWith("data:")) {
+        item.image = await convertImageToUrl(item.image);
+        changed = true;
+      }
+    }
+  }
+  if (changed) {
+    console.log("✅ Migrated inline owner photo(s) to content-addressed image URLs");
+    await persistState();
+  }
+}
+
 function findCategory(categoryId) {
   return state.categories.find((c) => c.id === categoryId);
 }
@@ -292,7 +370,10 @@ function consolidateOptionalSections() {
    ===================================================== */
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+// perMessageDeflate compresses every WS frame (full-state, product-update,
+// etc.) in transit — free bandwidth savings on the JSON payloads, no new
+// dependency since it ships with the "ws" package.
+const wss = new WebSocketServer({ server, perMessageDeflate: true });
 
 async function renderIndex(req, res) {
   try {
@@ -339,6 +420,26 @@ app.get(["/", "/index.html", "/market"], renderIndex);
 // by this either way. CSS and JavaScript must revalidate: the HTML and its
 // behaviour/styles are deployed together, and serving a week-old script or
 // stylesheet with fresh markup can leave controls unstyled or inert.
+// Content-addressed owner photos. The hash IS the cache key: identical
+// bytes always produce the same URL and different bytes always produce a
+// new one, so this can be cached by every browser and CDN for a year with
+// zero risk of ever serving stale content under an unchanged URL.
+app.get("/uploads/:hash([a-f0-9]{32}).jpg", async (req, res) => {
+  const { hash } = req.params;
+  if (!isValidImageHash(hash)) {
+    res.status(404).end();
+    return;
+  }
+  const base64 = await loadImageBase64(hash);
+  if (!base64) {
+    res.status(404).end();
+    return;
+  }
+  res.set("Content-Type", "image/jpeg");
+  res.set("Cache-Control", "public, max-age=31536000, immutable");
+  res.send(Buffer.from(base64, "base64"));
+});
+
 app.use(express.static(PUBLIC_DIR, {
   index: false,
   maxAge: "7d",
@@ -386,7 +487,7 @@ wss.on("connection", (ws) => {
   // Every new visitor gets the current live state immediately.
   ws.send(JSON.stringify({ type: "full-state", data: state }));
 
-  ws.on("message", (raw) => {
+  ws.on("message", async (raw) => {
     let data;
     try {
       data = JSON.parse(raw);
@@ -414,7 +515,19 @@ wss.on("connection", (ws) => {
         if (!item || !allowedFields.includes(field)) return;
 
         moveExtrasToDraft(category, ws);
-        item[field] = field === "price" || field === "stock" ? Number(value) || 0 : value;
+        let nextValue;
+        if (field === "price" || field === "stock") {
+          nextValue = Number(value) || 0;
+        } else if (field === "image") {
+          // The owner's browser already compressed this to a 900x900 JPEG
+          // data URL. Store the bytes once under a content hash so state
+          // and every future broadcast carry only a small URL, not the
+          // photo itself.
+          nextValue = await convertImageToUrl(value);
+        } else {
+          nextValue = value;
+        }
+        item[field] = nextValue;
         persistState();
         broadcast({ type: "product-update", categoryId, itemId, field, value: item[field] }, ws);
         break;
@@ -603,8 +716,10 @@ const heartbeatTimer = setInterval(() => {
 wss.on("close", () => clearInterval(heartbeatTimer));
 
 const PORT = process.env.PORT || 10000;
-loadState().then(() => {
-  server.listen(PORT, () => {
-    console.log(`🚀 Khaya Kos server running on port ${PORT}`);
+loadState()
+  .then(() => migrateInlineImages())
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`🚀 Khaya Kos server running on port ${PORT}`);
+    });
   });
-});
