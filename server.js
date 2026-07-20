@@ -1,4 +1,5 @@
 import express from "express";
+import compression from "compression";
 import http from "http";
 import fs from "fs/promises";
 import path from "path";
@@ -23,17 +24,21 @@ const SITE_ORIGIN = "https://khaya-kos.onrender.com";
 const PAGE_METADATA = {
   home: {
     title: "Khaya Kos | Cakes & Homemade Food to Order",
-    description: "Order homemade cakes, comforting cooked meals and freshly baked favourites from Khaya Kos in Pearly Beach.",
+    description:
+      "Order homemade cakes, comforting cooked meals and freshly baked favourites from Khaya Kos in Pearly Beach.",
     url: `${SITE_ORIGIN}/`,
     image: `${SITE_ORIGIN}/images/og-home.jpg?v=2`,
-    imageAlt: "Homemade chocolate and carrot cakes with comforting cooked dishes from Khaya Kos",
+    imageAlt:
+      "Homemade chocolate and carrot cakes with comforting cooked dishes from Khaya Kos",
   },
   market: {
     title: "Khaya Kos Saturday Market | Live Stock — Gazebo Valley",
-    description: "See what Khaya Kos brought to Gazebo Valley this Saturday and follow the remaining market stock live.",
+    description:
+      "See what Khaya Kos brought to Gazebo Valley this Saturday and follow the remaining market stock live.",
     url: `${SITE_ORIGIN}/market`,
     image: `${SITE_ORIGIN}/images/og-market.jpg?v=2`,
-    imageAlt: "Fresh Khaya Kos muffins, pies, samosas, scones and vetkoek for the Saturday market",
+    imageAlt:
+      "Fresh Khaya Kos muffins, pies, samosas, scones and vetkoek for the Saturday market",
   },
 };
 
@@ -51,7 +56,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "khayakos-dev-2026";
 if (!process.env.ADMIN_PASSWORD) {
   console.warn(
     "⚠️  ADMIN_PASSWORD is not set — using the local dev fallback password. " +
-      "Set a real ADMIN_PASSWORD environment variable before deploying."
+      "Set a real ADMIN_PASSWORD environment variable before deploying.",
   );
 }
 
@@ -80,7 +85,7 @@ if (!REDIS_URL || !REDIS_TOKEN) {
   console.warn(
     "⚠️  UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set. " +
       "Falling back to the bundled seed file with NO persistence between restarts. " +
-      "See README.md to set up the free Upstash database."
+      "See README.md to set up the free Upstash database.",
   );
 }
 
@@ -128,9 +133,13 @@ async function loadSeed() {
 function backfillMissingCategories(seed) {
   let changed = false;
   for (const seedCategory of seed.categories) {
-    const alreadyExists = state.categories.some((c) => c.id === seedCategory.id);
+    const alreadyExists = state.categories.some(
+      (c) => c.id === seedCategory.id,
+    );
     if (!alreadyExists) {
-      console.log(`ℹ️  Adding new "${seedCategory.id}" category (present in seed, missing from saved state)`);
+      console.log(
+        `ℹ️  Adding new "${seedCategory.id}" category (present in seed, missing from saved state)`,
+      );
       state.categories.push(seedCategory);
       changed = true;
     }
@@ -144,11 +153,22 @@ function backfillMissingCategories(seed) {
 function backfillMissingCategorySettings(seed) {
   let changed = false;
   for (const seedCategory of seed.categories) {
-    const savedCategory = state.categories.find((category) => category.id === seedCategory.id);
+    const savedCategory = state.categories.find(
+      (category) => category.id === seedCategory.id,
+    );
     if (!savedCategory) continue;
 
-    for (const setting of ["isVisible", "kind", "eyebrow", "title", "subtitle"]) {
-      if (Object.hasOwn(seedCategory, setting) && !Object.hasOwn(savedCategory, setting)) {
+    for (const setting of [
+      "isVisible",
+      "kind",
+      "eyebrow",
+      "title",
+      "subtitle",
+    ]) {
+      if (
+        Object.hasOwn(seedCategory, setting) &&
+        !Object.hasOwn(savedCategory, setting)
+      ) {
         savedCategory[setting] = seedCategory[setting];
         changed = true;
       }
@@ -161,13 +181,19 @@ function backfillMissingCategorySettings(seed) {
 // existing Redis data compatible and sanitize any malformed legacy values.
 function ensureShareCounts() {
   let changed = false;
-  if (!state.shareCounts || typeof state.shareCounts !== "object" || Array.isArray(state.shareCounts)) {
+  if (
+    !state.shareCounts ||
+    typeof state.shareCounts !== "object" ||
+    Array.isArray(state.shareCounts)
+  ) {
     state.shareCounts = {};
     changed = true;
   }
   for (const target of SHARE_TARGETS) {
     const value = Number(state.shareCounts[target]);
-    const normalized = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+    const normalized = Number.isFinite(value)
+      ? Math.max(0, Math.floor(value))
+      : 0;
     if (state.shareCounts[target] !== normalized) {
       state.shareCounts[target] = normalized;
       changed = true;
@@ -210,9 +236,14 @@ async function loadState() {
         consolidateOptionalSections();
         return;
       }
-      console.log("ℹ️  No product state in Redis yet — seeding it from data/products.json");
+      console.log(
+        "ℹ️  No product state in Redis yet — seeding it from data/products.json",
+      );
     } catch (err) {
-      console.error("⚠️  Could not reach Upstash Redis, falling back to seed file:", err.message);
+      console.error(
+        "⚠️  Could not reach Upstash Redis, falling back to seed file:",
+        err.message,
+      );
     }
   }
 
@@ -239,7 +270,10 @@ function persistState() {
       try {
         await redisSet(REDIS_KEY, JSON.stringify(state));
       } catch (err) {
-        console.error("❌ Failed to persist product state to Redis:", err.message);
+        console.error(
+          "❌ Failed to persist product state to Redis:",
+          err.message,
+        );
       }
       resolve();
     }, 250);
@@ -264,7 +298,10 @@ async function ensureImageStored(hash, base64) {
     try {
       await redisSet(imageRedisKey(hash), base64);
     } catch (err) {
-      console.error(`❌ Failed to persist image ${hash} to Redis:`, err.message);
+      console.error(
+        `❌ Failed to persist image ${hash} to Redis:`,
+        err.message,
+      );
       return; // leave it out of knownImageHashes so a later save can retry
     }
   }
@@ -312,7 +349,9 @@ async function migrateInlineImages() {
     }
   }
   if (changed) {
-    console.log("✅ Migrated inline owner photo(s) to content-addressed image URLs");
+    console.log(
+      "✅ Migrated inline owner photo(s) to content-addressed image URLs",
+    );
     await persistState();
   }
 }
@@ -340,11 +379,13 @@ function consolidateOptionalSections() {
   if (!extras) return false;
 
   const additionalSections = state.categories.filter(
-    (category) => category.id !== "extras" && isOptionalCategory(category)
+    (category) => category.id !== "extras" && isOptionalCategory(category),
   );
   if (additionalSections.length === 0) return false;
 
-  const extrasItems = Array.isArray(extras.items) ? extras.items : (extras.items = []);
+  const extrasItems = Array.isArray(extras.items)
+    ? extras.items
+    : (extras.items = []);
   const itemIds = new Set(extrasItems.map((item) => item.id));
   for (const category of additionalSections) {
     for (const item of category.items || []) {
@@ -355,10 +396,12 @@ function consolidateOptionalSections() {
   }
 
   state.categories = state.categories.filter(
-    (category) => category.id === "extras" || !isOptionalCategory(category)
+    (category) => category.id === "extras" || !isOptionalCategory(category),
   );
   extras.isVisible = false;
-  console.log("ℹ️  Consolidated legacy optional sections into the hidden extras draft");
+  console.log(
+    "ℹ️  Consolidated legacy optional sections into the hidden extras draft",
+  );
   persistState();
   return true;
 }
@@ -370,6 +413,8 @@ function consolidateOptionalSections() {
    ===================================================== */
 const app = express();
 const server = http.createServer(app);
+app.use(compression());
+
 // perMessageDeflate compresses every WS frame (full-state, product-update,
 // etc.) in transit — free bandwidth savings on the JSON payloads, no new
 // dependency since it ships with the "ws" package.
@@ -379,18 +424,25 @@ async function renderIndex(req, res) {
   try {
     const template = await fs.readFile(INDEX_TEMPLATE, "utf-8");
     ensureShareCounts();
-    const metadata = req.path === "/market" ? PAGE_METADATA.market : PAGE_METADATA.home;
+    const metadata =
+      req.path === "/market" ? PAGE_METADATA.market : PAGE_METADATA.home;
     const html = template
       .replaceAll("PAGE_TITLE_PLACEHOLDER", escapeHtml(metadata.title))
-      .replaceAll("PAGE_DESCRIPTION_PLACEHOLDER", escapeHtml(metadata.description))
+      .replaceAll(
+        "PAGE_DESCRIPTION_PLACEHOLDER",
+        escapeHtml(metadata.description),
+      )
       .replaceAll("PAGE_URL_PLACEHOLDER", escapeHtml(metadata.url))
       .replaceAll("PAGE_IMAGE_PLACEHOLDER", escapeHtml(metadata.image))
       .replaceAll("PAGE_IMAGE_ALT_PLACEHOLDER", escapeHtml(metadata.imageAlt))
       .replace("SITE_SHARE_COUNT_PLACEHOLDER", String(state.shareCounts.site))
-      .replace("MARKET_SHARE_COUNT_PLACEHOLDER", String(state.shareCounts.market))
+      .replace(
+        "MARKET_SHARE_COUNT_PLACEHOLDER",
+        String(state.shareCounts.market),
+      )
       .replace(
         "INITIAL_STATE_PLACEHOLDER",
-        JSON.stringify(state).replace(/</g, "\\u003c")
+        JSON.stringify(state).replace(/</g, "\\u003c"),
       );
     res.set("Content-Type", "text/html");
     // The page contains live state and server-rendered share counts. Never
@@ -440,15 +492,17 @@ app.get("/uploads/:hash([a-f0-9]{32}).jpg", async (req, res) => {
   res.send(Buffer.from(base64, "base64"));
 });
 
-app.use(express.static(PUBLIC_DIR, {
-  index: false,
-  maxAge: "7d",
-  setHeaders(res, filePath) {
-    if ([".css", ".js"].includes(path.extname(filePath))) {
-      res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
-    }
-  }
-}));
+app.use(
+  express.static(PUBLIC_DIR, {
+    index: false,
+    maxAge: "7d",
+    setHeaders(res, filePath) {
+      if ([".css", ".js"].includes(path.extname(filePath))) {
+        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+      }
+    },
+  }),
+);
 
 // Catch-all: anything that didn't match a route or a static file gets the
 // branded 404 page instead of Express's raw default error text.
@@ -471,7 +525,10 @@ function broadcast(message, exclude = null) {
 function moveExtrasToDraft(category, exclude = null) {
   if (category?.id !== "extras" || category.isVisible === false) return false;
   category.isVisible = false;
-  broadcast({ type: "category-visibility", categoryId: "extras", isVisible: false }, exclude);
+  broadcast(
+    { type: "category-visibility", categoryId: "extras", isVisible: false },
+    exclude,
+  );
   return true;
 }
 
@@ -505,11 +562,20 @@ wss.on("connection", (ws) => {
 
       case "product-update": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const { categoryId, itemId, field, value } = data;
-        const allowedFields = ["name", "description", "price", "image", "ribbon", "stock"];
+        const allowedFields = [
+          "name",
+          "description",
+          "price",
+          "image",
+          "ribbon",
+          "stock",
+        ];
         const category = findCategory(categoryId);
         const item = findItem(categoryId, itemId);
         if (!item || !allowedFields.includes(field)) return;
@@ -529,7 +595,16 @@ wss.on("connection", (ws) => {
         }
         item[field] = nextValue;
         persistState();
-        broadcast({ type: "product-update", categoryId, itemId, field, value: item[field] }, ws);
+        broadcast(
+          {
+            type: "product-update",
+            categoryId,
+            itemId,
+            field,
+            value: item[field],
+          },
+          ws,
+        );
         break;
       }
 
@@ -538,7 +613,9 @@ wss.on("connection", (ws) => {
       // from a phone with a shaky connection can't drift out of sync.
       case "product-stock-delta": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const { categoryId, itemId, delta } = data;
@@ -547,7 +624,16 @@ wss.on("connection", (ws) => {
 
         item.stock = applyStockDelta(item.stock, delta);
         persistState();
-        broadcast({ type: "product-update", categoryId, itemId, field: "stock", value: item.stock }, ws);
+        broadcast(
+          {
+            type: "product-update",
+            categoryId,
+            itemId,
+            field: "stock",
+            value: item.stock,
+          },
+          ws,
+        );
         break;
       }
 
@@ -555,7 +641,9 @@ wss.on("connection", (ws) => {
       // category uses this, but it's written generically.
       case "category-toggle": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const category = findCategory(data.categoryId);
@@ -563,49 +651,79 @@ wss.on("connection", (ws) => {
 
         category.isOpen = !category.isOpen;
         persistState();
-        broadcast({ type: "category-toggle", categoryId: data.categoryId, isOpen: category.isOpen }, ws);
+        broadcast(
+          {
+            type: "category-toggle",
+            categoryId: data.categoryId,
+            isOpen: category.isOpen,
+          },
+          ws,
+        );
         break;
       }
 
       case "category-visibility": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const category = findCategory(data.categoryId);
-        if (category?.id !== "extras" || typeof data.isVisible !== "boolean") return;
+        if (category?.id !== "extras" || typeof data.isVisible !== "boolean")
+          return;
 
         category.isVisible = data.isVisible;
         persistState();
-        broadcast({
-          type: "category-visibility",
-          categoryId: category.id,
-          isVisible: category.isVisible,
-        }, ws);
+        broadcast(
+          {
+            type: "category-visibility",
+            categoryId: category.id,
+            isVisible: category.isVisible,
+          },
+          ws,
+        );
         break;
       }
 
       case "category-update": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const category = findCategory(data.categoryId);
         const limits = { eyebrow: 80, title: 80, subtitle: 320 };
-        if (category?.id !== "extras" || !Object.hasOwn(limits, data.field) || typeof data.value !== "string") return;
+        if (
+          category?.id !== "extras" ||
+          !Object.hasOwn(limits, data.field) ||
+          typeof data.value !== "string"
+        )
+          return;
         const value = data.value.trim().slice(0, limits[data.field]);
         if (!value) return;
 
         moveExtrasToDraft(category, ws);
         category[data.field] = value;
         persistState();
-        broadcast({ type: "category-update", categoryId: category.id, field: data.field, value }, ws);
+        broadcast(
+          {
+            type: "category-update",
+            categoryId: category.id,
+            field: data.field,
+            value,
+          },
+          ws,
+        );
         break;
       }
 
       case "product-add": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const category = findCategory(data.categoryId);
@@ -623,7 +741,11 @@ wss.on("connection", (ws) => {
         moveExtrasToDraft(category, ws);
         category.items.push(newItem);
         persistState();
-        broadcast({ type: "product-add", categoryId: data.categoryId, item: newItem });
+        broadcast({
+          type: "product-add",
+          categoryId: data.categoryId,
+          item: newItem,
+        });
         break;
       }
 
@@ -637,7 +759,9 @@ wss.on("connection", (ws) => {
         // hammering the socket directly.
         const now = Date.now();
         if (!ws.likeTimestamps) ws.likeTimestamps = [];
-        ws.likeTimestamps = ws.likeTimestamps.filter((t) => now - t < LIKE_RATE_WINDOW_MS);
+        ws.likeTimestamps = ws.likeTimestamps.filter(
+          (t) => now - t < LIKE_RATE_WINDOW_MS,
+        );
         if (ws.likeTimestamps.length >= LIKE_RATE_LIMIT) return;
         ws.likeTimestamps.push(now);
 
@@ -647,7 +771,16 @@ wss.on("connection", (ws) => {
 
         item.likes = Math.max(0, (item.likes || 0) + (delta === -1 ? -1 : 1));
         persistState();
-        broadcast({ type: "product-update", categoryId, itemId, field: "likes", value: item.likes }, ws);
+        broadcast(
+          {
+            type: "product-update",
+            categoryId,
+            itemId,
+            field: "likes",
+            value: item.likes,
+          },
+          ws,
+        );
         break;
       }
 
@@ -660,20 +793,28 @@ wss.on("connection", (ws) => {
 
         const now = Date.now();
         if (!ws.shareTimestamps) ws.shareTimestamps = [];
-        ws.shareTimestamps = ws.shareTimestamps.filter((timestamp) => now - timestamp < SHARE_RATE_WINDOW_MS);
+        ws.shareTimestamps = ws.shareTimestamps.filter(
+          (timestamp) => now - timestamp < SHARE_RATE_WINDOW_MS,
+        );
         if (ws.shareTimestamps.length >= SHARE_RATE_LIMIT) return;
         ws.shareTimestamps.push(now);
 
         ensureShareCounts();
         state.shareCounts[data.target] += 1;
         persistState();
-        broadcast({ type: "share-count", target: data.target, count: state.shareCounts[data.target] });
+        broadcast({
+          type: "share-count",
+          target: data.target,
+          count: state.shareCounts[data.target],
+        });
         break;
       }
 
       case "product-remove": {
         if (!ws.isAdmin) {
-          ws.send(JSON.stringify({ type: "error", message: "Not authorized." }));
+          ws.send(
+            JSON.stringify({ type: "error", message: "Not authorized." }),
+          );
           return;
         }
         const category = findCategory(data.categoryId);
@@ -682,7 +823,11 @@ wss.on("connection", (ws) => {
         moveExtrasToDraft(category, ws);
         category.items = category.items.filter((i) => i.id !== data.itemId);
         persistState();
-        broadcast({ type: "product-remove", categoryId: data.categoryId, itemId: data.itemId });
+        broadcast({
+          type: "product-remove",
+          categoryId: data.categoryId,
+          itemId: data.itemId,
+        });
         break;
       }
 
